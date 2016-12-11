@@ -1,0 +1,78 @@
+﻿@import "constants";
+@import "form";
+@import "icons";
+@import "layout";
+@import "map";
+@import "mixins";
+@import "side";
+@import "socials";
+@import "utils";
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-size: 14px;
+    .regular;
+    line-height: 1.5;
+    cursor: default;
+    overflow-y: scroll;
+}
+
+body, input {
+    font-family: 'Roboto', sans-serif;
+}
+
+label {
+    .regular;
+    cursor: pointer;
+}
+
+input[type="checkbox"] {
+    position: relative;
+    top: 2px;
+    cursor: pointer;
+}
+
+.container {
+    position: relative;
+    width: @layout-w;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0; // Анти-bootstrap
+
+    .tablet-screen({
+        width: @layout-w-tablet;
+    });
+}
+
+b {
+    .bold;
+}
+
+#header {
+    position: fixed;
+    top: 0;
+}
+
+a {
+    color: #999;
+    text-decoration: none;
+
+    &:hover, &:focus {
+        color: inherit;
+        text-decoration: underline;
+    }
+
+    &:focus {
+        outline: none;
+    }
+}
+
+.color1, .color1:hover { color: @color1; }
+.color2, .color2:hover { color: @color2; }
+.color3, .color3:hover { color: @color3; }
+.color4, .color4:hover { color: @color4; }
+.color5, .color5:hover { color: @color5; }

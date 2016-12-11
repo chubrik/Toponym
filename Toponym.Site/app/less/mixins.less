@@ -1,0 +1,48 @@
+﻿@import "constants";
+
+.regular() {
+    font-weight: 300;
+}
+
+.bold() {
+    font-weight: 500;
+}
+
+.placeholder(@rules) {
+    &::-webkit-input-placeholder {
+        @rules();
+    }
+
+    &::-moz-placeholder {
+        @rules();
+    }
+
+    &:-moz-placeholder {
+        @rules();
+    }
+
+    &:-ms-input-placeholder {
+        @rules();
+    }
+}
+
+.transition(@dutarion: 0.2s) {
+    -webkit-transition: @dutarion;
+    -moz-transition: @dutarion;
+    -o-transition: @dutarion;
+    transition: @dutarion;
+}
+
+.rotate(@angle) {
+    -webkit-transform: rotate(@angle);
+    -moz-transform: rotate(@angle);
+    -ms-transform: rotate(@angle);
+    -o-transform: rotate(@angle);
+    transform: rotate(@angle);
+}
+
+.tablet-screen(@rules) {
+    @media screen and (max-width: (@layout-w + 45px)), screen and (max-height: (@map-h + 30px)) {
+        @rules();
+    }
+}

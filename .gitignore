@@ -1,0 +1,9 @@
+.vs/
+bin/
+node_modules/
+obj/
+npm-debug.log
+project.lock.json
+Toponym.Site/app/dist/
+*.user
+*.suo

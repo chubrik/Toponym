@@ -1,0 +1,74 @@
+﻿@import "constants";
+@import "mixins";
+
+header {
+    position: fixed;
+    height: @header-h;
+    background-color: white;
+    padding-left: 5px;
+    margin-left: -5px;
+    z-index: 1;
+    
+    h1 {
+        margin: 15px 0;
+        font-size: 30px;
+        .regular;
+
+        a, a:hover {
+            color: #aaa;
+        }
+
+        a.disabled {
+            cursor: default;
+
+            &:hover .underline {
+                text-decoration: none;
+            }
+        }
+
+        img {
+            position: relative;
+            top: -3px;
+            margin: -12px 2px -12px -2px;
+        }
+    }
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    padding: 12px 5px;
+    margin-left: -5px;
+    color: #444;
+    background-color: white;
+
+    hr {
+        width: @side-w;
+        margin: 0 0 10px;
+        border-color: #eee;
+    }
+}
+
+#languages {
+    position: fixed;
+    text-align: right;
+    width: 150px;
+    top: 1em;
+    right: 50%;
+    font-size: 16px;
+    margin-right: -@layout-w / 2 - 7px;
+
+    .tablet-screen({
+        margin-right: -@layout-w-tablet / 2 - 7px;
+    });
+
+    span, a {
+        padding: 4px 6px;
+        border-radius: 4px;
+    }
+
+    span {
+        background-color: #e4e4e4;
+        color: #666;
+    }
+}

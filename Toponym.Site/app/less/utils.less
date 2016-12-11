@@ -1,0 +1,19 @@
+﻿.hover-area {
+    .hover {
+        opacity: 0;
+    }
+
+    &:hover .hover {
+        opacity: 1;
+    }
+}
+
+a.underline-area {
+    &:hover, &:focus {
+        text-decoration: none;
+
+        & .underline {
+            text-decoration: underline;
+        }
+    }
+}

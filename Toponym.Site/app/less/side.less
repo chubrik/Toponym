@@ -1,0 +1,183 @@
+﻿@import "constants";
+@import "mixins";
+
+#side {
+    min-height: 100%;
+    width: @side-w;
+    padding: 70px 0 110px;
+    .transition(0.7s);
+
+    > p.group-type-margin {
+        margin-top: 30px;
+    }
+
+    &.silented {
+        opacity: 0.35;
+    }
+
+    .group-type {        
+        background-color: white;
+        position: fixed;
+        top: @header-h;
+        width: @side-w + 5px;
+        padding: 0 0 10px 5px;
+        margin-left: -5px;
+        z-index: 1;
+    }
+    
+    label {
+        margin: 0 10px 0 0;
+    }
+
+    .tutorial {
+        margin-top: 3px;
+
+        p {
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .example {
+            display: inline-block;
+            font-size: 16px;
+            .bold;
+            padding: 2px 5px;
+            margin: -2px -5px 3px;
+            border-radius: 3px;
+        }
+
+        a:not(.example) {
+            text-decoration: underline;
+        }
+    }
+
+    .query {
+        margin: 5px 0;
+        font-size: 24px;
+        -ms-word-wrap: break-word;
+        word-wrap: break-word;
+        line-height: 1;
+    }
+
+    .item {
+        .transition;
+
+        span {
+            position: relative;
+            padding: 2px 5px;
+            margin: -2px -5px;
+
+            &:after {
+                position: absolute;
+                content: '';
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                border-radius: 3px;
+                opacity: 0;
+            }
+
+            &.title {
+                cursor: pointer;
+                .bold;
+            }
+
+            &.type-abbr {
+                margin-left: 0px;
+                font-size: 12px;
+                color: #999;
+            }
+        }
+
+        div {
+            height: 0;
+            overflow: hidden;
+            color: gray;
+            font-size: 12px;
+            line-height: 1.4;
+            .transition;
+        }
+
+        &.expanded {
+            padding-top: 10px;
+
+            div {
+                height: 47px;
+            }
+        }
+    }
+
+    &.color1, &.color1 a {
+        color: @textColor1;
+    }
+
+    &.color2, &.color2 a {
+        color: @textColor2;
+    }
+
+    &.color3, &.color3 a {
+        color: @textColor3;
+    }
+
+    &.color4, &.color4 a {
+        color: @textColor4;
+    }
+
+    &.color5, &.color5 a {
+        color: @textColor5;
+    }
+
+    &.color1 .example {
+        background-color: fade(@color1, 15%);
+    }
+
+    &.color2 .example {
+        background-color: fade(@color2, 15%);
+    }
+
+    &.color3 .example {
+        background-color: fade(@color3, 15%);
+    }
+
+    &.color4 .example {
+        background-color: fade(@color4, 15%);
+    }
+
+    &.color5 .example {
+        background-color: fade(@color5, 15%);
+    }
+
+    &.color1 .item span:after {
+        background-color: @color1;
+    }
+
+    &.color2 .item span:after {
+        background-color: @color2;
+    }
+
+    &.color3 .item span:after {
+        background-color: @color3;
+    }
+
+    &.color4 .item span:after {
+        background-color: @color4;
+    }
+
+    &.color5 .item span:after {
+        background-color: @color5;
+    }
+
+    .highlight:after {
+        -webkit-animation: sideHighlight 1s infinite linear;
+        -moz-animation: sideHighlight 1s infinite linear;
+        -o-animation: sideHighlight 1s infinite linear;
+        animation: sideHighlight 1s infinite linear;
+    }
+}
+
+@keyframes sideHighlight {
+    10% {
+        opacity: 0.5;
+    }
+}

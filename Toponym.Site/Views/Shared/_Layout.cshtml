@@ -1,0 +1,124 @@
+﻿@using Toponym.Core
+@using Toponym.Site.Extensions
+@using Toponym.Site.Helpers
+@using Toponym.Site.Models
+@{
+    const string fbAppId = "606010706223050";
+    var firstQuery = (string)ViewBag.FirstQuery;
+    //var firstType = (Group)ViewBag.FirstType;
+    var matchCount = (int)ViewBag.MatchCount;
+    var lang = (Language)ViewBag.Language;
+    var text = new Func<Language, string, string, string, string>(LangHelper.Text);
+
+    //var host = uri.Scheme + Uri.SchemeDelimiter + uri.Host + (uri.Port != 80 ? ":" + uri.Port : "");
+    var canonicalUrl = "http://toponim.by" + Context.Request.Path + Context.Request.QueryString;
+    var logoUrl = "http://toponim.by" + Url.Content("~/img/logo-big.png");
+
+    var titleBase = text(lang, "Карта топонимов Беларуси", "Карта тапонімаў Беларусі", "Toponyms map of Belarus");
+    var altTitleBase = text(lang, "Белорусские топонимы", "Беларускія тапонімы", "Belarusian toponyms");
+    var fullTitleBase = "Toponim.by — " + char.ToLowerInvariant(titleBase[0]) + titleBase.Substring(1);
+
+    var descriptionBase = text(lang, "Быстрый поиск по заданному шаблону с визуализацией распределённости топонимов на карте.",
+                               "Хуткі пошук па зададзеным шаблоне з візуалізацыяй размеркавання тапонімаў на карце.",
+                               "Quick search by specified pattern and the visualization of toponyms distribution on the map.");
+
+    var htmlTitle = fullTitleBase;
+    var pageTitle = titleBase;
+    var ogTitle = titleBase;
+    var twCardTitle = ogTitle;
+    var description = altTitleBase + ". " + descriptionBase;
+    var twDescription = descriptionBase;
+
+    if (matchCount > 0) {
+        var foundText = text(lang, LangHelper.RusCase(matchCount, new[] { "топоним", "топонима", "топонимов" }),
+                             LangHelper.RusCase(matchCount, new[] { "тапонім", "тапоніма", "тапонімаў" }),
+                             matchCount + (matchCount == 1 ? " toponym" : " toponyms")) + " \"" + firstQuery + "\"";
+
+        htmlTitle = text(lang, "Карта Беларуси", "Карта Беларусі", "Map of Belarus") + " — " + foundText;
+
+        ogTitle = text(lang, LangHelper.RusCase(matchCount, new[] { "Найден", "Найдено", "Найдено" }, includeNumber: false) + " " + foundText + " на карте Беларуси",
+                       LangHelper.RusCase(matchCount, new[] { "Знойдзены", "Знойдзена", "Знойдзена" }, includeNumber: false) + " " + foundText + " на карце Беларусі",
+                       "Found " + foundText + " on the map Belarus");
+
+        description = fullTitleBase + ". " + descriptionBase;
+    }
+}
+<!doctype html>
+<html lang="@text(lang, "ru", "be", "en")" ng-app="toponym" ng-strict-di>
+<head prefix="og: http://ogp.me/ns#">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,500|Material+Icons&subset=latin,cyrillic" rel="stylesheet">
+    <link href="/css/@(Utils.IsDebug() ? "toponym.dev.css" : "toponym.min.css")" rel="stylesheet">
+    <meta charset="utf-8">
+    <title>@htmlTitle</title>
+    <meta name="description" content="@description">
+    <link rel="canonical" href="@Html.Raw(canonicalUrl)">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <base href="@text(lang, "/", "/be/", "/en/")">
+    @*<meta name="viewport" content="width=device-width, initial-scale=1.0">*@
+    @if (!Context.Request.IsTwitterBot()) {
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="@ogTitle">
+        <meta property="og:description" content="@description">
+        <meta property="og:image" content="@logoUrl">
+        <meta property="og:url" content="@Html.Raw(canonicalUrl)">
+        <meta property="og:locale" content="@text(lang, "ru_RU", "be_BY", "en_US")">
+        <meta property="og:site_name" content="Toponim.by">
+    }
+    @if (Context.Request.IsFacebookBot()) {
+        <meta property="fb:app_id" content="@fbAppId">
+    }
+    @if (Context.Request.IsTwitterBot()) {
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:title" content="@twCardTitle">
+        <meta name="twitter:description" content="@twDescription">
+        <meta name="twitter:image" content="@logoUrl">
+        <meta name="twitter:site" content="@Html.Raw("@ichubrik")">
+        <meta name="twitter:creator" content="@Html.Raw("@ichubrik")">
+        <meta name="twitter:domain" content="Toponim.by">
+    }
+    <meta name="viewport" content="width=1170">
+    @if (Context.Request.IsIos()) {
+        <meta name="apple-mobile-web-app-title" content="@text(lang, "Топонимы", "Тапонімы", "Toponyms")">
+        <link rel="apple-touch-icon" href="@Url.Content("~/img/logo-touch.png")">
+    }
+</head>
+<body>
+    @(Utils.IsDebug()
+        ? Html.Raw("    <!-- Debug mode. Counters are hidden. -->\n\n")
+        : Html.Partial("_Counters"))
+
+    <script id="main" type="text/ng-template">
+        <header>
+            <h1>
+                <a href="" class="underline-area" ng-class="{disabled: ctrl.isReseted()}" ng-click="ctrl.onReset()" tabindex="-1">
+                    <img src="@Url.Content("~/img/logo-title.png")" alt="Toponim.by"> <span class="underline">@pageTitle</span>
+                </a>
+            </h1>
+        </header>
+        @RenderBody()
+    </script>
+
+    <div class="container">
+        <ui-view></ui-view>
+
+        @Html.Partial("_Languages")
+
+        <footer>
+            <hr>
+            © 2016 <a href="http://chubrik.ru/" target="_blank" tabindex="-1">@text(lang, "Аркадий Чубрик", "Аркадзь Чубрык", "Arkadi Chubrik")</a> &nbsp;·&nbsp;
+            <a href="https://github.com/chubrik/Toponym" target="_blank" tabindex="-1">GitHub</a> &nbsp;·&nbsp;
+            <a href="mailto:info@toponim.by" tabindex="-1">info@toponim.by</a>
+        </footer>
+    </div>
+
+    <script src="/js/@(Utils.IsDebug() ? "toponym.dev.js" : "toponym.min.js")"></script>
+
+    <script>
+        Toponym.startup({
+            fbAppId: '@fbAppId',
+            language: @((int)lang)
+        });
+    </script>
+
+</body>
+</html>

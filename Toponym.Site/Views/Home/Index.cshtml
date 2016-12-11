@@ -1,0 +1,108 @@
+﻿@using Toponym.Site.Helpers
+@using Toponym.Site.Models
+@{
+    var text = new Func<Language, string, string, string, string>(LangHelper.Text);
+    var lang = (Language)ViewBag.Language;
+}
+<div id="side" class="color1" ng-class="{silented: ctrl.isSilentedGroup(ctrl.currentGroupIndex)}"
+     ng-mouseover="ctrl.groups[ctrl.currentGroupIndex].isIntensive = true" ng-mouseleave="ctrl.groups[ctrl.currentGroupIndex].isIntensive = false">
+
+    <div class="group-type" ng-if="ctrl.isNoItemsFound() || ctrl.currentGroup().items.length">
+        <label>
+            <input type="checkbox" ng-click="ctrl.onClickShowPopulated($event)" ng-checked="ctrl.isShowPopulated()"> @text(lang, "Ойконимы", "Айконімы", "Oikonyms")
+        </label>
+        <label>
+            <input type="checkbox" ng-click="ctrl.onClickShowWater($event)" ng-checked="ctrl.isShowWater()"> @text(lang, "Гидронимы", "Гідронімы", "Hydronyms")
+        </label>
+    </div>
+    <div ng-if="ctrl.isQueryEmpty()" class="tutorial">
+        @Html.Partial("_Tutorial")
+    </div>
+    <p ng-if="ctrl.isQuerySyntaxError()">
+        @text(lang, "Ошибочный запрос", "Памылковы запыт", "Bad request")
+    </p>
+    <p ng-if="ctrl.isServerError()">
+        @text(lang, "Ошибка связи с сервером", "Памылка сувязі з серверам", "Server connection error")
+    </p>
+    <p class="group-type-margin" ng-if="ctrl.isNoItemsFound()">
+        @text(lang, "Совпадений не найдено", "Супадзенняў ня знойдзена", "No matches found")
+    </p>
+    <p class="group-type-margin" ng-if="ctrl.currentGroup().items.length">
+        @if (lang == Language.Russian) {
+            @:{{Core.rusCase(ctrl.currentGroup().matchCount, ['Найден', 'Найдено'], false) + ' ' + Core.rusCase(ctrl.currentGroup().matchCount, ['топоним', 'топонима', 'топонимов']) + (ctrl.isCuttedList() ? '.' : ':')}}
+            <span ng-if="ctrl.isCuttedList()">
+                <br>Первые {{ ctrl.currentGroup().items.length }} из них:
+            </span>
+        }
+        else if (lang == Language.Belarusian) {
+            @:{{Core.rusCase(ctrl.currentGroup().matchCount, ['Знойдзен', 'Знойдзена'], false) + ' ' + Core.rusCase(ctrl.currentGroup().matchCount, ['тапонім', 'тапоніма', 'тапонімаў']) + (ctrl.isCuttedList() ? '.' : ':')}}
+            <span ng-if="ctrl.isCuttedList()">
+                <br>Першыя {{ ctrl.currentGroup().items.length }} з іх:
+            </span>
+        }
+        else if (lang == Language.English) {
+            @:Found {{ctrl.currentGroup().matchCount + ' ' + (ctrl.currentGroup().matchCount == 1 ? 'toponym' : 'toponyms') + (ctrl.isCuttedList() ? '.' : ':')}}
+            <span ng-if="ctrl.isCuttedList()">
+                <br>The first {{ ctrl.currentGroup().items.length }} of these:
+            </span>
+        }
+    </p>
+    <div class="item" ng-repeat="item in ctrl.currentGroup().items | limitTo: ctrl.itemsShowLimit" ng-class="{expanded: item._isExpanded}"
+         ng-mouseover="item._mapHighlight = true" ng-mouseleave="item._mapHighlight = false">
+        <span class="title" ng-class="{highlight: item._sideHighlight}" ng-click="ctrl.onToggleItem(item)">
+            {{item.title}}</span>
+        <span class="type-abbr" ng-if="!item._isExpanded">{{Core.itemTypeAbbr(item)}}</span>
+        <div>
+            {{Core.itemTypeText(item)}}<br>
+            @text(lang, "На картах", "На картах", "On maps"):
+            <a href="{{Core.linkLoadmap(item)}}" target="_blank">L</a>,
+            <a href="{{Core.linkOsm(item)}}" target="_blank">O</a>,
+            <a href="{{Core.linkGoogle(item)}}" target="_blank">G</a>,
+            <a href="{{Core.linkYandex(item)}}" target="_blank">@text(lang, "Я", "Я", "Y")</a>
+        </div>
+    </div>
+</div>
+
+<div id="form">
+    <div class="input-group hover-area" ng-repeat="group in ctrl.groups" ng-mouseover="group.isIntensive = true" ng-mouseleave="group.isIntensive = false">
+        <input class="color{{$index + 1}}" ng-class="{'with-background': ctrl.isOneAndEmpty($index)}" type="text" ng-model="group.value" ng-change="ctrl.onChangeGroupValue(group)" spellcheck="false"
+               placeholder="@text(lang, "введите часть названия", "увядзіце частку назвы", "type part of title")" ng-focus="ctrl.onSelectGroup($index)">
+        <a class="loading color{{$index + 1}}" ng-if="group.isLoading" tabindex="-1">
+            <i class="mi mi-process mi-lg"></i>
+        </a>
+        <div class="delete-group hover" ng-if="ctrl.groups.length > 1 && !group.isLoading">
+            <a class="color{{$index + 1}}" href="" ng-click="ctrl.onDeleteGroup($index)" tabindex="-1"
+               uib-tooltip="@text(lang, "удалить", "выдаліць", "delete")" tooltip-placement="right">
+                <i class="mi mi-x mi-lg"></i>
+            </a>
+        </div>
+    </div>
+    <div class="add-group" ng-if="ctrl.groups.length < 6">
+        <a class="underline-area color{{ctrl.groups.length + 1}}" ng-if="ctrl.groups.length < 5" href="" ng-click="ctrl.onAddGroup()" tabindex="-1">
+            <i class="mi mi-plus"></i> <span class="underline">@text(lang, "добавить запрос", "дадаць запыт", "add query")</span>
+        </a>
+        <a class="reset" ng-class="{near: ctrl.groups.length == 5}" ng-if="!ctrl.isReseted()" href="" ng-click="ctrl.onReset()" tabindex="-1">
+            @text(lang, "сбросить", "скінуць", "reset")
+        </a>
+    </div>
+</div>
+
+<div id="map">
+    <div class="group" ng-repeat="group in ctrl.groups" ng-class="{silented: ctrl.isSilentedGroup($index)}">
+        <div class="mark color{{$parent.$index + 1 + ' ' + item._typeClass}}" ng-repeat="item in group.items" ng-class="{highlight: item._mapHighlight}" ng-style="{left: item.screen[0][0] + '%', top: item.screen[0][1] + '%'}"
+             ng-mouseover="item._sideHighlight = true" ng-mouseleave="item._sideHighlight = false" uib-tooltip="{{Core.itemTypeAbbr(item) + ' ' + item.title}}" tooltip-append-to-body="true"
+             ng-click="ctrl.onClickMark(item, $index, $parent.$index)"></div>
+    </div>
+</div>
+
+<div id="socials">
+    <a class="fb" href="{{ctrl.shareFbUrl()}}" target="_blank" ng-click="ctrl.onClickShareButton($event, 'fb')">
+        <img src="@Url.Content("~/img/icon-fb.png")"> @text(lang, "опубликовать", "апублікаваць", "publish")
+    </a>
+    <a class="vk" href="{{ctrl.shareVkUrl()}}" target="_blank" ng-click="ctrl.onClickShareButton($event, 'vk')">
+        <img src="@Url.Content("~/img/icon-vk.png")"> @text(lang, "поделиться", "падзяліцца", "share")
+    </a>
+    <a class="tw" href="{{ctrl.shareTwUrl()}}" target="_blank" ng-click="ctrl.onClickShareButton($event, 'tw')">
+        <img src="@Url.Content("~/img/icon-tw.png")"> @text(lang, "твитнуть", "твітнуць", "tweet")
+    </a>
+</div>
