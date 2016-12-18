@@ -5,12 +5,14 @@ import { Service } from './service';
 import { UrlHelper } from './url.helper';
 
 declare const angular: any;
-export let fbAppId: string;
+export let defaultHost: string;
 export let language: Language;
+export let fbAppId: string;
 
-export function startup(options: { fbAppId: string, language: Language }): void {
-    fbAppId = options.fbAppId;
+export function startup(options: { defaultHost: string, language: Language, fbAppId: string }): void {
+    defaultHost = options.defaultHost;
     language = options.language;
+    fbAppId = options.fbAppId;
 }
 
 angular

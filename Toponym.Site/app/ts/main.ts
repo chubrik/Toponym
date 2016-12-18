@@ -1,6 +1,6 @@
 ﻿import { checkArgument, invalidOperation } from './errors';
 import { IGroup, IItem, GroupType, Status } from './types';
-import { fbAppId } from './app.module';
+import { defaultHost, fbAppId } from './app.module';
 import { langText, rusCase } from './utils';
 import { Service } from './service';
 import { UrlHelper } from './url.helper';
@@ -51,14 +51,14 @@ export class MainController {
             //console.log(`onNavigate: ${group.value}, last: ${group.lastValue}`);
 
             if (group.value === group.lastValue && group.type === group.lastType)
-                return;
+                continue;
 
             if (!group.value) {
                 group.status = Status.Success;
                 group.items = null;
                 group.lastValue = '';
                 group.lastType = GroupType.All;
-                return;
+                continue;
             }
 
             const value = group.value;
@@ -250,7 +250,7 @@ export class MainController {
     }
 
     private canonicalUrl(): string {
-        return 'http://toponim.by' + window.location.pathname + window.location.search;
+        return 'http://' + defaultHost + window.location.pathname + window.location.search;
     }
 
     onClickShareButton($event: Event, suffix: string): void {

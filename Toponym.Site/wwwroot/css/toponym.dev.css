@@ -7634,6 +7634,13 @@ footer hr {
   margin: 0 0 10px;
   border-color: #eee;
 }
+footer .github {
+  margin: -2px 4px 0px 2px;
+  opacity: 0.4;
+}
+footer a:hover .github {
+  opacity: 0.7;
+}
 #languages {
   position: fixed;
   text-align: right;

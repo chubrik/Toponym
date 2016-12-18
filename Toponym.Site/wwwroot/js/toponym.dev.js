@@ -55565,13 +55565,13 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
             var _loop_1 = function (group) {
                 //console.log(`onNavigate: ${group.value}, last: ${group.lastValue}`);
                 if (group.value === group.lastValue && group.type === group.lastType)
-                    return { value: void 0 };
+                    return "continue";
                 if (!group.value) {
                     group.status = 1 /* Success */;
                     group.items = null;
                     group.lastValue = '';
                     group.lastType = 0 /* All */;
-                    return { value: void 0 };
+                    return "continue";
                 }
                 var value = group.value;
                 var type = group.type;
@@ -55601,9 +55601,7 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
             var this_1 = this;
             for (var _i = 0, _a = this.groups; _i < _a.length; _i++) {
                 var group = _a[_i];
-                var state_1 = _loop_1(group);
-                if (typeof state_1 === "object")
-                    return state_1.value;
+                _loop_1(group);
             }
         };
         MainController.prototype.currentGroup = function () {
@@ -55727,7 +55725,7 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
             return 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text + '\n\n' + this.canonicalUrl() + '\n' + tags);
         };
         MainController.prototype.canonicalUrl = function () {
-            return 'http://toponim.by' + window.location.pathname + window.location.search;
+            return 'http://' + exports.defaultHost + window.location.pathname + window.location.search;
         };
         MainController.prototype.onClickShareButton = function ($event, suffix) {
             checkArgument($event, '$event');
@@ -55865,8 +55863,9 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
     }());
     UrlHelper.$inject = ['$state', '$rootScope'];
     function startup(options) {
-        exports.fbAppId = options.fbAppId;
+        exports.defaultHost = options.defaultHost;
         exports.language = options.language;
+        exports.fbAppId = options.fbAppId;
     }
     angular
         .module('toponym', ['ui.router', 'ui.bootstrap'])

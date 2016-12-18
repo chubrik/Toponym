@@ -3,6 +3,7 @@
 @using Toponym.Site.Helpers
 @using Toponym.Site.Models
 @{
+    const string defaultHost = SiteConstants.DefaultHost;
     const string fbAppId = "606010706223050";
     var firstQuery = (string)ViewBag.FirstQuery;
     //var firstType = (Group)ViewBag.FirstType;
@@ -10,13 +11,13 @@
     var lang = (Language)ViewBag.Language;
     var text = new Func<Language, string, string, string, string>(LangHelper.Text);
 
-    //var host = uri.Scheme + Uri.SchemeDelimiter + uri.Host + (uri.Port != 80 ? ":" + uri.Port : "");
-    var canonicalUrl = "http://toponim.by" + Context.Request.Path + Context.Request.QueryString;
-    var logoUrl = "http://toponim.by" + Url.Content("~/img/logo-big.png");
+    var hostUpper = defaultHost.First().ToString().ToUpper() + defaultHost.Substring(1);
+    var canonicalUrl = "http://" + defaultHost + Context.Request.Path + Context.Request.QueryString;
+    var logoUrl = "http://" + defaultHost + Url.Content("~/img/logo-big.png");
 
     var titleBase = text(lang, "Карта топонимов Беларуси", "Карта тапонімаў Беларусі", "Toponyms map of Belarus");
     var altTitleBase = text(lang, "Белорусские топонимы", "Беларускія тапонімы", "Belarusian toponyms");
-    var fullTitleBase = "Toponim.by — " + char.ToLowerInvariant(titleBase[0]) + titleBase.Substring(1);
+    var fullTitleBase = hostUpper + " — " + char.ToLowerInvariant(titleBase[0]) + titleBase.Substring(1);
 
     var descriptionBase = text(lang, "Быстрый поиск по заданному шаблону с визуализацией распределённости топонимов на карте.",
                                "Хуткі пошук па зададзеным шаблоне з візуалізацыяй размеркавання тапонімаў на карце.",
@@ -46,8 +47,8 @@
 <!doctype html>
 <html lang="@text(lang, "ru", "be", "en")" ng-app="toponym" ng-strict-di>
 <head prefix="og: http://ogp.me/ns#">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,500|Material+Icons&subset=latin,cyrillic" rel="stylesheet">
     <link href="/css/@(Utils.IsDebug() ? "toponym.dev.css" : "toponym.min.css")" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,500|Material+Icons&subset=latin,cyrillic" rel="stylesheet">
     <meta charset="utf-8">
     <title>@htmlTitle</title>
     <meta name="description" content="@description">
@@ -62,7 +63,7 @@
         <meta property="og:image" content="@logoUrl">
         <meta property="og:url" content="@Html.Raw(canonicalUrl)">
         <meta property="og:locale" content="@text(lang, "ru_RU", "be_BY", "en_US")">
-        <meta property="og:site_name" content="Toponim.by">
+        <meta property="og:site_name" content="@hostUpper">
     }
     @if (Context.Request.IsFacebookBot()) {
         <meta property="fb:app_id" content="@fbAppId">
@@ -74,7 +75,7 @@
         <meta name="twitter:image" content="@logoUrl">
         <meta name="twitter:site" content="@Html.Raw("@ichubrik")">
         <meta name="twitter:creator" content="@Html.Raw("@ichubrik")">
-        <meta name="twitter:domain" content="Toponim.by">
+        <meta name="twitter:domain" content="@hostUpper">
     }
     <meta name="viewport" content="width=1170">
     @if (Context.Request.IsIos()) {
@@ -91,7 +92,7 @@
         <header>
             <h1>
                 <a href="" class="underline-area" ng-class="{disabled: ctrl.isReseted()}" ng-click="ctrl.onReset()" tabindex="-1">
-                    <img src="@Url.Content("~/img/logo-title.png")" alt="Toponim.by"> <span class="underline">@pageTitle</span>
+                    <img src="@Url.Content("~/img/logo-title.png")" alt="@hostUpper"> <span class="underline">@pageTitle</span>
                 </a>
             </h1>
         </header>
@@ -105,9 +106,11 @@
 
         <footer>
             <hr>
-            © 2016 <a href="http://chubrik.ru/" target="_blank" tabindex="-1">@text(lang, "Аркадий Чубрик", "Аркадзь Чубрык", "Arkadi Chubrik")</a> &nbsp;·&nbsp;
-            <a href="https://github.com/chubrik/Toponym" target="_blank" tabindex="-1">GitHub</a> &nbsp;·&nbsp;
-            <a href="mailto:info@toponim.by" tabindex="-1">info@toponim.by</a>
+            © 2016 <a href="http://chubrik.ru/" target="_blank" tabindex="-1">@text(lang, "Аркадий Чубрик", "Аркадзь Чубрык", "Arkadi Chubrik")</a>
+            &nbsp;·&nbsp;
+            <a href="https://github.com/chubrik/Toponym" target="_blank" tabindex="-1"><img class="github" src="@Url.Content("~/img/icon-github.png")">GitHub</a>
+            &nbsp;·&nbsp;
+            <a href="@("mailto:info@" + defaultHost)" tabindex="-1">@("info@" + defaultHost)</a>
         </footer>
     </div>
 
@@ -115,8 +118,9 @@
 
     <script>
         Toponym.startup({
-            fbAppId: '@fbAppId',
-            language: @((int)lang)
+            defaultHost: '@defaultHost',
+            language: @((int)lang),
+            fbAppId: '@fbAppId'
         });
     </script>
 

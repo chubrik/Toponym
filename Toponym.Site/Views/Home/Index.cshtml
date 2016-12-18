@@ -49,8 +49,7 @@
     </p>
     <div class="item" ng-repeat="item in ctrl.currentGroup().items | limitTo: ctrl.itemsShowLimit" ng-class="{expanded: item._isExpanded}"
          ng-mouseover="item._mapHighlight = true" ng-mouseleave="item._mapHighlight = false">
-        <span class="title" ng-class="{highlight: item._sideHighlight}" ng-click="ctrl.onToggleItem(item)">
-            {{item.title}}</span>
+        <span class="title" ng-class="{highlight: item._sideHighlight}" ng-click="ctrl.onToggleItem(item)">{{item.title}}</span>
         <span class="type-abbr" ng-if="!item._isExpanded">{{Core.itemTypeAbbr(item)}}</span>
         <div>
             {{Core.itemTypeText(item)}}<br>

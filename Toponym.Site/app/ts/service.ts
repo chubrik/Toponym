@@ -21,9 +21,8 @@ export class Service {
                     return this.$q.reject();
 
                 if (response.items)
-                    for (let item of response.items) {
+                    for (let item of response.items)
                         this.initLocal(item);
-                    }
 
                 return response;
             });
