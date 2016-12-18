@@ -11,10 +11,10 @@ using Toponym.Site.Services;
 namespace Toponym.Site.Controllers {
     public class HomeController : Controller {
 
-        private readonly ItemService _itemService;
+        private readonly DataService _dataService;
 
-        public HomeController(ItemService itemService) {
-            _itemService = itemService;
+        public HomeController(DataService dataService) {
+            _dataService = dataService;
         }
 
         [Route("")]
@@ -52,10 +52,8 @@ namespace Toponym.Site.Controllers {
 
             var regex = RegexHelper.GetRegex(q1);
 
-            if (regex != null) {
-                var allItems = _itemService.GetItems();
-                ViewBag.MatchCount = ItemHelper.GetMachedCount(allItems, regex, type ?? Group.All, language);
-            }
+            if (regex != null)
+                ViewBag.MatchCount = _dataService.GetItems(regex, type ?? Group.All, language).Count;
 
             return View();
         }
@@ -78,17 +76,13 @@ namespace Toponym.Site.Controllers {
             if (regex == null)
                 return JsonResult(ResponseStatus.SyntaxError);
 
-            var allItems = _itemService.GetItems();
-            var matched = ItemHelper.GetMached(allItems, regex, request.Type, request.Language);
+            var matched = _dataService.GetItems(regex, request.Type, request.Language);
             var limited = matched.GetRange(0, Math.Min(matched.Count, SiteConstants.ItemCountLimit));
             var data = limited.Select(i => new ItemData(i, request.Language)).ToList();
             return JsonResult(data, matched.Count);
         }
 
         private static bool CheckHost(HttpRequest request, out IActionResult result) {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
-
             var host = request.Host.Host;
 
             if (host == SiteConstants.DefaultHost || host == "localhost") {
@@ -103,7 +97,7 @@ namespace Toponym.Site.Controllers {
                 Query = request.QueryString.Value
             };
 
-            result = new RedirectResult(builder.Uri.AbsolutePath, permanent: true);
+            result = new RedirectResult(builder.Uri.ToString(), permanent: true);
             return false;
         }
 

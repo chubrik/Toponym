@@ -53,6 +53,7 @@
 
   "publishOptions": {
     "include": [
+      "App_Data",
       "wwwroot",
       "**/*.cshtml",
       "appsettings.json",
@@ -61,7 +62,7 @@
   },
 
   "scripts": {
-    "prepublish": [], // npm-команды, которая скопирует из node_modules шрифты и пр. Возможно, тут сборка бандлов.
+    "prepublish": [],
     "postpublish": [ "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%" ]
   },
   "userSecretsId": "aspnet-Toponym.Site-20161210062711"

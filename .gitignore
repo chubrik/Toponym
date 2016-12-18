@@ -1,3 +1,4 @@
+.idea/
 .vs/
 bin/
 node_modules/
@@ -5,5 +6,6 @@ obj/
 npm-debug.log
 project.lock.json
 Toponym.Site/app/dist/
+Toponym.Site/Properties/PublishProfiles/
 *.user
 *.suo
