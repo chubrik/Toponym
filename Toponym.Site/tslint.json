@@ -1,7 +1,7 @@
 {
   "rulesDirectory": [
     "node_modules/tslint-eslint-rules/dist/rules",
-    "node_modules/tslint-microsoft-contrib/dist"
+    "node_modules/tslint-microsoft-contrib"
   ],
   "rules": {
     //

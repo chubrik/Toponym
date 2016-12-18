@@ -5,8 +5,8 @@
   "description": "Search toponyms by pattern and display on the map",
   "scripts": {
     "build": "npm run-script ts && npm run-script less",
-    "tslint": "tslint -c ./tslint.cli.json --project ./app/ts/tsconfig.json --type-check",
-    "ts": "tsc -p ./app/ts && node ./app/dev/ts-bundle.js",
+    "tslint": "tslint --config ./tslint.cli.json --project ./app/ts/tsconfig.json --type-check",
+    "ts": "tsc --project ./app/ts && node ./app/dev/ts-bundle.js",
     "less": "gulp less",
     "less:w": "gulp less:w"
   },
@@ -18,14 +18,14 @@
     "jquery": "^3.1.1"
   },
   "devDependencies": {
-    "@types/angular": "^1.5.20",
-    "@types/angular-ui-bootstrap": "^0.13.35",
+    "@types/angular": "^1.5.21",
+    "@types/angular-ui-bootstrap": "^0.13.37",
     "@types/angular-ui-router": "^1.1.35",
     "@types/bootstrap": "^3.3.32",
     "@types/jquery": "^2.0.34",
     "fs-extra": "^1.0.0",
     "gulp": "^3.9.1",
-    "gulp-clean-css": "^2.2.1",
+    "gulp-clean-css": "^2.3.2",
     "gulp-concat": "^2.6.1",
     "gulp-less": "^3.3.0",
     "gulp-livereload": "^3.8.1",
@@ -33,15 +33,15 @@
     "lesshat": "^4.1.0",
     "merge2": "^1.0.2",
     "normalize.css": "^5.0.0",
-    "rollup": "^0.36.4",
+    "rollup": "^0.37.0",
     "rollup-plugin-node-resolve": "^2.0.0",
-    "tslint": "^4.0.2",
-    "tslint-eslint-rules": "^3.1.0",
-    "tslint-microsoft-contrib": "git://github.com/chubrik/tslint-microsoft-contrib.git#dc7e99d49c1e24b87890e0ad5c51c8d56b3ab1ec",
+    "tslint": "^4.1.1",
+    "tslint-eslint-rules": "^3.2.0",
+    "tslint-microsoft-contrib": "^4.0.0",
     "typescript": "^2.1.4",
     "uglify-js": "^2.7.5"
   },
   "author": "Arkadi Chubrik <arkadi@chubrik.ru> (http://www.chubrik.ru/)",
   "license": "SEE LICENSE IN http://www.toponym.org/license",
-  "repository": "bitbucket:chubrik/toponym"
+  "repository": "bitbucket:chubrik/Toponym"
 }
