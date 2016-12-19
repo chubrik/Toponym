@@ -5,60 +5,49 @@ using Toponym.Core.Extensions;
 namespace Toponym.Site.Helpers {
     public class RegexHelper {
 
+        private const string SoftLeft = "[^^ ]";
+        private const string SoftRight = "[^$ ]";
+        private const string StrictLeft = "(^| |-)";
+        private const string StrictRight = "($| |-)";
+
         public static Regex GetRegex(string query) {
 
             if (string.IsNullOrWhiteSpace(query))
                 throw new ArgumentException(nameof(query));
 
-            query = query.ToSimple();
+            query = query.ToBase();
 
-            // простой синтаксис
             if (Regex.IsMatch(query, @"^[а-яa-z\s/'-]+$", RegexOptions.IgnoreCase)) {
+                // It is simple query, not regex
+
                 var parts = query.Split('/');
 
-                for (var x = 0; x < parts.Length; x++) {
-                    var part = parts[x].Trim();
-                    var needEdges = false;
+                for (var i = 0; i < parts.Length; i++) {
+                    var part = parts[i].Trim();
 
-                    if (part.Length >= 2) {
+                    if (part.Length < 2)
+                        continue;
 
-                        // в кавычках - "минск"
-                        if (part.StartsWith("'") && part.EndsWith("'")) {
-                            part = part.Substring(1, Math.Max(part.Length - 2, 0));
-                            needEdges = true;
-                        }
-                        else {
-                            // в середине дефис - гор-ки
-                            if (Regex.IsMatch(part, @"[а-яa-z']-[а-яa-z']", RegexOptions.IgnoreCase)) {
-                                part = Regex.Replace(part, @"(?<=[а-яa-z'])-(?=[а-яa-z'])", @"[а-яa-z'-]+", RegexOptions.IgnoreCase);
-                                needEdges = true;
-                            }
+                    if (part.StartsWith("'") && part.EndsWith("'"))
+                        part = StrictLeft + part.Substring(1, part.Length - 2) + StrictRight;
 
-                            // по краям дефисы - -оло-
-                            if (part.StartsWith("-") && part.EndsWith("-")) {
-                                part = "[^^ -]" + part.Substring(1, Math.Max(part.Length - 2, 0)) + "[^$ -]";
-                                needEdges = false;
-                            }
+                    else if (part.Contains("-")) {
 
-                            // в начале дефис - -ки
-                            else if (part.StartsWith("-")) {
-                                part = "[^^ -]" + part.Substring(1) + "($|[ -])";
-                                needEdges = false;
-                            }
+                        // Hyphens in the middle
+                        part = Regex.Replace(part, "(?<=[а-яa-z'])-(?=[а-яa-z'])", "[а-яa-z'-]+", RegexOptions.IgnoreCase);
 
-                            // на конце дефис - гор-
-                            else if (part.EndsWith("-")) {
-                                part = "(^|[ -])" + part.Substring(0, part.Length - 1) + "[^$ -]";
-                                needEdges = false;
-                            }
-                        }
+                        if (part.StartsWith("-"))
+                            part = SoftLeft + part.Substring(1);
+                        else
+                            part = StrictLeft + part;
+
+                        if (part.EndsWith("-"))
+                            part = part.Substring(0, part.Length - 1) + SoftRight;
+                        else
+                            part = part + StrictRight;
                     }
 
-                    // строгие края
-                    if (needEdges)
-                        part = "(^|[ -])" + part + "($|[ -])";
-
-                    parts[x] = part;
+                    parts[i] = part;
                 }
 
                 query = string.Join("|", parts);

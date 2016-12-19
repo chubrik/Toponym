@@ -23,37 +23,37 @@ namespace Toponym.Site.Services {
             _items = data.Select(i => new Item(i)).ToList();
         }
 
-        public List<Item> GetItems(Regex regex, Group type, Language language) {
+        public List<Item> GetItems(Regex regex, Group group, Language language) {
 
-            IEnumerable<Item> typedItems;
+            IEnumerable<Item> groupItems;
 
-            switch (type) {
+            switch (group) {
 
                 case Group.All:
-                    typedItems = _items;
+                    groupItems = _items;
                     break;
 
                 case Group.Populated:
-                    typedItems = _items.Where(i => i.Type.ToCategory() == Category.Populated);
+                    groupItems = _items.Where(i => i.Type.ToCategory() == Category.Populated);
                     break;
 
                 case Group.Water:
-                    typedItems = _items.Where(i => i.Type.ToCategory() == Category.Water);
+                    groupItems = _items.Where(i => i.Type.ToCategory() == Category.Water);
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(type));
+                    throw new ArgumentOutOfRangeException(nameof(group));
             }
 
             switch (language) {
                 case Language.Russian:
-                    return typedItems.Where(i => regex.IsMatch(i.TitleRu.ToSimple())).ToList();
+                    return groupItems.Where(i => regex.IsMatch(i.TitleRu.ToBase())).ToList();
 
                 case Language.Belarusian:
-                    return typedItems.Where(i => i.TitleBe != null && regex.IsMatch(i.TitleBe.ToSimple())).ToList();
+                    return groupItems.Where(i => i.TitleBe != null && regex.IsMatch(i.TitleBe.ToBase())).ToList();
 
                 case Language.English:
-                    return typedItems.Where(i => regex.IsMatch(i.TitleEn.ToSimple())).ToList();
+                    return groupItems.Where(i => regex.IsMatch(i.TitleEn.ToBase())).ToList();
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(language));
