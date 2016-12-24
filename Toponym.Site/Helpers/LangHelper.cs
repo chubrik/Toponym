@@ -6,6 +6,24 @@ using Toponym.Site.Models;
 namespace Toponym.Site.Helpers {
     public class LangHelper {
 
+        public static Language GetByQueryParam(string queryParam) {
+
+            switch (queryParam) {
+
+                case "ru":
+                    return Language.Russian;
+
+                case "be":
+                    return Language.Belarusian;
+
+                case "en":
+                    return Language.English;
+
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
         public static string Text(Language language, string russian, string belarusian, string english) {
 
             switch (language) {

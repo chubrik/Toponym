@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using Toponym.Core.Extensions;
+using Toponym.Site.Models;
 
 namespace Toponym.Site.Helpers {
     public class RegexHelper {
@@ -10,12 +10,23 @@ namespace Toponym.Site.Helpers {
         private const string StrictLeft = "(^| |-)";
         private const string StrictRight = "($| |-)";
 
-        public static Regex GetRegex(string query) {
+        public static Regex GetRegex(string query, Language language) {
 
             if (string.IsNullOrWhiteSpace(query))
                 throw new ArgumentException(nameof(query));
 
-            query = query.ToBase();
+            query = Regex.Replace(query, "[`‘’\"«»„“”]", "'");
+            query = Regex.Replace(query, "[–—−]", "-");
+
+            if (language == Language.Russian || language == Language.Belarusian)
+                query = Regex.Replace(query, "ё", "е", RegexOptions.IgnoreCase);
+
+            if (language == Language.Belarusian) {
+                query = Regex.Replace(query, "[иі]", "i", RegexOptions.IgnoreCase); // Cyrillic "i" to latin
+                query = Regex.Replace(query, "ў", "у", RegexOptions.IgnoreCase);
+                query = Regex.Replace(query, "щ", "шч", RegexOptions.IgnoreCase);
+                query = Regex.Replace(query, "ъ", "'", RegexOptions.IgnoreCase);
+            }
 
             if (Regex.IsMatch(query, @"^[а-яa-z\s/'-]+$", RegexOptions.IgnoreCase)) {
                 // It is simple query, not regex

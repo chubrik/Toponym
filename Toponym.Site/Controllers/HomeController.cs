@@ -26,22 +26,7 @@ namespace Toponym.Site.Controllers {
             if (!CheckHost(Request, out result))
                 return result;
 
-            Language language;
-
-            switch (lang) {
-                case "ru":
-                    language = Language.Russian;
-                    break;
-                case "be":
-                    language = Language.Belarusian;
-                    break;
-                case "en":
-                    language = Language.English;
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-
+            var language = LangHelper.GetByQueryParam(lang);
             ViewBag.FirstQuery = q1;
             ViewBag.FirstType = type ?? Group.All;
             ViewBag.MatchCount = 0;
@@ -50,7 +35,7 @@ namespace Toponym.Site.Controllers {
             if (string.IsNullOrWhiteSpace(q1))
                 return View();
 
-            var regex = RegexHelper.GetRegex(q1);
+            var regex = RegexHelper.GetRegex(q1, language);
 
             if (regex != null)
                 ViewBag.MatchCount = _dataService.GetItems(regex, type ?? Group.All, language).Count;
@@ -71,13 +56,13 @@ namespace Toponym.Site.Controllers {
             if (string.IsNullOrWhiteSpace(request.Query))
                 return JsonResult(ResponseStatus.Failure);
 
-            var regex = RegexHelper.GetRegex(request.Query);
+            var regex = RegexHelper.GetRegex(request.Query, request.Language);
 
             if (regex == null)
                 return JsonResult(ResponseStatus.SyntaxError);
 
             var matched = _dataService.GetItems(regex, request.Type, request.Language);
-            var limited = matched.GetRange(0, Math.Min(matched.Count, SiteConstants.ItemCountLimit));
+            var limited = matched.Take(SiteConstants.ItemCountLimit);
             var data = limited.Select(i => new ItemData(i, request.Language)).ToList();
             return JsonResult(data, matched.Count);
         }
