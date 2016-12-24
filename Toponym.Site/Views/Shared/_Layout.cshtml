@@ -2,6 +2,7 @@
 @using Toponym.Site.Extensions
 @using Toponym.Site.Helpers
 @using Toponym.Site.Models
+@using Toponym.Site.Services
 @{
     const string defaultHost = SiteConstants.DefaultHost;
     const string fbAppId = "606010706223050";
@@ -47,7 +48,7 @@
 <!doctype html>
 <html lang="@text(lang, "ru", "be", "en")" ng-app="toponym" ng-strict-di>
 <head prefix="og: http://ogp.me/ns#">
-    <link href="/css/@(Utils.IsDebug() ? "toponym.dev.css" : "toponym.min.css")" rel="stylesheet">
+    <link href="/css/@(Utils.IsDebug() ? "toponym.dev.css" : "toponym.min.css")?@DataService.CssBundleHash" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,500|Material+Icons&subset=latin,cyrillic" rel="stylesheet">
     <meta charset="utf-8">
     <title>@htmlTitle</title>
@@ -114,7 +115,7 @@
         </footer>
     </div>
 
-    <script src="/js/@(Utils.IsDebug() ? "toponym.dev.js" : "toponym.min.js")"></script>
+    <script src="/js/@(Utils.IsDebug() ? "toponym.dev.js" : "toponym.min.js")?@DataService.JsBundleHash"></script>
 
     <script>
         Toponym.startup({

@@ -54,10 +54,10 @@
         <div>
             {{Core.itemTypeText(item)}}<br>
             @text(lang, "На картах", "На картах", "On maps"):
-            <a href="{{Core.linkLoadmap(item)}}" target="_blank">L</a>,
-            <a href="{{Core.linkOsm(item)}}" target="_blank">O</a>,
-            <a href="{{Core.linkGoogle(item)}}" target="_blank">G</a>,
-            <a href="{{Core.linkYandex(item)}}" target="_blank">@text(lang, "Я", "Я", "Y")</a>
+            <a href="{{Core.linkLoadmap(item)}}" target="_blank" tabindex="-1">L</a>,
+            <a href="{{Core.linkOsm(item)}}" target="_blank" tabindex="-1">O</a>,
+            <a href="{{Core.linkGoogle(item)}}" target="_blank" tabindex="-1">G</a>,
+            <a href="{{Core.linkYandex(item)}}" target="_blank" tabindex="-1">@text(lang, "Я", "Я", "Y")</a>
         </div>
     </div>
 </div>

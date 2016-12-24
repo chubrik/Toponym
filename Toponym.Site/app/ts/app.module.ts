@@ -1,6 +1,6 @@
 ﻿import { Language } from './types';
 import { MainController } from './main';
-import { rusCase, itemTypeAbbr, linkLoadmap, linkOsm, linkGoogle, linkYandex } from './utils';
+import { rusCase, itemTypeAbbr, itemTypeText, linkLoadmap, linkOsm, linkGoogle, linkYandex } from './utils';
 import { Service } from './service';
 import { UrlHelper } from './url.helper';
 
@@ -47,6 +47,7 @@ angular
             $rootScope.Core = {
                 rusCase,
                 itemTypeAbbr,
+                itemTypeText,
                 linkLoadmap,
                 linkOsm,
                 linkGoogle,

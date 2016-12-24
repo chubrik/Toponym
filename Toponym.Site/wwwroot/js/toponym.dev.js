@@ -55483,6 +55483,47 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
                 throw outOfRange('item.type');
         }
     }
+    function itemTypeText(item) {
+        checkArgument(item, 'item');
+        switch (item.type) {
+            case 100 /* PopulatedUnknown */:
+                return langText('Населённый пункт', 'Населены пункт', 'Populated locality');
+            //case ItemType.Agrogorodok:
+            //    return langText('Агрогородок', 'Аграгарадок', 'Agrotown');
+            //case ItemType.Gorod:
+            //    return langText('Город', 'Горад', 'City');
+            //case ItemType.GorodskojPoselok:
+            //    return langText('Городской посёлок', 'Гарадскі пасёлак', 'Urban settlement');
+            //case ItemType.Derevnya:
+            //    return langText('Деревня', 'Вёска', 'Hamlet');
+            //case ItemType.KurortnyPoselok:
+            //    return langText('Курортный посёлок', 'Курортны пасёлак', 'Resort settlement');
+            //case ItemType.Poselok:
+            //    return langText('Посёлок', 'Пасёлак', 'Settlement');
+            //case ItemType.PoselokGorodskogoTipa:
+            //    return langText('Посёлок городского типа', 'Пасёлак гарадскога тыпу', 'Urban-type settlement');
+            //case ItemType.RabochiPoselok:
+            //    return langText('Рабочий посёлок', 'Працоўны пасёлак', 'Working settlement');
+            //case ItemType.Selo:
+            //    return langText('Село', 'Сяло', 'Village');
+            //case ItemType.SelskiNaselennyPunkt:
+            //    return langText('Сельский населённый пункт', 'Сельскі населены пункт', 'Rural settlement');
+            //case ItemType.Hutor:
+            //    return langText('Хутор', 'Хутар', 'Bowery');
+            case 200 /* WaterUnknown */:
+                return langText('Водоём', 'Вадаём', 'Water');
+            case 201 /* River */:
+                return langText('Река', 'Рака', 'River');
+            case 202 /* Stream */:
+                return langText('Ручей', 'Ручай', 'Stream');
+            case 203 /* Lake */:
+                return langText('Озеро', 'Возера', 'Lake');
+            case 204 /* Pond */:
+                return langText('Пруд', 'Сажалка', 'Pond');
+            default:
+                throw outOfRange('item.type');
+        }
+    }
     function linkLoadmap(item) {
         checkArgument(item, 'item');
         return "http://" + "m.loadmap.net/" + langText('ru', 'ru', 'en') + "?qq=" + item.gps[0] + "%20" + item.gps[1] + "&z=14&s=-1&c=41&g=1";
@@ -55899,6 +55940,7 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
             $rootScope.Core = {
                 rusCase: rusCase,
                 itemTypeAbbr: itemTypeAbbr,
+                itemTypeText: itemTypeText,
                 linkLoadmap: linkLoadmap,
                 linkOsm: linkOsm,
                 linkGoogle: linkGoogle,
