@@ -7695,6 +7695,7 @@ footer a:hover .github {
   }
 }
 #map .group {
+  width: 100%;
   -webkit-transition: 0.7s;
   -moz-transition: 0.7s;
   -o-transition: 0.7s;
@@ -7702,6 +7703,21 @@ footer a:hover .github {
 }
 #map .group.silented {
   opacity: 0.35;
+}
+#map .group.color1 > .mark {
+  background-color: #3f85f2;
+}
+#map .group.color2 > .mark {
+  background-color: #db4437;
+}
+#map .group.color3 > .mark {
+  background-color: #f4b400;
+}
+#map .group.color4 > .mark {
+  background-color: #0f9d58;
+}
+#map .group.color5 > .mark {
+  background-color: #7e3794;
 }
 #map .mark {
   position: absolute;
@@ -7742,21 +7758,6 @@ footer a:hover .github {
 }
 #map .mark:hover {
   opacity: 1;
-}
-#map .mark.color1 {
-  background-color: #3f85f2;
-}
-#map .mark.color2 {
-  background-color: #db4437;
-}
-#map .mark.color3 {
-  background-color: #f4b400;
-}
-#map .mark.color4 {
-  background-color: #0f9d58;
-}
-#map .mark.color5 {
-  background-color: #7e3794;
 }
 #map .highlight {
   opacity: 0.6;

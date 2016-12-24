@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Toponym.Core.Models {
     [DebuggerDisplay("{TitleRu} / {TitleBe}")]
@@ -28,7 +29,7 @@ namespace Toponym.Core.Models {
 
         public ItemStorageData() { }
 
-        public ItemStorageData(string titleRu, string titleBe, string titleEn, ItemType type, GpsCoords gps, ScreenCoords screen) {
+        public ItemStorageData(string titleRu, string titleBe, string titleEn, ItemType type, GpsCoords gps, IEnumerable<ScreenCoords> screen) {
             if (titleRu == null)
                 throw new ArgumentNullException(nameof(titleRu));
             //if (titleBe == null)
@@ -41,7 +42,7 @@ namespace Toponym.Core.Models {
             TitleEn = titleEn;
             Type = type;
             Gps = new[] { gps.Latitude, gps.Longitude };
-            Screen = new List<float[]> { new[] { screen.X, screen.Y } };
+            Screen = screen.Select(i => new[] { i.X, i.Y }).ToList();
         }
     }
 }

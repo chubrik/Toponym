@@ -55464,6 +55464,18 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
                 throw outOfRange('language');
         }
     }
+    function pointItems(group) {
+        checkArgument(group, 'group');
+        return group.items ? group.items.filter(function (i) { return i.type != 201 /* River */ && i.type != 202; } /* Stream */) : null;
+    }
+    function polylineItems(group) {
+        checkArgument(group, 'group');
+        return group.items ? group.items.filter(function (i) { return i.type == 201 /* River */ || i.type == 202; } /* Stream */) : null;
+    }
+    function polylinePoints(item) {
+        checkArgument(item, 'item');
+        return item.screen.map(function (s) { return s.join(','); }).join(' ');
+    }
     function itemTypeAbbr(item) {
         checkArgument(item, 'item');
         if (item.type >= 100 && item.type < 200)
@@ -55902,7 +55914,10 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
                 linkLoadmap: linkLoadmap,
                 linkOsm: linkOsm,
                 linkGoogle: linkGoogle,
-                linkYandex: linkYandex
+                linkYandex: linkYandex,
+                pointItems: pointItems,
+                polylineItems: polylineItems,
+                polylinePoints: polylinePoints
             };
         }
     ]);

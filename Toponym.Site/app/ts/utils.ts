@@ -1,4 +1,4 @@
-﻿import { Language, IItem, ItemType } from './types';
+﻿import { Language, IItem, ItemType, IGroup } from './types';
 import { language } from './app.module';
 import { checkArgument, invalidArgument, outOfRange } from './errors';
 
@@ -50,6 +50,24 @@ export function langText(russian: string, belarusian: string, english: string): 
         default:
             throw outOfRange('language');
     }
+}
+
+export function pointItems(group: IGroup) {
+    checkArgument(group, 'group');
+
+    return group.items ? group.items.filter(i => i.type != ItemType.River && i.type != ItemType.Stream) : null;
+}
+
+export function polylineItems(group: IGroup) {
+    checkArgument(group, 'group');
+
+    return group.items ? group.items.filter(i => i.type == ItemType.River || i.type == ItemType.Stream) : null;
+}
+
+export function polylinePoints(item: IItem) {
+    checkArgument(item, 'item');
+
+    return item.screen.map(s => s.join(',')).join(' ');
 }
 
 export function itemTypeAbbr(item: IItem): string {

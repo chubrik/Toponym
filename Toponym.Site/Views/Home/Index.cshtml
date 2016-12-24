@@ -64,8 +64,14 @@
 
 <div id="form">
     <div class="input-group hover-area" ng-repeat="group in ctrl.groups" ng-mouseover="group.isIntensive = true" ng-mouseleave="group.isIntensive = false">
-        <input class="color{{$index + 1}}" ng-class="{'with-background': ctrl.isOneAndEmpty($index)}" type="text" ng-model="group.value" ng-change="ctrl.onChangeGroupValue(group)" spellcheck="false"
-               placeholder="@text(lang, "введите часть названия", "увядзіце частку назвы", "type part of title")" ng-focus="ctrl.onSelectGroup($index)">
+        <input class="color{{$index + 1}}"
+               ng-class="{'with-background': ctrl.isOneAndEmpty($index)}"
+               type="text"
+               ng-model="group.value"
+               ng-change="ctrl.onChangeGroupValue(group)"
+               spellcheck="false"
+               placeholder="@text(lang, "введите часть названия", "увядзіце частку назвы", "type part of title")"
+               ng-focus="ctrl.onSelectGroup($index)">
         <a class="loading color{{$index + 1}}" ng-if="group.isLoading" tabindex="-1">
             <i class="mi mi-process mi-lg"></i>
         </a>
@@ -87,11 +93,34 @@
 </div>
 
 <div id="map">
-    <div class="group" ng-repeat="group in ctrl.groups" ng-class="{silented: ctrl.isSilentedGroup($index)}">
-        <div class="mark color{{$parent.$index + 1 + ' ' + item._typeClass}}" ng-repeat="item in group.items" ng-class="{highlight: item._mapHighlight}" ng-style="{left: item.screen[0][0] + '%', top: item.screen[0][1] + '%'}"
-             ng-mouseover="item._sideHighlight = true" ng-mouseleave="item._sideHighlight = false" uib-tooltip="{{Core.itemTypeAbbr(item) + ' ' + item.title}}" tooltip-append-to-body="true"
+    <div class="group color{{$index + 1}}" ng-repeat="group in ctrl.groups" ng-class="{silented: ctrl.isSilentedGroup($index)}">
+        <div class="mark {{item._typeClass}}"
+             ng-repeat="item in Core.pointItems(group)"
+             ng-class="{highlight: item._mapHighlight}"
+             ng-style="{left: item.screen[0][0] + '%', top: item.screen[0][1] + '%'}"
+             ng-mouseover="item._sideHighlight = true"
+             ng-mouseleave="item._sideHighlight = false"
+             uib-tooltip="{{Core.itemTypeAbbr(item) + ' ' + item.title}}"
+             tooltip-append-to-body="true"
              ng-click="ctrl.onClickMark(item, $index, $parent.$index)"></div>
     </div>
+    <svg width="100%" height="100%" viewBox="0 0 100 100">
+        <g ng-repeat="group in ctrl.groups" ng-class="{silented: ctrl.isSilentedGroup($index)}">
+            <polyline ng-repeat="item in Core.polylineItems(group)"
+                      stroke="gray"
+                      vector-effect="non-scaling-stroke"
+                      stroke-width="3"
+                      stroke-linejoin="round"
+                      stroke-linecap="round"
+                      fill="none"
+                      ng-attr-points="{{Core.polylinePoints(item)}}"
+                      ng-mouseover="item._sideHighlight = true"
+                      ng-mouseleave="item._sideHighlight = false"
+                      uib-tooltip="{{Core.itemTypeAbbr(item) + ' ' + item.title}}"
+                      tooltip-append-to-body="true"
+                      ng-click="ctrl.onClickMark(item, $index, $parent.$index)" />
+        </g>
+    </svg>
 </div>
 
 <div id="socials">
