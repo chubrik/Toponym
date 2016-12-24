@@ -2,12 +2,12 @@
     public class GpsCoords {
 
         /// <summary>
-        /// Широта (на глобусе вверх)
+        /// To top on the globe
         /// </summary>
         public float Latitude { get; private set; }
 
         /// <summary>
-        /// Долгота (на глобусе вправо)
+        /// To right on the globe
         /// </summary>
         public float Longitude { get; private set; }
 

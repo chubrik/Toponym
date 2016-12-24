@@ -2,12 +2,12 @@
     public class ScreenCoords {
 
         /// <summary>
-        /// На экране вправо, %
+        /// To right on the screen, %
         /// </summary>
         public float X { get; private set; }
 
         /// <summary>
-        /// На экране вниз, %
+        /// To down on the screen, %
         /// </summary>
         public float Y { get; private set; }
 

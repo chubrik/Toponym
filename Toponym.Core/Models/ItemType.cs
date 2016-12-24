@@ -3,7 +3,7 @@
 
         Unknown = 0,
 
-        // Населённые пункты
+        // Populated places
 
         PopulatedUnknown = 100,
         Agrogorodok,
@@ -18,7 +18,7 @@
         SelskiNaselennyPunkt,
         Hutor,
 
-        // Водные объекты
+        // Water objects
 
         WaterUnknown = 200,
         River,

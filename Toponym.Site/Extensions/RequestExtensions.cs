@@ -4,25 +4,25 @@ using System.Linq;
 namespace Toponym.Site.Extensions {
     public static class RequestExtensions {
 
-        // https://goo.gl/nkgsV8
+        // https://developers.facebook.com/docs/sharing/webmasters/crawler
         public static bool IsFacebookBot(this HttpRequest request) {
             var userAgent = request.Headers["User-Agent"].Single();
             return userAgent.Contains("facebookexternalhit") || userAgent.Contains("Facebot");
         }
 
-        // http://goo.gl/cEVwvQ
+        // https://vk.com/dev/video_emb
         public static bool IsVkBot(this HttpRequest request) {
             var userAgent = request.Headers["User-Agent"].Single();
             return userAgent.Contains("vkShare");
         }
 
-        // https://goo.gl/rp1ZLZ
+        // https://dev.twitter.com/cards/getting-started#crawling
         public static bool IsTwitterBot(this HttpRequest request) {
             var userAgent = request.Headers["User-Agent"].Single();
             return userAgent.Contains("Twitterbot");
         }
 
-        // http://goo.gl/rK1lR
+        // http://stackoverflow.com/questions/9038625/detect-if-device-is-ios
         public static bool IsIos(this HttpRequest request) {
             var userAgent = request.Headers["User-Agent"].Single();
             return userAgent.Contains("iPhone") || userAgent.Contains("iPad") || userAgent.Contains("iPod");
