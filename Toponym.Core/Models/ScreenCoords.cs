@@ -4,12 +4,12 @@
         /// <summary>
         /// На экране вправо, %
         /// </summary>
-        public float X { get; set; }
+        public float X { get; private set; }
 
         /// <summary>
         /// На экране вниз, %
         /// </summary>
-        public float Y { get; set; }
+        public float Y { get; private set; }
 
         public ScreenCoords(float x, float y) {
             X = x;

@@ -4,12 +4,12 @@
         /// <summary>
         /// Широта (на глобусе вверх)
         /// </summary>
-        public float Latitude { get; set; }
+        public float Latitude { get; private set; }
 
         /// <summary>
         /// Долгота (на глобусе вправо)
         /// </summary>
-        public float Longitude { get; set; }
+        public float Longitude { get; private set; }
 
         public GpsCoords(float latitude, float longitude) {
             Latitude = latitude;

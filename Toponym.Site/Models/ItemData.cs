@@ -9,16 +9,16 @@ namespace Toponym.Site.Models {
     public class ItemData {
 
         [JsonProperty("title")]
-        public string Title { get; set; }
+        public string Title { get; private set; }
 
         [JsonProperty("type")]
-        public ItemType Type { get; set; }
+        public ItemType Type { get; private set; }
 
         [JsonProperty("gps")]
-        public float[] Gps { get; set; }
+        public float[] Gps { get; private set; }
 
         [JsonProperty("screen")]
-        public List<float[]> Screen { get; set; }
+        public List<float[]> Screen { get; private set; }
 
         public ItemData(Item item, Language language) {
             if (item == null)
