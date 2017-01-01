@@ -62,7 +62,7 @@ namespace Toponym.Site.Controllers {
                 return JsonResult(ResponseStatus.SyntaxError);
 
             var matched = _dataService.GetItems(regex, request.Type, request.Language);
-            var limited = matched.Take(SiteConstants.ItemCountLimit);
+            var limited = matched.Take(Constants.ItemCountLimit);
             var data = limited.Select(i => new ItemData(i, request.Language)).ToList();
             return JsonResult(data, matched.Count);
         }
@@ -70,13 +70,13 @@ namespace Toponym.Site.Controllers {
         private static bool CheckHost(HttpRequest request, out IActionResult result) {
             var host = request.Host.Host;
 
-            if (host == SiteConstants.DefaultHost || host == "localhost") {
+            if (host == Constants.DefaultHost || host == "localhost") {
                 result = null;
                 return true;
             }
 
             var builder = new UriBuilder {
-                Host = SiteConstants.DefaultHost,
+                Host = Constants.DefaultHost,
                 Port = 80,
                 Path = request.Path,
                 Query = request.QueryString.Value

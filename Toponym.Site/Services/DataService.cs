@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using Toponym.Core;
 using Toponym.Core.Models;
-using Toponym.Core.Services;
 using Toponym.Site.Models;
 using Group = Toponym.Site.Models.Group;
 
@@ -19,8 +20,16 @@ namespace Toponym.Site.Services {
 
         public DataService(IHostingEnvironment environment) {
             var dataPath = Path.Combine(environment.ContentRootPath, "App_Data", CoreConstants.DataFile);
-            var data = FileService.Read<List<ItemStorageData>>(dataPath);
-            _items = data.Select(i => new Item(i)).ToList();
+
+            using (var fileStream = new FileStream(dataPath, FileMode.Open)) {
+                using (var streamReader = new StreamReader(fileStream)) {
+                    using (var jsonTextReader = new JsonTextReader(streamReader)) {
+                        var data = new JsonSerializer().Deserialize<List<ItemStorageData>>(jsonTextReader);
+                        _items = data.Select(i => new Item(i)).ToList();
+                    }
+                }
+            }
+
             CssBundleHash = GetFileHash(Path.Combine(environment.WebRootPath, @"css\toponym.min.css"));
             JsBundleHash = GetFileHash(Path.Combine(environment.WebRootPath, @"js\toponym.min.js"));
         }

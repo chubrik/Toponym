@@ -1,10 +1,10 @@
-﻿@using Toponym.Core
+﻿@using Toponym.Site
 @using Toponym.Site.Extensions
 @using Toponym.Site.Helpers
 @using Toponym.Site.Models
 @using Toponym.Site.Services
 @{
-    const string defaultHost = SiteConstants.DefaultHost;
+    const string defaultHost = Constants.DefaultHost;
     const string fbAppId = "606010706223050";
     var firstQuery = (string)ViewBag.FirstQuery;
     //var firstType = (Group)ViewBag.FirstType;
@@ -48,7 +48,7 @@
 <!doctype html>
 <html lang="@text(lang, "ru", "be", "en")" ng-app="toponym" ng-strict-di>
 <head prefix="og: http://ogp.me/ns#">
-    <link href="/css/@(Utils.IsDebug() ? "toponym.dev.css" : "toponym.min.css")?@DataService.CssBundleHash" rel="stylesheet">
+    <link href="/css/@(Constants.IsDebug ? "toponym.dev.css" : "toponym.min.css")?@DataService.CssBundleHash" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,500|Material+Icons&subset=latin,cyrillic" rel="stylesheet">
     <meta charset="utf-8">
     <title>@htmlTitle</title>
@@ -80,12 +80,12 @@
     }
     <meta name="viewport" content="width=1170">
     @if (Context.Request.IsIos()) {
-        <meta name="apple-mobile-web-app-title" content="@text(lang, "Топонимы", "Тапонімы", "Toponyms")">
+        <meta name="apple-mobile-web-app-title" content="@text(lang, "Топоним", "Тапонім", "Toponym")">
         <link rel="apple-touch-icon" href="@Url.Content("~/img/logo-touch.png")">
     }
 </head>
 <body>
-    @(Utils.IsDebug()
+    @(Constants.IsDebug
         ? Html.Raw("    <!-- Debug mode. Counters are hidden. -->\n\n")
         : Html.Partial("_Counters"))
 
@@ -115,7 +115,7 @@
         </footer>
     </div>
 
-    <script src="/js/@(Utils.IsDebug() ? "toponym.dev.js" : "toponym.min.js")?@DataService.JsBundleHash"></script>
+    <script src="/js/@(Constants.IsDebug ? "toponym.dev.js" : "toponym.min.js")?@DataService.JsBundleHash"></script>
 
     <script>
         Toponym.startup({
