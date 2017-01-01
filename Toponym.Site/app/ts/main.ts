@@ -167,14 +167,13 @@ export class MainController {
         return index === 0 && this.groups.length === 1 && !this.groups[0].value;
     }
 
-    onClickMark(item: IItem, index: number, groupIndex: number): void {
+    onClickMark(item: IItem, groupIndex: number): void {
         checkArgument(item, 'item');
-        checkArgument(index, 'index');
         checkArgument(groupIndex, 'groupIndex');
 
         if (groupIndex === this.currentGroupIndex) {
 
-            const itemElement = $('#side .item').eq(index);
+            const itemElement = $('#side .item.highlight');
 
             if (!itemElement.length)
                 throw invalidOperation();
@@ -190,7 +189,7 @@ export class MainController {
         else {
             this.onSelectGroup(groupIndex)
                 .then(() => {
-                    const itemElement = $('#side .item').eq(index);
+                    const itemElement = $('#side .item.highlight');
 
                     if (!itemElement.length)
                         throw invalidOperation();

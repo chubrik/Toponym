@@ -7332,10 +7332,10 @@ button.close {
 #form input.color1::-webkit-input-placeholder {
   color: #3f85f2;
 }
-#form input.color1::-moz-placeholder {
+#form input.color1:-moz-placeholder {
   color: #3f85f2;
 }
-#form input.color1:-moz-placeholder {
+#form input.color1::-moz-placeholder {
   color: #3f85f2;
 }
 #form input.color1:-ms-input-placeholder {
@@ -7347,10 +7347,10 @@ button.close {
 #form input.color2::-webkit-input-placeholder {
   color: #db4437;
 }
-#form input.color2::-moz-placeholder {
+#form input.color2:-moz-placeholder {
   color: #db4437;
 }
-#form input.color2:-moz-placeholder {
+#form input.color2::-moz-placeholder {
   color: #db4437;
 }
 #form input.color2:-ms-input-placeholder {
@@ -7362,10 +7362,10 @@ button.close {
 #form input.color3::-webkit-input-placeholder {
   color: #f4b400;
 }
-#form input.color3::-moz-placeholder {
+#form input.color3:-moz-placeholder {
   color: #f4b400;
 }
-#form input.color3:-moz-placeholder {
+#form input.color3::-moz-placeholder {
   color: #f4b400;
 }
 #form input.color3:-ms-input-placeholder {
@@ -7377,10 +7377,10 @@ button.close {
 #form input.color4::-webkit-input-placeholder {
   color: #0f9d58;
 }
-#form input.color4::-moz-placeholder {
+#form input.color4:-moz-placeholder {
   color: #0f9d58;
 }
-#form input.color4:-moz-placeholder {
+#form input.color4::-moz-placeholder {
   color: #0f9d58;
 }
 #form input.color4:-ms-input-placeholder {
@@ -7392,10 +7392,10 @@ button.close {
 #form input.color5::-webkit-input-placeholder {
   color: #7e3794;
 }
-#form input.color5::-moz-placeholder {
+#form input.color5:-moz-placeholder {
   color: #7e3794;
 }
-#form input.color5:-moz-placeholder {
+#form input.color5::-moz-placeholder {
   color: #7e3794;
 }
 #form input.color5:-ms-input-placeholder {
@@ -7461,8 +7461,6 @@ button.close {
 #form:hover .add-group {
   opacity: 1;
 }
-/* http://google.github.io/material-design-icons/ */
-/* Проектная часть */
 i.mi {
   font-family: 'Material Icons';
   font-weight: normal;
@@ -7487,89 +7485,10 @@ i.mi {
   /* Support for IE. */
   font-feature-settings: 'liga';
   font-size: 18px;
-  /* Исправление. Было 24px. */
   vertical-align: middle;
   margin: -0.2em -0.05em -0.05em -0.05em;
   overflow-wrap: normal;
   word-break: normal;
-  /*&.mi-xl {
-        font-size: 36px;
-    }
-
-    &.mi-xxl {
-        font-size: 48px;
-    }*/
-  /*.icon(ads, wifi_tethering);
-    .icon(block);
-    .icon(blog, local_library);
-    .icon(calendar, event);
-    .icon(cart, shopping_cart);
-    .icon(clip-horiz, attachment);
-    .icon(clip-vert, attach_file);
-    .icon(clock, access_time);
-    .icon(cloud-up, cloud_upload);
-    .icon(copy, content_copy);
-    .icon(design, palette);
-    .icon(down, keyboard_arrow_down);
-    .icon(edit);
-    .icon(error);
-    .icon(filter, filter_list);
-    .icon(folder);
-    .icon(folder-open, folder_open);
-    .icon-flip(goto, reply);
-    .icon(home);
-    .icon(hourglass, hourglass_empty);
-    .icon(image, photo);
-    .icon(info);
-    .icon(info-outline, info_outline);
-    .icon(join-vert, unfold_less);
-    .icon(left, keyboard_arrow_left);
-    .icon(left-arrow, arrow_back);
-    .icon(lock);
-    .icon(lines, menu);
-    .icon(list, view_list);
-    .icon(mail, mail_outline);
-    .icon(menus, dns);
-    .icon(minus, remove);
-    .icon(more, more_horiz);
-    .icon(ok, done);
-    .icon(page, description);
-    .icon(paste, content_paste);
-    .icon(photo, photo_camera);
-    .icon(play, play_arrow);*/
-  /*.icon-spin-back(reverse, sync);
-    .icon(right, keyboard_arrow_right);
-    .icon(right-arrow, arrow_forward);
-    .icon(search);
-    .icon(settings);
-    .icon(split-vert, unfold_more);
-    .icon(stop);
-    .icon(tiles, view_module);
-    .icon(timer);
-    .icon(trash, delete);
-    .icon(undo);
-    .icon(up, keyboard_arrow_up);
-    .icon(user, person);
-    .icon(wallet, account_balance_wallet);
-    .icon(warning);
-    .icon(world, language);*/
-  /*.icon(zoom, loupe);*/
-  /*.icon-flip(@name, @googleName: @name) {
-        &.mi-@{name} {
-            .flip;
-
-            &:after {
-                content: '@{googleName}';
-            }
-        }
-    }*/
-  /*.icon-spin-back(@name, @googleName: @name) {
-        &.mi-@{name}:after {
-            display: inline-block;
-            content: '@{googleName}';
-            .spin-back;
-        }
-    }*/
 }
 i.mi.mi-lg {
   font-size: 24px;
@@ -7580,18 +7499,22 @@ i.mi.mi-plus:after {
 i.mi.mi-process:after {
   display: inline-block;
   content: 'autorenew';
+  -webkit-animation: spin 1.5s infinite linear;
+  -moz-animation: spin 1.5s infinite linear;
+  -o-animation: spin 1.5s infinite linear;
   animation: spin 1.5s infinite linear;
 }
 i.mi.mi-x:after {
   content: 'close';
 }
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(359deg);
-  }
+lesshat-selector {
+  -lh-property: 0; } 
+@-webkit-keyframes spin{ 0% { -webkit-transform: rotate(0deg); } 100% { -webkit-transform: rotate(359deg); }}
+@-moz-keyframes spin{ 0% { -moz-transform: rotate(0deg); } 100% { -moz-transform: rotate(359deg); }}
+@-o-keyframes spin{ 0% { -o-transform: rotate(0deg); } 100% { -o-transform: rotate(359deg); }}
+@keyframes spin{ 0% {-webkit-transform: rotate(0deg);-moz-transform: rotate(0deg);-ms-transform: rotate(0deg);transform: rotate(0deg); } 100% {-webkit-transform: rotate(359deg);-moz-transform: rotate(359deg);-ms-transform: rotate(359deg);transform: rotate(359deg); }}
+[not-existing] {
+  zoom: 1;
 }
 header {
   position: fixed;
@@ -7695,6 +7618,7 @@ footer a:hover .github {
   }
 }
 #map .group {
+  width: 100%;
   -webkit-transition: 0.7s;
   -moz-transition: 0.7s;
   -o-transition: 0.7s;
@@ -7702,6 +7626,36 @@ footer a:hover .github {
 }
 #map .group.silented {
   opacity: 0.35;
+}
+#map .group.color1 > .mark {
+  background-color: #3f85f2;
+}
+#map .group.color2 > .mark {
+  background-color: #db4437;
+}
+#map .group.color3 > .mark {
+  background-color: #f4b400;
+}
+#map .group.color4 > .mark {
+  background-color: #0f9d58;
+}
+#map .group.color5 > .mark {
+  background-color: #7e3794;
+}
+#map .group.color1 > polyline {
+  stroke: #3f85f2;
+}
+#map .group.color2 > polyline {
+  stroke: #db4437;
+}
+#map .group.color3 > polyline {
+  stroke: #f4b400;
+}
+#map .group.color4 > polyline {
+  stroke: #0f9d58;
+}
+#map .group.color5 > polyline {
+  stroke: #7e3794;
 }
 #map .mark {
   position: absolute;
@@ -7743,53 +7697,68 @@ footer a:hover .github {
 #map .mark:hover {
   opacity: 1;
 }
-#map .mark.color1 {
-  background-color: #3f85f2;
-}
-#map .mark.color2 {
-  background-color: #db4437;
-}
-#map .mark.color3 {
-  background-color: #f4b400;
-}
-#map .mark.color4 {
-  background-color: #0f9d58;
-}
-#map .mark.color5 {
-  background-color: #7e3794;
-}
-#map .highlight {
+#map .mark.highlight {
   opacity: 0.6;
   -webkit-animation: mapHighlight 1s infinite linear;
   -moz-animation: mapHighlight 1s infinite linear;
   -o-animation: mapHighlight 1s infinite linear;
   animation: mapHighlight 1s infinite linear;
 }
-#map .highlight.water {
+#map .mark.highlight.water {
   -webkit-animation: mapHighlightRotated 1s infinite linear;
   -moz-animation: mapHighlightRotated 1s infinite linear;
   -o-animation: mapHighlightRotated 1s infinite linear;
   animation: mapHighlightRotated 1s infinite linear;
 }
-@keyframes mapHighlight {
-  5% {
-    opacity: 1;
-    -webkit-transform: scale(1.75);
-    -moz-transform: scale(1.75);
-    -ms-transform: scale(1.75);
-    -o-transform: scale(1.75);
-    transform: scale(1.75);
-  }
+#map polyline {
+  opacity: 0.5;
+  cursor: pointer;
+  vector-effect: non-scaling-stroke;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  fill: none;
+  -webkit-transition: 0.2s;
+  -moz-transition: 0.2s;
+  -o-transition: 0.2s;
+  transition: 0.2s;
 }
-@keyframes mapHighlightRotated {
-  5% {
-    opacity: 1;
-    -webkit-transform: scale(1.75) rotate(45deg);
-    -moz-transform: scale(1.75) rotate(45deg);
-    -ms-transform: scale(1.75) rotate(45deg);
-    -o-transform: scale(1.75) rotate(45deg);
-    transform: scale(1.75) rotate(45deg);
-  }
+#map polyline:hover {
+  opacity: 1;
+  stroke-width: 5;
+}
+#map polyline.highlight {
+  -webkit-animation: mapHighlightPolyline 1s infinite linear;
+  -moz-animation: mapHighlightPolyline 1s infinite linear;
+  -o-animation: mapHighlightPolyline 1s infinite linear;
+  animation: mapHighlightPolyline 1s infinite linear;
+}
+lesshat-selector {
+  -lh-property: 0; } 
+@-webkit-keyframes mapHighlight{ 5% { opacity: 1; -webkit-transform: scale(1.75); }}
+@-moz-keyframes mapHighlight{ 5% { opacity: 1; -moz-transform: scale(1.75); }}
+@-o-keyframes mapHighlight{ 5% { opacity: 1; -o-transform: scale(1.75); }}
+@keyframes mapHighlight{ 5% { opacity: 1;-webkit-transform: scale(1.75);-moz-transform: scale(1.75);-ms-transform: scale(1.75);transform: scale(1.75); }}
+[not-existing] {
+  zoom: 1;
+}
+lesshat-selector {
+  -lh-property: 0; } 
+@-webkit-keyframes mapHighlightRotated{ 5% { opacity: 1; -webkit-transform: scale(1.75) rotate(45deg); }}
+@-moz-keyframes mapHighlightRotated{ 5% { opacity: 1; -moz-transform: scale(1.75) rotate(45deg); }}
+@-o-keyframes mapHighlightRotated{ 5% { opacity: 1; -o-transform: scale(1.75) rotate(45deg); }}
+@keyframes mapHighlightRotated{ 5% { opacity: 1;-webkit-transform: scale(1.75) rotate(45deg);-moz-transform: scale(1.75) rotate(45deg);-ms-transform: scale(1.75) rotate(45deg);transform: scale(1.75) rotate(45deg); }}
+[not-existing] {
+  zoom: 1;
+}
+lesshat-selector {
+  -lh-property: 0; } 
+@-webkit-keyframes mapHighlightPolyline{ 5% { opacity: 1; stroke-width: 10; }}
+@-moz-keyframes mapHighlightPolyline{ 5% { opacity: 1; stroke-width: 10; }}
+@-o-keyframes mapHighlightPolyline{ 5% { opacity: 1; stroke-width: 10; }}
+@keyframes mapHighlightPolyline{ 5% { opacity: 1; stroke-width: 10; }}
+[not-existing] {
+  zoom: 1;
 }
 #side {
   min-height: 100%;
@@ -7890,6 +7859,12 @@ footer a:hover .github {
 #side .item.expanded div {
   height: 47px;
 }
+#side .item.highlight .title:after {
+  -webkit-animation: sideHighlight 1s infinite linear;
+  -moz-animation: sideHighlight 1s infinite linear;
+  -o-animation: sideHighlight 1s infinite linear;
+  animation: sideHighlight 1s infinite linear;
+}
 #side.color1,
 #side.color1 a {
   color: #0b48a6;
@@ -7940,12 +7915,6 @@ footer a:hover .github {
 #side.color5 .item span:after {
   background-color: #7e3794;
 }
-#side .highlight:after {
-  -webkit-animation: sideHighlight 1s infinite linear;
-  -moz-animation: sideHighlight 1s infinite linear;
-  -o-animation: sideHighlight 1s infinite linear;
-  animation: sideHighlight 1s infinite linear;
-}
 @keyframes sideHighlight {
   10% {
     opacity: 0.5;
@@ -7975,10 +7944,10 @@ footer a:hover .github {
 #socials a img {
   width: 16px;
   margin-right: 3px;
-  -webkit-filter: grayscale(1);
-  -moz-filter: grayscale(1);
-  -ms-filter: grayscale(1);
-  filter: grayscale(1);
+  -webkit-filter: grayscale(100%);
+  -moz-filter: grayscale(100%);
+  -ms-filter: grayscale(100%);
+  filter: grayscale(100%);
 }
 #socials a.fb img {
   opacity: 0.5;

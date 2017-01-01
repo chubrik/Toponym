@@ -1,6 +1,6 @@
 ﻿import { Language } from './types';
 import { MainController } from './main';
-import { rusCase, itemTypeAbbr, itemTypeText, linkLoadmap, linkOsm, linkGoogle, linkYandex } from './utils';
+import { rusCase, itemTypeAbbr, itemTypeText, linkLoadmap, linkOsm, linkGoogle, linkYandex, pointItems, polylineItems, polylinePoints } from './utils';
 import { Service } from './service';
 import { UrlHelper } from './url.helper';
 
@@ -51,7 +51,10 @@ angular
                 linkLoadmap,
                 linkOsm,
                 linkGoogle,
-                linkYandex
+                linkYandex,
+                pointItems,
+                polylineItems,
+                polylinePoints
             };
         }
     ]);

@@ -60,7 +60,7 @@
     }
 
     .item {
-        .transition;
+        .transition(0.2s);
 
         span {
             position: relative;
@@ -96,7 +96,7 @@
             color: gray;
             font-size: 12px;
             line-height: 1.4;
-            .transition;
+            .transition(0.2s);
         }
 
         &.expanded {
@@ -105,6 +105,10 @@
             div {
                 height: 47px;
             }
+        }
+
+        &.highlight .title:after {
+            .animation(sideHighlight 1s infinite linear);
         }
     }
 
@@ -166,13 +170,6 @@
 
     &.color5 .item span:after {
         background-color: @color5;
-    }
-
-    .highlight:after {
-        -webkit-animation: sideHighlight 1s infinite linear;
-        -moz-animation: sideHighlight 1s infinite linear;
-        -o-animation: sideHighlight 1s infinite linear;
-        animation: sideHighlight 1s infinite linear;
     }
 }
 

@@ -55569,6 +55569,18 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
                 throw outOfRange('language');
         }
     }
+    function pointItems(group) {
+        checkArgument(group, 'group');
+        return group.items ? group.items.filter(function (i) { return i.type != 201 /* River */ && i.type != 202; } /* Stream */) : null;
+    }
+    function polylineItems(group) {
+        checkArgument(group, 'group');
+        return group.items ? group.items.filter(function (i) { return i.type == 201 /* River */ || i.type == 202; } /* Stream */) : null;
+    }
+    function polylinePoints(item) {
+        checkArgument(item, 'item');
+        return item.screen.map(function (s) { return s.join(','); }).join(' ');
+    }
     function itemTypeAbbr(item) {
         checkArgument(item, 'item');
         if (item.type >= 100 && item.type < 200)
@@ -55584,47 +55596,6 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
                 return langText('оз.', 'воз.', 'lake');
             case 204 /* Pond */:
                 return langText('пруд', 'саж.', 'pond');
-            default:
-                throw outOfRange('item.type');
-        }
-    }
-    function itemTypeText(item) {
-        checkArgument(item, 'item');
-        switch (item.type) {
-            case 100 /* PopulatedUnknown */:
-                return langText('Населённый пункт', 'Населены пункт', 'Populated locality');
-            //case ItemType.Agrogorodok:
-            //    return langText('Агрогородок', 'Аграгарадок', 'Agrotown');
-            //case ItemType.Gorod:
-            //    return langText('Город', 'Горад', 'City');
-            //case ItemType.GorodskojPoselok:
-            //    return langText('Городской посёлок', 'Гарадскі пасёлак', 'Urban settlement');
-            //case ItemType.Derevnya:
-            //    return langText('Деревня', 'Вёска', 'Hamlet');
-            //case ItemType.KurortnyPoselok:
-            //    return langText('Курортный посёлок', 'Курортны пасёлак', 'Resort settlement');
-            //case ItemType.Poselok:
-            //    return langText('Посёлок', 'Пасёлак', 'Settlement');
-            //case ItemType.PoselokGorodskogoTipa:
-            //    return langText('Посёлок городского типа', 'Пасёлак гарадскога тыпу', 'Urban-type settlement');
-            //case ItemType.RabochiPoselok:
-            //    return langText('Рабочий посёлок', 'Працоўны пасёлак', 'Working settlement');
-            //case ItemType.Selo:
-            //    return langText('Село', 'Сяло', 'Village');
-            //case ItemType.SelskiNaselennyPunkt:
-            //    return langText('Сельский населённый пункт', 'Сельскі населены пункт', 'Rural settlement');
-            //case ItemType.Hutor:
-            //    return langText('Хутор', 'Хутар', 'Bowery');
-            case 200 /* WaterUnknown */:
-                return langText('Водоём', 'Вадаём', 'Water');
-            case 201 /* River */:
-                return langText('Река', 'Рака', 'River');
-            case 202 /* Stream */:
-                return langText('Ручей', 'Ручай', 'Stream');
-            case 203 /* Lake */:
-                return langText('Озеро', 'Возера', 'Lake');
-            case 204 /* Pond */:
-                return langText('Пруд', 'Сажалка', 'Pond');
             default:
                 throw outOfRange('item.type');
         }
@@ -55813,13 +55784,12 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
             checkArgument(index, 'index');
             return index === 0 && this.groups.length === 1 && !this.groups[0].value;
         };
-        MainController.prototype.onClickMark = function (item, index, groupIndex) {
+        MainController.prototype.onClickMark = function (item, groupIndex) {
             var _this = this;
             checkArgument(item, 'item');
-            checkArgument(index, 'index');
             checkArgument(groupIndex, 'groupIndex');
             if (groupIndex === this.currentGroupIndex) {
-                var itemElement = $('#side .item').eq(index);
+                var itemElement = $('#side .item.highlight');
                 if (!itemElement.length)
                     throw invalidOperation();
                 if (!item._isExpanded)
@@ -55832,7 +55802,7 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
             else {
                 this.onSelectGroup(groupIndex)
                     .then(function () {
-                    var itemElement = $('#side .item').eq(index);
+                    var itemElement = $('#side .item.highlight');
                     if (!itemElement.length)
                         throw invalidOperation();
                     if (!item._isExpanded)
@@ -56045,11 +56015,13 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
             $rootScope.Core = {
                 rusCase: rusCase,
                 itemTypeAbbr: itemTypeAbbr,
-                itemTypeText: itemTypeText,
                 linkLoadmap: linkLoadmap,
                 linkOsm: linkOsm,
                 linkGoogle: linkGoogle,
-                linkYandex: linkYandex
+                linkYandex: linkYandex,
+                pointItems: pointItems,
+                polylineItems: polylineItems,
+                polylinePoints: polylinePoints
             };
         }
     ]);
