@@ -1,4 +1,5 @@
 ﻿@import "constants";
+@import "../../node_modules/lesshat/lesshat";
 
 .regular() {
     font-weight: 300;
@@ -8,7 +9,7 @@
     font-weight: 500;
 }
 
-.placeholder(@rules) {
+.placeholder-rules(@rules) {
     &::-webkit-input-placeholder {
         @rules();
     }
@@ -24,21 +25,6 @@
     &:-ms-input-placeholder {
         @rules();
     }
-}
-
-.transition(@dutarion: 0.2s) {
-    -webkit-transition: @dutarion;
-    -moz-transition: @dutarion;
-    -o-transition: @dutarion;
-    transition: @dutarion;
-}
-
-.rotate(@angle) {
-    -webkit-transform: rotate(@angle);
-    -moz-transform: rotate(@angle);
-    -ms-transform: rotate(@angle);
-    -o-transform: rotate(@angle);
-    transform: rotate(@angle);
 }
 
 .tablet-screen(@rules) {

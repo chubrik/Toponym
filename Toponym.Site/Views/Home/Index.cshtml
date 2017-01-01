@@ -47,9 +47,12 @@
             </span>
         }
     </p>
-    <div class="item" ng-repeat="item in ctrl.currentGroup().items | limitTo: ctrl.itemsShowLimit" ng-class="{expanded: item._isExpanded}"
-         ng-mouseover="item._mapHighlight = true" ng-mouseleave="item._mapHighlight = false">
-        <span class="title" ng-class="{highlight: item._sideHighlight}" ng-click="ctrl.onToggleItem(item)">{{item.title}}</span>
+    <div class="item"
+         ng-repeat="item in ctrl.currentGroup().items | limitTo: ctrl.itemsShowLimit"
+         ng-class="{highlight: item._sideHighlight, expanded: item._isExpanded}"
+         ng-mouseover="item._mapHighlight = true"
+         ng-mouseleave="item._mapHighlight = false">
+        <span class="title" ng-click="ctrl.onToggleItem(item)">{{item.title}}</span>
         <span class="type-abbr" ng-if="!item._isExpanded">{{Core.itemTypeAbbr(item)}}</span>
         <div>
             {{Core.itemTypeText(item)}}<br>
@@ -102,23 +105,18 @@
              ng-mouseleave="item._sideHighlight = false"
              uib-tooltip="{{Core.itemTypeAbbr(item) + ' ' + item.title}}"
              tooltip-append-to-body="true"
-             ng-click="ctrl.onClickMark(item, $index, $parent.$index)"></div>
+             ng-click="ctrl.onClickMark(item, $parent.$index)"></div>
     </div>
     <svg width="100%" height="100%" viewBox="0 0 100 100">
-        <g ng-repeat="group in ctrl.groups" ng-class="{silented: ctrl.isSilentedGroup($index)}">
+        <g class="group color{{$index + 1}}" ng-repeat="group in ctrl.groups" ng-class="{silented: ctrl.isSilentedGroup($index)}">
             <polyline ng-repeat="item in Core.polylineItems(group)"
-                      stroke="gray"
-                      vector-effect="non-scaling-stroke"
-                      stroke-width="3"
-                      stroke-linejoin="round"
-                      stroke-linecap="round"
-                      fill="none"
+                      ng-class="{highlight: item._mapHighlight}"
                       ng-attr-points="{{Core.polylinePoints(item)}}"
                       ng-mouseover="item._sideHighlight = true"
                       ng-mouseleave="item._sideHighlight = false"
                       uib-tooltip="{{Core.itemTypeAbbr(item) + ' ' + item.title}}"
                       tooltip-append-to-body="true"
-                      ng-click="ctrl.onClickMark(item, $index, $parent.$index)" />
+                      ng-click="ctrl.onClickMark(item, $parent.$index)" />
         </g>
     </svg>
 </div>

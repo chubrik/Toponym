@@ -1,5 +1,6 @@
-﻿/* http://goo.gl/6diBRN */
+﻿@import "mixins";
 
+// http://google.github.io/material-design-icons/
 .material-icons() {
     font-family: 'Material Icons';
     font-weight: normal;
@@ -24,11 +25,9 @@
     font-feature-settings: 'liga';
 }
 
-/* Проектная часть */
-
 i.mi {
     .material-icons;
-    font-size: 18px; /* Исправление. Было 24px. */
+    font-size: 18px; // Переопределение
     vertical-align: middle;
     margin: -0.2em -0.05em -0.05em -0.05em;
     overflow-wrap: normal;
@@ -38,88 +37,15 @@ i.mi {
         font-size: 24px;
     }
 
-    /*&.mi-xl {
-        font-size: 36px;
-    }
-
-    &.mi-xxl {
-        font-size: 48px;
-    }*/
-
-    /*.icon(ads, wifi_tethering);
-    .icon(block);
-    .icon(blog, local_library);
-    .icon(calendar, event);
-    .icon(cart, shopping_cart);
-    .icon(clip-horiz, attachment);
-    .icon(clip-vert, attach_file);
-    .icon(clock, access_time);
-    .icon(cloud-up, cloud_upload);
-    .icon(copy, content_copy);
-    .icon(design, palette);
-    .icon(down, keyboard_arrow_down);
-    .icon(edit);
-    .icon(error);
-    .icon(filter, filter_list);
-    .icon(folder);
-    .icon(folder-open, folder_open);
-    .icon-flip(goto, reply);
-    .icon(home);
-    .icon(hourglass, hourglass_empty);
-    .icon(image, photo);
-    .icon(info);
-    .icon(info-outline, info_outline);
-    .icon(join-vert, unfold_less);
-    .icon(left, keyboard_arrow_left);
-    .icon(left-arrow, arrow_back);
-    .icon(lock);
-    .icon(lines, menu);
-    .icon(list, view_list);
-    .icon(mail, mail_outline);
-    .icon(menus, dns);
-    .icon(minus, remove);
-    .icon(more, more_horiz);
-    .icon(ok, done);
-    .icon(page, description);
-    .icon(paste, content_paste);
-    .icon(photo, photo_camera);
-    .icon(play, play_arrow);*/
     .icon(plus, add);
     .icon-spin(process, autorenew);
-    /*.icon-spin-back(reverse, sync);
-    .icon(right, keyboard_arrow_right);
-    .icon(right-arrow, arrow_forward);
-    .icon(search);
-    .icon(settings);
-    .icon(split-vert, unfold_more);
-    .icon(stop);
-    .icon(tiles, view_module);
-    .icon(timer);
-    .icon(trash, delete);
-    .icon(undo);
-    .icon(up, keyboard_arrow_up);
-    .icon(user, person);
-    .icon(wallet, account_balance_wallet);
-    .icon(warning);
-    .icon(world, language);*/
     .icon(x, close);
-    /*.icon(zoom, loupe);*/
 
     .icon(@name, @googleName: @name) {
         &.mi-@{name}:after {
             content: '@{googleName}';
         }
     }
-
-    /*.icon-flip(@name, @googleName: @name) {
-        &.mi-@{name} {
-            .flip;
-
-            &:after {
-                content: '@{googleName}';
-            }
-        }
-    }*/
 
     .icon-spin(@name, @googleName: @name) {
         &.mi-@{name}:after {
@@ -128,39 +54,10 @@ i.mi {
             .spin;
         }
     }
-
-    /*.icon-spin-back(@name, @googleName: @name) {
-        &.mi-@{name}:after {
-            display: inline-block;
-            content: '@{googleName}';
-            .spin-back;
-        }
-    }*/
-}
-
-.flip() {
-    -webkit-transform: scaleX(-1);
-    -moz-transform: scaleX(-1);
-    -ms-transform: scaleX(-1);
-    -o-transform: scaleX(-1);
-    transform: scaleX(-1);
 }
 
 .spin() {
-    animation: spin 1.5s infinite linear;
+    .animation(spin 1.5s infinite linear);
 }
 
-.spin-back() {
-    animation: spin 1.5s infinite linear;
-    animation-direction: reverse;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(359deg);
-    }
-}
+.keyframes(~'spin, 0% { transform: rotate(0deg); } 100% { transform: rotate(359deg); }');

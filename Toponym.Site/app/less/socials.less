@@ -28,10 +28,7 @@
         img {
             width: 16px;
             margin-right: 3px;
-            -webkit-filter: grayscale(1);
-            -moz-filter: grayscale(1);
-            -ms-filter: grayscale(1);
-            filter: grayscale(1);
+            .grayscale(100);
         }
         
         &.fb img {
@@ -69,10 +66,7 @@
             }
 
             img {
-                -webkit-filter: grayscale(0);
-                -moz-filter: grayscale(0);
-                -ms-filter: grayscale(0);
-                filter: grayscale(0);
+                .grayscale(0);
                 opacity: 1;
             }
         }

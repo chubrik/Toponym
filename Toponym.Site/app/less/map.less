@@ -43,13 +43,19 @@
         &.color3 > .mark { background-color: @color3; }
         &.color4 > .mark { background-color: @color4; }
         &.color5 > .mark { background-color: @color5; }
+
+        &.color1 > polyline { stroke: @color1; }
+        &.color2 > polyline { stroke: @color2; }
+        &.color3 > polyline { stroke: @color3; }
+        &.color4 > polyline { stroke: @color4; }
+        &.color5 > polyline { stroke: @color5; }
     }
 
     .mark {
         position: absolute;
         opacity: 0.3;
         cursor: pointer;
-        .transition;
+        .transition(0.2s);
 
         &.populated {
             height: @mark-round-w;
@@ -62,7 +68,7 @@
             height: @mark-square-w;
             width: @mark-square-w;
             margin: round(-@mark-square-w / 2);
-            .rotate(45deg);
+            .rotate(45);
         }
 
         .tablet-screen({
@@ -82,42 +88,38 @@
         &:hover {
             opacity: 1;
         }
+
+        &.highlight {
+            opacity: 0.6;
+            .animation(mapHighlight 1s infinite linear);
+
+            &.water {
+                .animation(mapHighlightRotated 1s infinite linear);
+            }
+        }
     }
 
-    .highlight {
-        opacity: 0.6;
-        -webkit-animation: mapHighlight 1s infinite linear;
-        -moz-animation: mapHighlight 1s infinite linear;
-        -o-animation: mapHighlight 1s infinite linear;
-        animation: mapHighlight 1s infinite linear;
+    polyline {
+        opacity: 0.5;
+        cursor: pointer;
+        vector-effect: non-scaling-stroke;
+        stroke-width: 3;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+        fill: none;
+        .transition(0.2s);
 
-        &.water {
-            -webkit-animation: mapHighlightRotated 1s infinite linear;
-            -moz-animation: mapHighlightRotated 1s infinite linear;
-            -o-animation: mapHighlightRotated 1s infinite linear;
-            animation: mapHighlightRotated 1s infinite linear;
+        &:hover {
+            opacity: 1;
+            stroke-width: 5;
+        }
+
+        &.highlight {
+            .animation(mapHighlightPolyline 1s infinite linear);
         }
     }
 }
 
-@keyframes mapHighlight {
-    5% {
-        opacity: 1;
-        -webkit-transform: scale(1.75);
-        -moz-transform: scale(1.75);
-        -ms-transform: scale(1.75);
-        -o-transform: scale(1.75);
-        transform: scale(1.75);
-    }
-}
-
-@keyframes mapHighlightRotated {
-    5% {
-        opacity: 1;
-        -webkit-transform: scale(1.75) rotate(45deg);
-        -moz-transform: scale(1.75) rotate(45deg);
-        -ms-transform: scale(1.75) rotate(45deg);
-        -o-transform: scale(1.75) rotate(45deg);
-        transform: scale(1.75) rotate(45deg);
-    }
-}
+.keyframes(~'mapHighlight, 5% { opacity: 1; transform: scale(1.75); }');
+.keyframes(~'mapHighlightRotated, 5% { opacity: 1; transform: scale(1.75) rotate(45deg); }');
+.keyframes(~'mapHighlightPolyline, 5% { opacity: 1; stroke-width: 10; }');

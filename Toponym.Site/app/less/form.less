@@ -40,7 +40,7 @@
             font-size: 20px;
         });
 
-        .placeholder({
+        .placeholder-rules({
             font-size: 18px;
             .regular;
             position: relative;
@@ -59,27 +59,27 @@
         }
         
         &.color1 {
-            .placeholder({ color: @color1; });
+            .placeholder(@color1);
             &::selection { background-color: @color1; }
         }
         
         &.color2 {
-            .placeholder({ color: @color2; });
+            .placeholder(@color2);
             &::selection { background-color: @color2; }
         }
         
         &.color3 {
-            .placeholder({ color: @color3; });
+            .placeholder(@color3);
             &::selection { background-color: @color3; }
         }
         
         &.color4 {
-            .placeholder({ color: @color4; });
+            .placeholder(@color4);
             &::selection { background-color: @color4; }
         }
         
         &.color5 {
-            .placeholder({ color: @color5; });
+            .placeholder(@color5);
             &::selection { background-color: @color5; }
         }
     }
