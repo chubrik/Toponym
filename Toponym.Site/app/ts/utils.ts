@@ -52,19 +52,19 @@ export function langText(russian: string, belarusian: string, english: string): 
     }
 }
 
-export function pointItems(group: IGroup) {
+export function pointItems(group: IGroup): IItem[] | null {
     checkArgument(group, 'group');
 
-    return group.items ? group.items.filter(i => i.type != ItemType.River && i.type != ItemType.Stream) : null;
+    return group.items ? group.items.filter(i => i.type !== ItemType.River && i.type !== ItemType.Stream) : null;
 }
 
-export function polylineItems(group: IGroup) {
+export function polylineItems(group: IGroup): IItem[] | null {
     checkArgument(group, 'group');
 
-    return group.items ? group.items.filter(i => i.type == ItemType.River || i.type == ItemType.Stream) : null;
+    return group.items ? group.items.filter(i => i.type === ItemType.River || i.type === ItemType.Stream) : null;
 }
 
-export function polylinePoints(item: IItem) {
+export function polylinePoints(item: IItem): string {
     checkArgument(item, 'item');
 
     return item.screen.map(s => s.join(',')).join(' ');
@@ -162,7 +162,7 @@ export function itemTypeText(item: IItem): string {
 export function linkLoadmap(item: IItem): string {
     checkArgument(item, 'item');
 
-    return `${`http://`}m.loadmap.net/${langText('ru', 'ru', 'en')}?qq=${item.gps[0]}%20${item.gps[1]}&z=14&s=-1&c=41&g=1`;
+    return `${`http://`}m.loadmap.net/${langText('ru', 'ru', 'en')}?qq=${item.gps[0]}%20${item.gps[1]}&z=13&s=100000&c=41&g=1`;
 }
 
 export function linkOsm(item: IItem): string {

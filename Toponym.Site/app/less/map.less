@@ -103,7 +103,7 @@
         opacity: 0.5;
         cursor: pointer;
         vector-effect: non-scaling-stroke;
-        stroke-width: 3;
+        stroke-width: 2;
         stroke-linejoin: round;
         stroke-linecap: round;
         fill: none;
@@ -111,7 +111,7 @@
 
         &:hover {
             opacity: 1;
-            stroke-width: 5;
+            stroke-width: 3;
         }
 
         &.highlight {
@@ -122,4 +122,4 @@
 
 .keyframes(~'mapHighlight, 5% { opacity: 1; transform: scale(1.75); }');
 .keyframes(~'mapHighlightRotated, 5% { opacity: 1; transform: scale(1.75) rotate(45deg); }');
-.keyframes(~'mapHighlightPolyline, 5% { opacity: 1; stroke-width: 10; }');
+.keyframes(~'mapHighlightPolyline, 5% { opacity: 1; stroke-width: 8; }');

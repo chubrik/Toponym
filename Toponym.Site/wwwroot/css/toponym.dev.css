@@ -7667,15 +7667,15 @@ footer a:hover .github {
   transition: 0.2s;
 }
 #map .mark.populated {
-  height: 12px;
-  width: 12px;
-  margin: -6px;
-  border-radius: 6px;
-}
-#map .mark.water {
   height: 10px;
   width: 10px;
   margin: -5px;
+  border-radius: 5px;
+}
+#map .mark.water {
+  height: 8px;
+  width: 8px;
+  margin: -4px;
   -webkit-transform: rotate(45deg);
   -moz-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
@@ -7684,13 +7684,13 @@ footer a:hover .github {
 }
 @media screen and (max-width: 1265px), screen and (max-height: 875px) {
   #map .mark.populated {
-    height: 10px;
-    width: 10px;
-    margin: -5px;
-  }
-  #map .mark.water {
     height: 8px;
     width: 8px;
+    margin: -4px;
+  }
+  #map .mark.water {
+    height: 7px;
+    width: 7px;
     margin: -4px;
   }
 }
@@ -7714,7 +7714,7 @@ footer a:hover .github {
   opacity: 0.5;
   cursor: pointer;
   vector-effect: non-scaling-stroke;
-  stroke-width: 3;
+  stroke-width: 2;
   stroke-linejoin: round;
   stroke-linecap: round;
   fill: none;
@@ -7725,7 +7725,7 @@ footer a:hover .github {
 }
 #map polyline:hover {
   opacity: 1;
-  stroke-width: 5;
+  stroke-width: 3;
 }
 #map polyline.highlight {
   -webkit-animation: mapHighlightPolyline 1s infinite linear;
@@ -7753,10 +7753,10 @@ lesshat-selector {
 }
 lesshat-selector {
   -lh-property: 0; } 
-@-webkit-keyframes mapHighlightPolyline{ 5% { opacity: 1; stroke-width: 10; }}
-@-moz-keyframes mapHighlightPolyline{ 5% { opacity: 1; stroke-width: 10; }}
-@-o-keyframes mapHighlightPolyline{ 5% { opacity: 1; stroke-width: 10; }}
-@keyframes mapHighlightPolyline{ 5% { opacity: 1; stroke-width: 10; }}
+@-webkit-keyframes mapHighlightPolyline{ 5% { opacity: 1; stroke-width: 8; }}
+@-moz-keyframes mapHighlightPolyline{ 5% { opacity: 1; stroke-width: 8; }}
+@-o-keyframes mapHighlightPolyline{ 5% { opacity: 1; stroke-width: 8; }}
+@keyframes mapHighlightPolyline{ 5% { opacity: 1; stroke-width: 8; }}
 [not-existing] {
   zoom: 1;
 }
