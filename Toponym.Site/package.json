@@ -11,37 +11,37 @@
     "less:w": "gulp less:w"
   },
   "dependencies": {
-    "angular": "^1.6.1",
+    "angular": "^1.6.4",
     "angular-ui-bootstrap": "^2.4.0",
-    "angular-ui-router": "^0.3.2",
+    "angular-ui-router": "^0.4.2",
     "bootstrap": "^3.3.7",
-    "jquery": "^3.1.1"
+    "jquery": "^3.2.1"
   },
   "devDependencies": {
-    "@types/angular": "^1.5.22",
-    "@types/angular-ui-bootstrap": "^0.13.38",
+    "@types/angular": "^1.6.17",
+    "@types/angular-ui-bootstrap": "^0.13.41",
     "@types/angular-ui-router": "^1.1.36",
-    "@types/bootstrap": "^3.3.32",
-    "@types/jquery": "^2.0.37",
-    "fs-extra": "^1.0.0",
+    "@types/bootstrap": "^3.3.33",
+    "@types/jquery": "^2.0.43",
+    "fs-extra": "^3.0.1",
     "gulp": "^3.9.1",
-    "gulp-clean-css": "^2.3.2",
+    "gulp-clean-css": "^3.2.0",
     "gulp-concat": "^2.6.1",
     "gulp-less": "^3.3.0",
     "gulp-livereload": "^3.8.1",
     "gulp-strip-css-comments": "^1.2.0",
     "lesshat": "^4.1.0",
     "merge2": "^1.0.3",
-    "normalize.css": "^5.0.0",
-    "rollup": "^0.39.2",
-    "rollup-plugin-node-resolve": "^2.0.0",
+    "normalize.css": "^7.0.0",
+    "rollup": "^0.41.6",
+    "rollup-plugin-node-resolve": "^3.0.0",
     "tslint": "^4.2.0",
     "tslint-eslint-rules": "^3.2.3",
     "tslint-microsoft-contrib": "^4.0.0",
-    "typescript": "^2.1.4",
-    "uglify-js": "^2.7.5"
+    "typescript": "^2.3.2",
+    "uglify-js": "^3.0.4"
   },
-  "author": "Arkadi Chubrik <arkadi@chubrik.ru> (http://www.chubrik.ru/)",
-  "license": "SEE LICENSE IN http://www.toponym.org/license",
+  "author": "Arkadi Chubrik <arkadi@chubrik.org> (http://www.chubrik.org/)",
+  "license": "SEE LICENSE IN http://www.toponim.by/license",
   "repository": "bitbucket:chubrik/Toponym"
 }

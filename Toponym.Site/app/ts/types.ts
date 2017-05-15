@@ -1,16 +1,16 @@
-﻿export interface IGroup extends IResponse {
+﻿export interface IResponse {
+    status: Status;
+    items: IItem[] | null;
+    matchCount: number;
+}
+
+export interface IGroup extends IResponse {
     value: string;
     lastValue: string;
     type: GroupType;
     lastType: GroupType;
     isLoading: number;
     isIntensive: boolean;
-}
-
-export interface IResponse {
-    status: Status;
-    items: IItem[] | null;
-    matchCount: number;
 }
 
 export const enum Status {

@@ -43,7 +43,7 @@ rollup({
         const angularMin = fs.readFileSync(path.join(modulesDir, './angular/angular.min.js'), 'utf8');
         const routerMin = fs.readFileSync(path.join(modulesDir, './angular-ui-router/release/angular-ui-router.min.js'), 'utf8');
         const mergedMin = [jqueryMin, angularMin, routerMin, bootstrapDev, transpiled].join('\n');
-        const minified = minify(mergedMin, { fromString: true }).code;
+        const minified = minify(mergedMin).code;
         fs.outputFileSync(path.join(outputDir, './toponym.min.js'), minified);
     })
     .catch(e => {
