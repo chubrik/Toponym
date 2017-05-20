@@ -1,0 +1,10 @@
+{
+  "extends": "../../tslint.json",
+  "rules": {
+    "no-for-in-array": true,
+    "no-unnecessary-qualifier": true,
+    "no-use-before-declare": true,    
+    "no-void-expression": [],
+    "no-unnecessary-type-assertion": true
+  }
+}

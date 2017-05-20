@@ -55,13 +55,17 @@ export function langText(russian: string, belarusian: string, english: string): 
 export function pointItems(group: IGroup): IItem[] | null {
     checkArgument(group, 'group');
 
-    return group.items ? group.items.filter(i => i.type !== ItemType.River && i.type !== ItemType.Stream) : null;
+    return group.items
+        ? group.items.filter(i => i.type !== ItemType.River && i.type !== ItemType.Stream)
+        : null;
 }
 
 export function polylineItems(group: IGroup): IItem[] | null {
     checkArgument(group, 'group');
 
-    return group.items ? group.items.filter(i => i.type === ItemType.River || i.type === ItemType.Stream) : null;
+    return group.items
+        ? group.items.filter(i => i.type === ItemType.River || i.type === ItemType.Stream)
+        : null;
 }
 
 export function polylinePoints(item: IItem): string {
@@ -125,7 +129,8 @@ export function itemTypeText(item: IItem): string {
         //    return langText('Посёлок', 'Пасёлак', 'Settlement');
 
         //case ItemType.PoselokGorodskogoTipa:
-        //    return langText('Посёлок городского типа', 'Пасёлак гарадскога тыпу', 'Urban-type settlement');
+        //    return langText(
+        //        'Посёлок городского типа', 'Пасёлак гарадскога тыпу', 'Urban-type settlement');
 
         //case ItemType.RabochiPoselok:
         //    return langText('Рабочий посёлок', 'Працоўны пасёлак', 'Working settlement');
@@ -134,7 +139,8 @@ export function itemTypeText(item: IItem): string {
         //    return langText('Село', 'Сяло', 'Village');
 
         //case ItemType.SelskiNaselennyPunkt:
-        //    return langText('Сельский населённый пункт', 'Сельскі населены пункт', 'Rural settlement');
+        //    return langText(
+        //        'Сельский населённый пункт', 'Сельскі населены пункт', 'Rural settlement');
 
         //case ItemType.Hutor:
         //    return langText('Хутор', 'Хутар', 'Bowery');
@@ -162,23 +168,26 @@ export function itemTypeText(item: IItem): string {
 export function linkLoadmap(item: IItem): string {
     checkArgument(item, 'item');
 
-    return `${`http://`}m.loadmap.net/${langText('ru', 'ru', 'en')}?qq=${item.gps[0]}%20${item.gps[1]}&z=13&s=100000&c=41&g=1`;
+    return `${'http://'}m.loadmap.net/${langText('ru', 'ru', 'en')}` +
+        `?qq=${item.gps[0]}%20${item.gps[1]}&z=13&s=100000&c=41&g=1`;
 }
 
 export function linkOsm(item: IItem): string {
     checkArgument(item, 'item');
 
-    return `${`http://`}www.openstreetmap.org/?mlat=${item.gps[0]}&mlon=${item.gps[1]}&zoom=14`;
+    return `${'http://'}www.openstreetmap.org/?mlat=${item.gps[0]}&mlon=${item.gps[1]}&zoom=14`;
 }
 
 export function linkGoogle(item: IItem): string {
     checkArgument(item, 'item');
 
-    return `${`https://`}www.google.${langText('ru', 'by', 'com')}/maps/place//@${item.gps[0]},${item.gps[1]},5000m/data=!3m1!1e3!4m2!3m1!1s0x0:0x0?hl=ru`;
+    return `${'https://'}www.google.${langText('ru', 'by', 'com')}/maps/` +
+        `place//@${item.gps[0]},${item.gps[1]},5000m/data=!3m1!1e3!4m2!3m1!1s0x0:0x0?hl=ru`;
 }
 
 export function linkYandex(item: IItem): string {
     checkArgument(item, 'item');
 
-    return `${`https://`}yandex.${langText('ru', 'by', 'com')}/maps?ll=${item.gps[1]},${item.gps[0]}&pt=${item.gps[1]},${item.gps[0]}&z=14&l=sat%2Cskl`;
+    return `${`https://`}yandex.${langText('ru', 'by', 'com')}/maps` +
+        `?ll=${item.gps[1]},${item.gps[0]}&pt=${item.gps[1]},${item.gps[0]}&z=14&l=sat%2Cskl`;
 }

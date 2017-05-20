@@ -15,7 +15,9 @@ export class MainController {
     private timer: ng.IPromise<void>;
     static $inject = ['$scope', '$timeout', '$q', 'service', 'url'];
 
-    constructor($scope: ng.IScope, private $timeout: ng.ITimeoutService, private $q: ng.IQService, private service: Service, private url: UrlHelper) {
+    constructor(
+        $scope: ng.IScope, private $timeout: ng.ITimeoutService, private $q: ng.IQService,
+        private service: Service, private url: UrlHelper) {
 
         this.init();
 
@@ -142,8 +144,12 @@ export class MainController {
         $(window).scrollTop(0);
         const side = $('#side');
         const transition = side.css('transition');
+
         // ReSharper disable once RedundantUnits
-        side.css({ transition: '0s' }).removeClass(`color${this.currentGroupIndex + 1}`).addClass(`color${index + 1}`);
+        side.css({ transition: '0s' })
+            .removeClass(`color${this.currentGroupIndex + 1}`)
+            .addClass(`color${index + 1}`);
+
         this.currentGroupIndex = index;
         this.itemsShowLimit = 50;
 
@@ -158,7 +164,9 @@ export class MainController {
     isSilentedGroup(index: number): boolean {
         checkArgument(index, 'index');
 
-        return this.groups[index] && !this.groups[index].isIntensive && this.groups.some(i => i.isIntensive);
+        return this.groups[index] &&
+            !this.groups[index].isIntensive &&
+            this.groups.some(i => i.isIntensive);
     }
 
     isOneAndEmpty(index: number): boolean {
@@ -198,7 +206,8 @@ export class MainController {
                         this.onToggleItem(item);
 
                     // "html" для FireFox
-                    $('html, body').scrollTop(itemElement.offset().top - $(window).height() / 2.5);
+                    $('html, body')
+                        .scrollTop(itemElement.offset().top - $(window).height() / 2.5);
                 });
         }
     }
@@ -219,7 +228,8 @@ export class MainController {
     }
 
     shareFbUrl(): string {
-        return 'https://www.facebook.com/dialog/share?display=popup&app_id=' + fbAppId + '&href=' + encodeURIComponent(this.canonicalUrl());
+        return 'https://www.facebook.com/dialog/share?display=popup&app_id=' + fbAppId +
+            '&href=' + encodeURIComponent(this.canonicalUrl());
     }
 
     shareVkUrl(): string {
@@ -228,7 +238,10 @@ export class MainController {
 
     shareTwUrl(): string {
         const firstQuery = this.groups[0].value;
-        let text = langText('Смотрите, что есть на карте Беларуси!', 'Глядзіце, што ёсць на карце Беларусі!', 'Look what is on the map of Belarus!');
+        let text = langText(
+            'Смотрите, что есть на карте Беларуси!',
+            'Глядзіце, што ёсць на карце Беларусі!',
+            'Look what is on the map of Belarus!');
 
         if (firstQuery) {
             const count = this.groups[0].matchCount || 0;
@@ -238,14 +251,24 @@ export class MainController {
                 rusCase(count, ['тапонім', 'тапоніма', 'тапонімаў']),
                 count + (count === 1 ? ' toponym' : ' toponyms')) + ` "${firstQuery}"`;
 
-            text = langText(
-                rusCase(count, ['Найден', 'Найдено', 'Найдено'], false /* includeNumber */) + ` ${found} на карте Беларуси.`,
-                rusCase(count, ['Знойдзены', 'Знойдзена', 'Знойдзена'], false /* includeNumber */) + ` ${found} на карце Беларусі.`,
-                `Found ${found} on the map Belarus.`);
+            const textRu =
+                rusCase(count, ['Найден', 'Найдено', 'Найдено'], false /* includeNumber */) +
+                ` ${found} на карте Беларуси.`;
+
+            const textBe =
+                rusCase(count, ['Знойдзены', 'Знойдзена', 'Знойдзена'], false /* includeNumber */) +
+                ` ${found} на карце Беларусі.`;
+
+            text = langText(textRu, textBe, `Found ${found} on the map Belarus.`);
         }
 
-        const tags = langText('#топоним #топонимика #беларусь #белоруссия', '#топоним #топонимика #беларусь #белоруссия', '#toponym #toponymy #belarus #belorussia');
-        return 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text + '\n\n' + this.canonicalUrl() + '\n' + tags);
+        const tags = langText(
+            '#топоним #топонимика #беларусь #белоруссия',
+            '#топоним #топонимика #беларусь #белоруссия',
+            '#toponym #toponymy #belarus #belorussia');
+
+        return 'https://twitter.com/intent/tweet?text=' +
+            encodeURIComponent(text + '\n\n' + this.canonicalUrl() + '\n' + tags);
     }
 
     private canonicalUrl(): string {
@@ -257,7 +280,10 @@ export class MainController {
         checkArgument(suffix, 'suffix');
 
         $event.preventDefault();
-        window.open(($event.currentTarget as HTMLAnchorElement).href, 'share_' + suffix, 'width=600, height=400');
+
+        window.open(
+            ($event.currentTarget as HTMLAnchorElement).href,
+            'share_' + suffix, 'width=600, height=400');
     }
 
     onSetValue(value: string): void {
@@ -277,7 +303,9 @@ export class MainController {
     }
 
     isReseted(): boolean {
-        return this.groups.length === 1 && !this.groups[0].value && this.groups[0].type === GroupType.All;
+        return this.groups.length === 1 &&
+            !this.groups[0].value &&
+            this.groups[0].type === GroupType.All;
     }
 
     isQueryEmpty(): boolean {

@@ -1,0 +1,107 @@
+{
+  "rulesDirectory": [
+    "./node_modules/tslint-eslint-rules/dist/rules",
+    "./node_modules/tslint-microsoft-contrib",
+    "./node_modules/tslint-misc-rules/rules"
+  ],
+  "rules": {
+    //
+    // === TSLint standard rules ===
+    //
+    // TypeScript Specific
+    //
+    "adjacent-overload-signatures": true,
+    "ban-types": [true, ["Object", "Use {} instead."], ["String"]],
+    "member-access": [true, "no-public"],
+    "no-inferrable-types": [true],
+    "no-internal-module": true,
+    "no-namespace": true,
+    "no-non-null-assertion": true,
+    "no-reference": true,
+    "no-var-requires": true,
+    "only-arrow-functions": [true, "allow-declarations"],
+    "prefer-for-of": true,
+    "typedef": [true, "call-signature", "property-declaration"],
+    //
+    // Functionality
+    //
+    "forin": true,
+    "label-position": true,
+    "no-arg": true,
+    "no-bitwise": true,
+    "no-conditional-assignment": true,
+    "no-construct": true,
+    "no-debugger": true,
+    "no-duplicate-super": true,
+    "no-duplicate-variable": true,
+    "no-empty": true,
+    "no-invalid-template-strings": true,
+    "no-invalid-this": [true, "check-function-in-method"],
+    "no-shadowed-variable": true,
+    "no-sparse-arrays": true,
+    "no-switch-case-fall-through": true,
+    "no-unsafe-finally": true,
+    "no-unused-expression": true,
+    "no-var-keyword": true,
+    "radix": true,
+    "triple-equals": [true, "allow-null-check"],
+    "use-isnan": true,
+    //
+    // Maintainability
+    //
+    "eofline": true,
+    "indent": [true, "spaces"],
+    "linebreak-style": [true, "CRLF"],    
+    "max-line-length": [true, 105],
+    "no-trailing-whitespace": true,
+    "trailing-comma": [true, { "multiline": "never", "singleline": "never" }],
+    //
+    // Style
+    //
+    "align": [true, "parameters", "statements"],
+    "arrow-return-shorthand": [true, "multiline"],
+    "callable-types": true,
+    "class-name": true,
+    "interface-over-type-literal": true,
+    "new-parens": true,
+    "no-angle-bracket-type-assertion": true,
+    "no-consecutive-blank-lines": [true, 1],
+    "number-literal-format": true,
+    "no-unnecessary-callback-wrapper": true,
+    "no-unnecessary-initializer": true,
+    "one-variable-per-declaration": [true, "ignore-for-loop"],
+    "prefer-method-signature": true,
+    "prefer-switch": [true, { "min-cases": 2 }],
+    "quotemark": [true, "single"],
+    "semicolon": [true, "always"],
+    "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"],
+    //
+    // === tslint-eslint-rules ===
+    //
+    "no-constant-condition": true,
+    "no-control-regex": true,
+    "no-duplicate-case": true,
+    "no-empty-character-class": true,
+    "no-ex-assign": true,
+    "no-extra-boolean-cast": true,
+    "no-extra-semi": true,
+    "no-inner-declarations": true,
+    "no-invalid-regexp": true,
+    "no-regex-spaces": true,
+    "valid-typeof": true,
+    //
+    // === tslint-microsoft-contrib ===
+    //
+    "no-typeof-undefined": true,
+    "no-unnecessary-bind": true,
+    "no-unnecessary-field-initialization": true,
+    "no-unnecessary-override": true,
+    "no-unsupported-browser-code": true,
+    "no-var-self": true,
+    "promise-must-complete": true,
+    //
+    // === tslint-misc-rules ===
+    //
+    "prefer-or-operator-over-ternary": true
+  }
+}

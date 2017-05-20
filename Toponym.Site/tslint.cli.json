@@ -1,4 +1,0 @@
-{
-    "extends": "./tslint.json",
-    "no-for-in-array": true
-}

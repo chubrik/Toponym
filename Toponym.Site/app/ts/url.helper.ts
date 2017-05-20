@@ -20,7 +20,7 @@ export class UrlHelper {
 
     constructor(private $state: ng.ui.IStateService, $rootScope: ng.IRootScopeService) {
 
-        $rootScope.$on('$stateChangeSuccess', () => {
+        $rootScope.$on('$locationChangeSuccess', () => {
             $rootScope.$broadcast('navigate');
         });
     }

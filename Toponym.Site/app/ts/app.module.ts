@@ -1,6 +1,9 @@
 ﻿import { Language } from './types';
 import { MainController } from './main';
-import { rusCase, itemTypeAbbr, itemTypeText, linkLoadmap, linkOsm, linkGoogle, linkYandex, pointItems, polylineItems, polylinePoints } from './utils';
+import {
+    rusCase, itemTypeAbbr, itemTypeText, linkLoadmap, linkOsm, linkGoogle, linkYandex,
+    pointItems, polylineItems, polylinePoints
+} from './utils';
 import { Service } from './service';
 import { UrlHelper } from './url.helper';
 
@@ -9,7 +12,9 @@ export let defaultHost: string;
 export let language: Language;
 export let fbAppId: string;
 
-export function startup(options: { defaultHost: string, language: Language, fbAppId: string }): void {
+export function startup(options: { defaultHost: string, language: Language, fbAppId: string })
+    : void {
+
     defaultHost = options.defaultHost;
     language = options.language;
     fbAppId = options.fbAppId;
@@ -21,7 +26,8 @@ angular
     .service('url', UrlHelper)
     .config([
         '$logProvider', '$urlRouterProvider', '$locationProvider',
-        ($logProvider: ng.ILogProvider, $urlRouterProvider: ng.ui.IUrlRouterProvider, $locationProvider: ng.ILocationProvider) => {
+        ($logProvider: ng.ILogProvider, $urlRouterProvider: ng.ui.IUrlRouterProvider,
+         $locationProvider: ng.ILocationProvider) => {
             $logProvider.debugEnabled(true);
             $urlRouterProvider.otherwise('/');
             $locationProvider.html5Mode(true);

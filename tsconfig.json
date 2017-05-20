@@ -4,6 +4,7 @@
     "lib": [ "es2015", "dom" ],
     "module": "es2015",
     "moduleResolution": "node",
+    "alwaysStrict": true,
     "declaration": false,
     "sourceMap": false,
     "noImplicitAny": true,
@@ -11,7 +12,7 @@
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     "baseUrl": ".",
-    "rootDir": ".",
-    "outDir": "../dist/js"
+    "rootDir": "./Toponym.Site/app/ts",
+    "outDir": "./Toponym.Site/dist/js"
   }
 }
