@@ -179,9 +179,12 @@ export class MainController {
         checkArgument(item, 'item');
         checkArgument(groupIndex, 'groupIndex');
 
+        const windowHeight = $(window).height();
+
         if (groupIndex === this.currentGroupIndex) {
 
             const itemElement = $('#side .item.highlight');
+            const itemElementOffset = itemElement.offset();
 
             if (!itemElement.length)
                 throw invalidOperation();
@@ -189,15 +192,17 @@ export class MainController {
             if (!item._isExpanded)
                 this.onToggleItem(item);
 
-            // "html" для FireFox
-            $('html, body').animate({
-                scrollTop: itemElement.offset().top - $(window).height() / 2.5
-            }, 500);
+            if (itemElementOffset != null && windowHeight != null)
+                // "html" для FireFox
+                $('html, body').animate({
+                    scrollTop: itemElementOffset.top - windowHeight / 2.5
+                }, 500);
         }
         else {
             this.onSelectGroup(groupIndex)
                 .then(() => {
                     const itemElement = $('#side .item.highlight');
+                    const itemElementOffset = itemElement.offset();
 
                     if (!itemElement.length)
                         throw invalidOperation();
@@ -205,9 +210,10 @@ export class MainController {
                     if (!item._isExpanded)
                         this.onToggleItem(item);
 
-                    // "html" для FireFox
-                    $('html, body')
-                        .scrollTop(itemElement.offset().top - $(window).height() / 2.5);
+                    if (itemElementOffset != null && windowHeight != null)
+                        // "html" для FireFox
+                        $('html, body')
+                            .scrollTop(itemElementOffset.top - windowHeight / 2.5);
                 });
         }
     }

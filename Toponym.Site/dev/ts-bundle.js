@@ -11,22 +11,21 @@ const rollup = require('rollup').rollup;
 const rollupResolve = require('rollup-plugin-node-resolve');
 const ts = require('typescript');
 
-const entryPath = path.join(siteRoot, './dist/js/app.module.js');
+const inputPath = path.join(siteRoot, './dist/js/app.module.js');
 const outputDir = path.join(siteRoot, './wwwroot/js');
 
 rollup({
-    entry: entryPath,
+    input: inputPath,
     plugins: rollupResolve({
         browser: true,
         preferBuiltins: false
     })
 })
-    .then(bundle => {
-
-        const rollupped = bundle.generate({
-            format: 'iife',
-            moduleName: 'Toponym'
-        }).code;
+    .then(bundle => bundle.generate({
+        format: 'iife',
+        name: 'Toponym'
+    }))
+    .then(generated => {
 
         const compilerOptions = {
             allowJs: true,
@@ -34,7 +33,7 @@ rollup({
             target: ts.ScriptTarget.ES5
         };
 
-        const transpiled = ts.transpileModule(rollupped, { compilerOptions }).outputText;
+        const transpiled = ts.transpileModule(generated.code, { compilerOptions }).outputText;
 
         const jqueryDev = fs.readFileSync(path.join(npmRoot, './jquery/dist/jquery.js'), 'utf8');
         const angularDev = fs.readFileSync(path.join(npmRoot, './angular/angular.js'), 'utf8');

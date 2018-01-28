@@ -1,7 +1,7 @@
 // Paths
 const path = require('path');
 const repoRoot = __dirname;
-const siteRoot = path.join(__dirname, './Toponym.Site');
+const siteRoot = path.join(repoRoot, './Toponym.Site');
 const npmRoot = path.join(repoRoot, './node_modules');
 const wwwRoot = path.join(siteRoot, './wwwroot');
 
@@ -41,12 +41,12 @@ gulp.task('less', () => {
 gulp.task('watch', gulp.parallel(
     () => {
         gulp.watch(
-            path.join(siteRoot, './app/less/**'),
+            path.join(siteRoot, './app/less/**').replace(/\\/g, '/'),
             gulp.series('less'));
     },
     () => {
         gulp.watch(
-            path.join(siteRoot, './dist/js/**'),
+            path.join(siteRoot, './dist/js/**').replace(/\\/g, '/'),
             (done) => {
                 execSync('node ./Toponym.Site/dev/ts-bundle.js');
                 done();

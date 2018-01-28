@@ -3,7 +3,7 @@ import { language } from './app.module';
 import { checkArgument, invalidArgument, outOfRange } from './errors';
 
 /** Ни одно из: undefined, null, NaN, Infinity, -Infinity.
-  * Любое значение даст true, включая: '', 0, false  */
+  * Любое значение даст true, включая: '', 0, false */
 export function has(value: any): boolean {
     return value != null && !(typeof value === 'number' && !isFinite(value));
 }
