@@ -1,6 +1,7 @@
-﻿namespace Toponym.Site {
-    public class Constants {
-
+﻿namespace Toponym.Site
+{
+    public class Constants
+    {
         public const string DefaultHost = "toponim.by";
         public const int ItemCountLimit = 1000;
 

@@ -1,6 +1,7 @@
-﻿namespace Toponym.Core.Models {
-    public enum ItemType {
-
+﻿namespace Toponym.Core.Models
+{
+    public enum ItemType
+    {
         Unknown = 0,
 
         // Populated places

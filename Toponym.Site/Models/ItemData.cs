@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Toponym.Core.Models;
 
-namespace Toponym.Site.Models {
+namespace Toponym.Site.Models
+{
     [JsonObject]
-    public class ItemData {
-
+    public class ItemData
+    {
         [JsonProperty("title")]
         public string Title { get; private set; }
 
@@ -20,12 +21,13 @@ namespace Toponym.Site.Models {
         [JsonProperty("screen")]
         public List<float[]> Screen { get; private set; }
 
-        public ItemData(Item item, Language language) {
+        public ItemData(Item item, Language language)
+        {
             if (item == null)
                 throw new ArgumentNullException(nameof(item));
 
-            switch (language) {
-
+            switch (language)
+            {
                 case Language.Russian:
                     Title = item.TitleRu;
                     break;

@@ -8,22 +8,20 @@ using Toponym.Site.Helpers;
 using Toponym.Site.Models;
 using Toponym.Site.Services;
 
-namespace Toponym.Site.Controllers {
-    public class HomeController : Controller {
-
+namespace Toponym.Site.Controllers
+{
+    public class HomeController : Controller
+    {
         private readonly DataService _dataService;
 
-        public HomeController(DataService dataService) {
+        public HomeController(DataService dataService) =>
             _dataService = dataService;
-        }
 
         [Route("")]
         [Route("{lang:regex(^(ru|be|en)$)}")]
-        public IActionResult Index(string q1, Group? type, string lang = "ru") {
-
-            IActionResult result;
-
-            if (!CheckHost(Request, out result))
+        public IActionResult Index(string q1, Group? type, string lang = "ru")
+        {
+            if (!CheckHost(Request, out IActionResult result))
                 return result;
 
             var language = LangHelper.GetByQueryParam(lang);
@@ -43,7 +41,8 @@ namespace Toponym.Site.Controllers {
             return View();
         }
 
-        public class ItemsRequest {
+        public class ItemsRequest
+        {
             public string Query { get; set; }
             public Group Type { get; set; }
             public Language Language { get; set; }
@@ -51,8 +50,8 @@ namespace Toponym.Site.Controllers {
 
         [HttpPost]
         [Route("ajax/items")]
-        public IActionResult Items([FromBody]ItemsRequest request) {
-
+        public IActionResult Items([FromBody]ItemsRequest request)
+        {
             if (string.IsNullOrWhiteSpace(request.Query))
                 return JsonResult(ResponseStatus.Failure);
 
@@ -67,15 +66,18 @@ namespace Toponym.Site.Controllers {
             return JsonResult(data, matched.Count);
         }
 
-        private static bool CheckHost(HttpRequest request, out IActionResult result) {
+        private static bool CheckHost(HttpRequest request, out IActionResult result)
+        {
             var host = request.Host.Host;
 
-            if (host == Constants.DefaultHost || host == "localhost") {
+            if (host == Constants.DefaultHost || host == "localhost")
+            {
                 result = null;
                 return true;
             }
 
-            var builder = new UriBuilder {
+            var builder = new UriBuilder
+            {
                 Host = Constants.DefaultHost,
                 Port = 80,
                 Path = request.Path,
@@ -86,20 +88,22 @@ namespace Toponym.Site.Controllers {
             return false;
         }
 
-        private ContentResult JsonResult(ResponseStatus status) {
-
+        private ContentResult JsonResult(ResponseStatus status)
+        {
             var json = JsonConvert.SerializeObject(
-                new ResponseData {
+                new ResponseData
+                {
                     Status = status
                 });
 
             return Content(json, "application/json");
         }
 
-        private ContentResult JsonResult(List<ItemData> items, int matchCount) {
-
+        private ContentResult JsonResult(List<ItemData> items, int matchCount)
+        {
             var json = JsonConvert.SerializeObject(
-                new ResponseData {
+                new ResponseData
+                {
                     Status = ResponseStatus.Success,
                     Items = items,
                     MatchCount = matchCount

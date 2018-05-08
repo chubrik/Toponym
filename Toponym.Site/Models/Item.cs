@@ -5,10 +5,11 @@ using System.Linq;
 using Toponym.Core.Models;
 using Toponym.Site.Extensions;
 
-namespace Toponym.Site.Models {
+namespace Toponym.Site.Models
+{
     [DebuggerDisplay("{" + nameof(TitleRu) + "}")]
-    public class Item {
-
+    public class Item
+    {
         public string TitleRu { get; private set; }
         public string TitleBe { get; private set; }
         public string TitleEn { get; private set; }
@@ -19,7 +20,8 @@ namespace Toponym.Site.Models {
         public List<ScreenCoords> Screen { get; private set; }
         public Category Category { get; private set; }
 
-        public Item(ItemStorageData data) {
+        public Item(ItemStorageData data)
+        {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
 

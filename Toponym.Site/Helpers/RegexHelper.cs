@@ -2,16 +2,17 @@
 using System.Text.RegularExpressions;
 using Toponym.Site.Models;
 
-namespace Toponym.Site.Helpers {
-    public class RegexHelper {
-
+namespace Toponym.Site.Helpers
+{
+    public class RegexHelper
+    {
         private const string SoftLeft = "[^^ ]";
         private const string SoftRight = "[^$ ]";
         private const string StrictLeft = "(^| |-)";
         private const string StrictRight = "($| |-)";
 
-        public static Regex GetRegex(string query, Language language) {
-
+        public static Regex GetRegex(string query, Language language)
+        {
             if (string.IsNullOrWhiteSpace(query))
                 throw new ArgumentException(nameof(query));
 
@@ -21,19 +22,22 @@ namespace Toponym.Site.Helpers {
             if (language == Language.Russian || language == Language.Belarusian)
                 query = Regex.Replace(query, "ё", "е", RegexOptions.IgnoreCase);
 
-            if (language == Language.Belarusian) {
+            if (language == Language.Belarusian)
+            {
                 query = Regex.Replace(query, "[иі]", "i", RegexOptions.IgnoreCase); // Cyrillic "i" to latin
                 query = Regex.Replace(query, "ў", "у", RegexOptions.IgnoreCase);
                 query = Regex.Replace(query, "щ", "шч", RegexOptions.IgnoreCase);
                 query = Regex.Replace(query, "ъ", "'", RegexOptions.IgnoreCase);
             }
 
-            if (Regex.IsMatch(query, @"^[а-яa-z\s/'-]+$", RegexOptions.IgnoreCase)) {
+            if (Regex.IsMatch(query, @"^[а-яa-z\s/'-]+$", RegexOptions.IgnoreCase))
+            {
                 // It is simple query, not regex
 
                 var parts = query.Split('/');
 
-                for (var i = 0; i < parts.Length; i++) {
+                for (var i = 0; i < parts.Length; i++)
+                {
                     var part = parts[i].Trim();
 
                     if (part.Length < 2)
@@ -42,8 +46,8 @@ namespace Toponym.Site.Helpers {
                     if (part.StartsWith("'") && part.EndsWith("'"))
                         part = StrictLeft + part.Substring(1, part.Length - 2) + StrictRight;
 
-                    else if (part.Contains("-")) {
-
+                    else if (part.Contains("-"))
+                    {
                         // Hyphens in the middle
                         part = Regex.Replace(part, "(?<=[а-яa-z'])-(?=[а-яa-z'])", "[а-яa-z'-]+", RegexOptions.IgnoreCase);
 
@@ -64,10 +68,12 @@ namespace Toponym.Site.Helpers {
                 query = string.Join("|", parts);
             }
 
-            try {
+            try
+            {
                 return new Regex(query, RegexOptions.IgnoreCase);
             }
-            catch (ArgumentException) {
+            catch (ArgumentException)
+            {
                 return null;
             }
         }

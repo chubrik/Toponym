@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace Toponym.Site.Models {
+namespace Toponym.Site.Models
+{
     [JsonObject]
-    public class ResponseData {
-
+    public class ResponseData
+    {
         [JsonProperty("status")]
         public ResponseStatus Status { get; set; }
 

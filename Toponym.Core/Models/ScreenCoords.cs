@@ -1,6 +1,7 @@
-﻿namespace Toponym.Core.Models {
-    public class ScreenCoords {
-
+﻿namespace Toponym.Core.Models
+{
+    public class ScreenCoords
+    {
         /// <summary>
         /// To right on the screen, %
         /// </summary>
@@ -11,7 +12,8 @@
         /// </summary>
         public float Y { get; private set; }
 
-        public ScreenCoords(float x, float y) {
+        public ScreenCoords(float x, float y)
+        {
             X = x;
             Y = y;
         }

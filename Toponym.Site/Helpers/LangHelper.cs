@@ -3,13 +3,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Toponym.Site.Models;
 
-namespace Toponym.Site.Helpers {
-    public class LangHelper {
-
-        public static Language GetByQueryParam(string queryParam) {
-
-            switch (queryParam) {
-
+namespace Toponym.Site.Helpers
+{
+    public class LangHelper
+    {
+        public static Language GetByQueryParam(string queryParam)
+        {
+            switch (queryParam)
+            {
                 case "ru":
                     return Language.Russian;
 
@@ -24,10 +25,10 @@ namespace Toponym.Site.Helpers {
             }
         }
 
-        public static string Text(Language language, string russian, string belarusian, string english) {
-
-            switch (language) {
-
+        public static string Text(Language language, string russian, string belarusian, string english)
+        {
+            switch (language)
+            {
                 case Language.Russian:
                     return russian;
 
@@ -42,9 +43,11 @@ namespace Toponym.Site.Helpers {
             }
         }
 
-        public static string RusCase(int number, string[] cases, bool includeNumber = true) {
+        public static string RusCase(int number, string[] cases, bool includeNumber = true)
+        {
             if (cases == null)
                 throw new ArgumentNullException(nameof(cases));
+
             if (cases.Length < 2 || cases.Length > 3 || cases.Any(string.IsNullOrWhiteSpace))
                 throw new ArgumentException(nameof(cases));
 

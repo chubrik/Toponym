@@ -2,11 +2,12 @@
 using Toponym.Core.Models;
 using Toponym.Site.Models;
 
-namespace Toponym.Site.Extensions {
-    public static class ItemTypeExtensions {
-
-        public static Category ToCategory(this ItemType type) {
-
+namespace Toponym.Site.Extensions
+{
+    public static class ItemTypeExtensions
+    {
+        public static Category ToCategory(this ItemType type)
+        {
             if (type == ItemType.Unknown)
                 return Category.Unknown;
 
