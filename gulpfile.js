@@ -22,7 +22,7 @@ gulp.task('less', () => {
 
     const entryPath =
         gulp.src(path.join(siteRoot, './app/less/app.less'))
-            .pipe(less({ paths: npmRoot }));
+            .pipe(less({ paths: npmRoot, javascriptEnabled: true }));
 
     const merged = merge(normalizePath, bootstrapPath, entryPath);
 
