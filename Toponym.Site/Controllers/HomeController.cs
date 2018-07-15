@@ -20,14 +20,14 @@ namespace Toponym.Site.Controllers
 
         [Route("")]
         [Route("{lang:regex(^(ru|be|en)$)}")]
-        public IActionResult Index(string q1, Group? type, string lang = "ru")
+        public IActionResult Index(string q1, Group? t1, string lang = "ru")
         {
             if (!CheckHost(Request, out IActionResult result))
                 return result;
 
             var language = LangHelper.GetByQueryParam(lang);
             ViewBag.FirstQuery = q1;
-            ViewBag.FirstType = type ?? Group.All;
+            ViewBag.FirstType = t1 ?? Group.All;
             ViewBag.MatchCount = 0;
             ViewBag.Language = language;
 
@@ -37,7 +37,7 @@ namespace Toponym.Site.Controllers
             var regex = RegexHelper.GetRegex(q1, language);
 
             if (regex != null)
-                ViewBag.MatchCount = _dataService.GetEntries(regex, type ?? Group.All, language).Count;
+                ViewBag.MatchCount = _dataService.GetEntries(regex, t1 ?? Group.All, language).Count;
 
             return View();
         }
