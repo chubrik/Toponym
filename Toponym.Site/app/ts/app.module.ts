@@ -1,8 +1,8 @@
 ﻿import { Language } from './types';
 import { MainController } from './main';
 import {
-    rusCase, itemTypeAbbr, itemTypeText, linkLoadmap, linkOsm, linkGoogle, linkYandex,
-    pointItems, polylineItems, polylinePoints
+    rusCase, entryTypeAbbr, entryTypeText, linkLoadmap, linkOsm, linkGoogle, linkYandex,
+    pointEntries, polylineEntries, polylinePoints
 } from './utils';
 import { Service } from './service';
 import { UrlHelper } from './url.helper';
@@ -52,14 +52,14 @@ angular
         '$rootScope', ($rootScope: any) => {
             $rootScope.Core = {
                 rusCase,
-                itemTypeAbbr,
-                itemTypeText,
+                entryTypeAbbr,
+                entryTypeText,
                 linkLoadmap,
                 linkOsm,
                 linkGoogle,
                 linkYandex,
-                pointItems,
-                polylineItems,
+                pointEntries,
+                polylineEntries,
                 polylinePoints
             };
         }

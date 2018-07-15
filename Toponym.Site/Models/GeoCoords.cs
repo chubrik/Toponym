@@ -1,18 +1,18 @@
-﻿namespace Toponym.Core.Models
+﻿namespace Toponym.Site.Models
 {
-    public class GpsCoords
+    public class GeoCoords
     {
         /// <summary>
         /// To top on the globe
         /// </summary>
-        public float Latitude { get; private set; }
+        public float Latitude { get; }
 
         /// <summary>
         /// To right on the globe
         /// </summary>
-        public float Longitude { get; private set; }
+        public float Longitude { get; }
 
-        public GpsCoords(float latitude, float longitude)
+        public GeoCoords(float latitude, float longitude)
         {
             Latitude = latitude;
             Longitude = longitude;

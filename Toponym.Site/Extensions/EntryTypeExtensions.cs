@@ -4,11 +4,11 @@ using Toponym.Site.Models;
 
 namespace Toponym.Site.Extensions
 {
-    public static class ItemTypeExtensions
+    public static class EntryTypeExtensions
     {
-        public static Category ToCategory(this ItemType type)
+        public static Category ToCategory(this EntryType type)
         {
-            if (type == ItemType.Unknown)
+            if (type == EntryType.Unknown)
                 return Category.Unknown;
 
             var code = (int)type;

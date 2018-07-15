@@ -8,20 +8,22 @@ using Toponym.Site.Extensions;
 namespace Toponym.Site.Models
 {
     [DebuggerDisplay("{" + nameof(TitleRu) + "}")]
-    public class Item
+    public class Entry
     {
-        public string TitleRu { get; private set; }
-        public string TitleBe { get; private set; }
-        public string TitleEn { get; private set; }
-        public string TitleRuIndex { get; private set; }
-        public string TitleBeIndex { get; private set; }
-        public ItemType Type { get; private set; }
-        public GpsCoords Gps { get; private set; }
-        public List<ScreenCoords> Screen { get; private set; }
-        public Category Category { get; private set; }
+        public string TitleRu { get; }
+        public string TitleBe { get; }
+        public string TitleEn { get; }
+        public string TitleRuIndex { get; }
+        public string TitleBeIndex { get; }
+        public EntryType Type { get; }
+        public GeoCoords Coords { get; }
+        public List<ScreenCoords> Screen { get; }
+        public Category Category { get; }
 
-        public Item(ItemStorageData data)
+        public Entry(EntryData data)
         {
+            Debug.Assert(data != null);
+
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
 
@@ -39,7 +41,7 @@ namespace Toponym.Site.Models
 
             Type = data.Type;
             Category = data.Type.ToCategory();
-            Gps = new GpsCoords(data.Gps[0], data.Gps[1]);
+            Coords = new GeoCoords(data.Coords[0], data.Coords[1]);
             Screen = data.Screen.Select(i => new ScreenCoords(i[0], i[1])).ToList();
         }
     }

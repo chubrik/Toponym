@@ -1,10 +1,8 @@
-.idea/
 .vs/
 bin/
-node_modules/
 obj/
-npm-debug.log
-Toponym.Site/dist/
-Toponym.Site/Properties/PublishProfiles/
+$*/
+*.pubxml
 *.user
-*.suo
+node_modules/
+npm-debug.log

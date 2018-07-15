@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Toponym.Site.Extensions;
 using Toponym.Site.Helpers;
 using Toponym.Site.Models;
 using Toponym.Site.Services;
@@ -36,12 +37,12 @@ namespace Toponym.Site.Controllers
             var regex = RegexHelper.GetRegex(q1, language);
 
             if (regex != null)
-                ViewBag.MatchCount = _dataService.GetItems(regex, type ?? Group.All, language).Count;
+                ViewBag.MatchCount = _dataService.GetEntries(regex, type ?? Group.All, language).Count;
 
             return View();
         }
 
-        public class ItemsRequest
+        public class EntriesRequest
         {
             public string Query { get; set; }
             public Group Type { get; set; }
@@ -49,8 +50,8 @@ namespace Toponym.Site.Controllers
         }
 
         [HttpPost]
-        [Route("ajax/items")]
-        public IActionResult Items([FromBody]ItemsRequest request)
+        [Route("xhr/entries")]
+        public IActionResult Entries([FromBody]EntriesRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Query))
                 return JsonResult(ResponseStatus.Failure);
@@ -60,9 +61,9 @@ namespace Toponym.Site.Controllers
             if (regex == null)
                 return JsonResult(ResponseStatus.SyntaxError);
 
-            var matched = _dataService.GetItems(regex, request.Type, request.Language);
-            var limited = matched.Take(Constants.ItemCountLimit);
-            var data = limited.Select(i => new ItemData(i, request.Language)).ToList();
+            var matched = _dataService.GetEntries(regex, request.Type, request.Language);
+            var limited = matched.Take(Constants.EntryCountLimit);
+            var data = limited.Select(i => i.ToTransport(request.Language)).ToList();
             return JsonResult(data, matched.Count);
         }
 
@@ -91,7 +92,7 @@ namespace Toponym.Site.Controllers
         private ContentResult JsonResult(ResponseStatus status)
         {
             var json = JsonConvert.SerializeObject(
-                new ResponseData
+                new ResponseTransport
                 {
                     Status = status
                 });
@@ -99,13 +100,13 @@ namespace Toponym.Site.Controllers
             return Content(json, "application/json");
         }
 
-        private ContentResult JsonResult(List<ItemData> items, int matchCount)
+        private ContentResult JsonResult(List<EntryTransport> entries, int matchCount)
         {
             var json = JsonConvert.SerializeObject(
-                new ResponseData
+                new ResponseTransport
                 {
                     Status = ResponseStatus.Success,
-                    Items = items,
+                    Entries = entries,
                     MatchCount = matchCount
                 });
 

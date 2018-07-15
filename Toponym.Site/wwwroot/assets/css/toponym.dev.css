@@ -7489,7 +7489,7 @@ footer a:hover .github {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url('/img/map-layout.png') no-repeat;
+  background: url('/assets/img/map-layout.png') no-repeat;
   z-index: -1;
 }
 @media screen and (max-width: 1265px), screen and (max-height: 875px) {
@@ -7692,18 +7692,18 @@ lesshat-selector {
   word-wrap: break-word;
   line-height: 1;
 }
-#side .item {
+#side .entry {
   -webkit-transition: 0.2s;
   -moz-transition: 0.2s;
   -o-transition: 0.2s;
   transition: 0.2s;
 }
-#side .item span {
+#side .entry span {
   position: relative;
   padding: 2px 5px;
   margin: -2px -5px;
 }
-#side .item span:after {
+#side .entry span:after {
   position: absolute;
   content: '';
   top: 0;
@@ -7713,16 +7713,16 @@ lesshat-selector {
   border-radius: 3px;
   opacity: 0;
 }
-#side .item span.title {
+#side .entry span.title {
   cursor: pointer;
   font-weight: 500;
 }
-#side .item span.type-abbr {
+#side .entry span.type-abbr {
   margin-left: 0px;
   font-size: 12px;
   color: #999;
 }
-#side .item div {
+#side .entry div {
   height: 0;
   overflow: hidden;
   color: gray;
@@ -7733,13 +7733,13 @@ lesshat-selector {
   -o-transition: 0.2s;
   transition: 0.2s;
 }
-#side .item.expanded {
+#side .entry.expanded {
   padding-top: 10px;
 }
-#side .item.expanded div {
+#side .entry.expanded div {
   height: 47px;
 }
-#side .item.highlight .title:after {
+#side .entry.highlight .title:after {
   -webkit-animation: sideHighlight 1s infinite linear;
   -moz-animation: sideHighlight 1s infinite linear;
   -o-animation: sideHighlight 1s infinite linear;
@@ -7780,19 +7780,19 @@ lesshat-selector {
 #side.color5 .example {
   background-color: rgba(126, 55, 148, 0.15);
 }
-#side.color1 .item span:after {
+#side.color1 .entry span:after {
   background-color: #3f85f2;
 }
-#side.color2 .item span:after {
+#side.color2 .entry span:after {
   background-color: #db4437;
 }
-#side.color3 .item span:after {
+#side.color3 .entry span:after {
   background-color: #f4b400;
 }
-#side.color4 .item span:after {
+#side.color4 .entry span:after {
   background-color: #0f9d58;
 }
-#side.color5 .item span:after {
+#side.color5 .entry span:after {
   background-color: #7e3794;
 }
 @keyframes sideHighlight {

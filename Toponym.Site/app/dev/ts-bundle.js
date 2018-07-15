@@ -1,6 +1,6 @@
 // Paths
 const path = require('path');
-const repoRoot = path.join(__dirname, '../..');
+const repoRoot = path.join(__dirname, '../../..');
 const siteRoot = path.join(repoRoot, './Toponym.Site');
 const npmRoot = path.join(repoRoot, './node_modules');
 
@@ -11,8 +11,8 @@ const rollup = require('rollup').rollup;
 const rollupResolve = require('rollup-plugin-node-resolve');
 const ts = require('typescript');
 
-const inputPath = path.join(siteRoot, './dist/js/app.module.js');
-const outputDir = path.join(siteRoot, './wwwroot/js');
+const inputPath = path.join(siteRoot, './$temp/js/app.module.js');
+const outputDir = path.join(siteRoot, './wwwroot/assets/js');
 
 rollup({
     input: inputPath,

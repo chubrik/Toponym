@@ -1,6 +1,6 @@
 ﻿namespace Toponym.Core.Models
 {
-    public enum ItemType
+    public enum EntryType
     {
         Unknown = 0,
 

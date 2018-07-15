@@ -5,12 +5,12 @@
         /// <summary>
         /// To right on the screen, %
         /// </summary>
-        public float X { get; private set; }
+        public float X { get; }
 
         /// <summary>
         /// To down on the screen, %
         /// </summary>
-        public float Y { get; private set; }
+        public float Y { get; }
 
         public ScreenCoords(float x, float y)
         {

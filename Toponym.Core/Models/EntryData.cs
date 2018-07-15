@@ -4,9 +4,9 @@ using System.Diagnostics;
 
 namespace Toponym.Core.Models
 {
-    [DebuggerDisplay("{TitleRu,nq} / {TitleBe ?? \"–\",nq}")]
+    [DebuggerDisplay("{" + nameof(TitleRu) + ",nq} / {" + nameof(TitleBe) + " ?? \"–\",nq}")]
     [JsonObject]
-    public class ItemStorageData
+    public class EntryData
     {
         [JsonProperty("ru")]
         public string TitleRu { get; set; }
@@ -18,10 +18,10 @@ namespace Toponym.Core.Models
         public string TitleEn { get; set; }
 
         [JsonProperty("type")]
-        public ItemType Type { get; set; }
+        public EntryType Type { get; set; }
 
-        [JsonProperty("gps")]
-        public float[] Gps { get; set; }
+        [JsonProperty("geo")]
+        public float[] Coords { get; set; }
 
         [JsonProperty("screen")]
         public List<float[]> Screen { get; set; }

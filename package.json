@@ -4,12 +4,12 @@
   "version": "1.0.0",
   "scripts": {
     "build": "dotnet restore && dotnet build && npm install && npm run ts-bundle && npm run less",
-    "tslint": "tslint -c ./Toponym.Site/dev/tslint.cli.json -p ./tsconfig.json --type-check",
+    "tslint": "tslint -c ./Toponym.Site/app/dev/tslint.cli.json -p ./tsconfig.json --type-check",
     "start": "start npm run server && start npm run ts:w && start npm run watch && exit",
     "clean": "gulp clean",
     "server": "cd ./Toponym.Site/ && dotnet run",
     "server:br": "cd ./Toponym.Site/ && dotnet build && dotnet run",
-    "ts-bundle": "tsc && node ./Toponym.Site/dev/ts-bundle.js",
+    "ts-bundle": "tsc && node ./Toponym.Site/app/dev/ts-bundle.js",
     "ts:w": "tsc -w",
     "less": "gulp less",
     "watch": "gulp watch"

@@ -7,7 +7,7 @@
 <div id="side" class="color1" ng-class="{silented: ctrl.isSilentedGroup(ctrl.currentGroupIndex)}"
      ng-mouseover="ctrl.groups[ctrl.currentGroupIndex].isIntensive = true" ng-mouseleave="ctrl.groups[ctrl.currentGroupIndex].isIntensive = false">
 
-    <div class="group-type" ng-if="ctrl.isNoItemsFound() || ctrl.currentGroup().items.length">
+    <div class="group-type" ng-if="ctrl.isNoEntriesFound() || ctrl.currentGroup().entries.length">
         <label>
             <input type="checkbox" ng-click="ctrl.onClickShowPopulated($event)" ng-checked="ctrl.isShowPopulated()"> @text(lang, "Ойконимы", "Айконімы", "Oikonyms")
         </label>
@@ -24,44 +24,44 @@
     <p ng-if="ctrl.isServerError()">
         @text(lang, "Ошибка связи с сервером", "Памылка сувязі з серверам", "Server connection error")
     </p>
-    <p class="group-type-margin" ng-if="ctrl.isNoItemsFound()">
+    <p class="group-type-margin" ng-if="ctrl.isNoEntriesFound()">
         @text(lang, "Совпадений не найдено", "Супадзенняў ня знойдзена", "No matches found")
     </p>
-    <p class="group-type-margin" ng-if="ctrl.currentGroup().items.length">
+    <p class="group-type-margin" ng-if="ctrl.currentGroup().entries.length">
         @if (lang == Language.Russian) {
             @:{{Core.rusCase(ctrl.currentGroup().matchCount, ['Найден', 'Найдено'], false) + ' ' + Core.rusCase(ctrl.currentGroup().matchCount, ['топоним', 'топонима', 'топонимов']) + (ctrl.isCuttedList() ? '.' : ':')}}
             <span ng-if="ctrl.isCuttedList()">
-                <br>Первые {{ ctrl.currentGroup().items.length }} из них:
+                <br>Первые {{ ctrl.currentGroup().entries.length }} из них:
             </span>
         }
         else if (lang == Language.Belarusian) {
             @:{{Core.rusCase(ctrl.currentGroup().matchCount, ['Знойдзен', 'Знойдзена'], false) + ' ' + Core.rusCase(ctrl.currentGroup().matchCount, ['тапонім', 'тапоніма', 'тапонімаў']) + (ctrl.isCuttedList() ? '.' : ':')}}
             <span ng-if="ctrl.isCuttedList()">
-                <br>Першыя {{ ctrl.currentGroup().items.length }} з іх:
+                <br>Першыя {{ ctrl.currentGroup().entries.length }} з іх:
             </span>
         }
         else if (lang == Language.English) {
             @:Found {{ctrl.currentGroup().matchCount + ' ' + (ctrl.currentGroup().matchCount == 1 ? 'toponym' : 'toponyms') + (ctrl.isCuttedList() ? '.' : ':')}}
             <span ng-if="ctrl.isCuttedList()">
-                <br>The first {{ ctrl.currentGroup().items.length }} of these:
+                <br>The first {{ ctrl.currentGroup().entries.length }} of these:
             </span>
         }
     </p>
-    <div class="item"
-         ng-repeat="item in ctrl.currentGroup().items | limitTo: ctrl.itemsShowLimit"
-         ng-class="{highlight: item._sideHighlight, expanded: item._isExpanded}">
+    <div class="entry"
+         ng-repeat="entry in ctrl.currentGroup().entries | limitTo: ctrl.entriesShowLimit"
+         ng-class="{highlight: entry._sideHighlight, expanded: entry._isExpanded}">
         <span class="title"
-              ng-mouseover="item._mapHighlight = true"
-              ng-mouseleave="item._mapHighlight = false"
-              ng-click="ctrl.onToggleItem(item)">{{item.title}}</span>
-        <span class="type-abbr" ng-if="!item._isExpanded">{{Core.itemTypeAbbr(item)}}</span>
+              ng-mouseover="entry._mapHighlight = true"
+              ng-mouseleave="entry._mapHighlight = false"
+              ng-click="ctrl.onToggleEntry(entry)">{{entry.title}}</span>
+        <span class="type-abbr" ng-if="!entry._isExpanded">{{Core.entryTypeAbbr(entry)}}</span>
         <div>
-            {{Core.itemTypeText(item)}}<br>
+            {{Core.entryTypeText(entry)}}<br>
             @text(lang, "На картах", "На картах", "On maps"):
-            <a href="{{Core.linkLoadmap(item)}}" target="_blank" tabindex="-1">L</a>,
-            <a href="{{Core.linkOsm(item)}}" target="_blank" tabindex="-1">O</a>,
-            <a href="{{Core.linkGoogle(item)}}" target="_blank" tabindex="-1">G</a>,
-            <a href="{{Core.linkYandex(item)}}" target="_blank" tabindex="-1">@text(lang, "Я", "Я", "Y")</a>
+            <a href="{{Core.linkLoadmap(entry)}}" target="_blank" tabindex="-1">L</a>,
+            <a href="{{Core.linkOsm(entry)}}" target="_blank" tabindex="-1">O</a>,
+            <a href="{{Core.linkGoogle(entry)}}" target="_blank" tabindex="-1">G</a>,
+            <a href="{{Core.linkYandex(entry)}}" target="_blank" tabindex="-1">@text(lang, "Я", "Я", "Y")</a>
         </div>
     </div>
 </div>
@@ -98,38 +98,38 @@
 
 <div id="map">
     <div class="group color{{$index + 1}}" ng-repeat="group in ctrl.groups" ng-class="{silented: ctrl.isSilentedGroup($index)}">
-        <div class="mark {{item._typeClass}}"
-             ng-repeat="item in Core.pointItems(group)"
-             ng-class="{highlight: item._mapHighlight}"
-             ng-style="{left: item.screen[0][0] + '%', top: item.screen[0][1] + '%'}"
-             ng-mouseover="item._sideHighlight = true"
-             ng-mouseleave="item._sideHighlight = false"
-             uib-tooltip="{{Core.itemTypeAbbr(item) + ' ' + item.title}}"
+        <div class="mark {{entry._typeClass}}"
+             ng-repeat="entry in Core.pointEntries(group)"
+             ng-class="{highlight: entry._mapHighlight}"
+             ng-style="{left: entry.screen[0][0] + '%', top: entry.screen[0][1] + '%'}"
+             ng-mouseover="entry._sideHighlight = true"
+             ng-mouseleave="entry._sideHighlight = false"
+             uib-tooltip="{{Core.entryTypeAbbr(entry) + ' ' + entry.title}}"
              tooltip-append-to-body="true"
-             ng-click="ctrl.onClickMark(item, $parent.$index)"></div>
+             ng-click="ctrl.onClickMark(entry, $parent.$index)"></div>
     </div>
     <svg width="100%" height="100%" viewBox="0 0 100 100">
         <g class="group color{{$index + 1}}" ng-repeat="group in ctrl.groups" ng-class="{silented: ctrl.isSilentedGroup($index)}">
-            <polyline ng-repeat="item in Core.polylineItems(group)"
-                      ng-class="{highlight: item._mapHighlight}"
-                      ng-attr-points="{{Core.polylinePoints(item)}}"
-                      ng-mouseover="item._sideHighlight = true"
-                      ng-mouseleave="item._sideHighlight = false"
-                      uib-tooltip="{{Core.itemTypeAbbr(item) + ' ' + item.title}}"
+            <polyline ng-repeat="entry in Core.polylineEntries(group)"
+                      ng-class="{highlight: entry._mapHighlight}"
+                      ng-attr-points="{{Core.polylinePoints(entry)}}"
+                      ng-mouseover="entry._sideHighlight = true"
+                      ng-mouseleave="entry._sideHighlight = false"
+                      uib-tooltip="{{Core.entryTypeAbbr(entry) + ' ' + entry.title}}"
                       tooltip-append-to-body="true"
-                      ng-click="ctrl.onClickMark(item, $parent.$index)" />
+                      ng-click="ctrl.onClickMark(entry, $parent.$index)" />
         </g>
     </svg>
 </div>
 
 <div id="socials">
     <a class="fb" href="{{ctrl.shareFbUrl()}}" target="_blank" ng-click="ctrl.onClickShareButton($event, 'fb')">
-        <img src="@Url.Content("~/img/icon-fb.png")"> @text(lang, "опубликовать", "апублікаваць", "publish")
+        <img src="@Url.Content("~/assets/img/icon-fb.png")"> @text(lang, "опубликовать", "апублікаваць", "publish")
     </a>
     <a class="vk" href="{{ctrl.shareVkUrl()}}" target="_blank" ng-click="ctrl.onClickShareButton($event, 'vk')">
-        <img src="@Url.Content("~/img/icon-vk.png")"> @text(lang, "поделиться", "падзяліцца", "share")
+        <img src="@Url.Content("~/assets/img/icon-vk.png")"> @text(lang, "поделиться", "падзяліцца", "share")
     </a>
     <a class="tw" href="{{ctrl.shareTwUrl()}}" target="_blank" ng-click="ctrl.onClickShareButton($event, 'tw')">
-        <img src="@Url.Content("~/img/icon-tw.png")"> @text(lang, "твитнуть", "твітнуць", "tweet")
+        <img src="@Url.Content("~/assets/img/icon-tw.png")"> @text(lang, "твитнуть", "твітнуць", "tweet")
     </a>
 </div>

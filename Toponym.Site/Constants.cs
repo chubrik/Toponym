@@ -3,7 +3,8 @@
     public class Constants
     {
         public const string DefaultHost = "toponim.by";
-        public const int ItemCountLimit = 1000;
+        public const string DataFileName = "data.json";
+        public const int EntryCountLimit = 1000;
 
         public static bool IsDebug =
 #if DEBUG

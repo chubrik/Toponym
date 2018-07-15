@@ -63343,27 +63343,27 @@ var Toponym = (function (exports) {
                 throw outOfRange('language');
         }
     }
-    function pointItems(group) {
+    function pointEntries(group) {
         checkArgument(group, 'group');
-        return group.items
-            ? group.items.filter(function (i) { return i.type !== 201 /* River */ && i.type !== 202; } /* Stream */)
+        return group.entries
+            ? group.entries.filter(function (i) { return i.type !== 201 /* River */ && i.type !== 202; } /* Stream */)
             : null;
     }
-    function polylineItems(group) {
+    function polylineEntries(group) {
         checkArgument(group, 'group');
-        return group.items
-            ? group.items.filter(function (i) { return i.type === 201 /* River */ || i.type === 202; } /* Stream */)
+        return group.entries
+            ? group.entries.filter(function (i) { return i.type === 201 /* River */ || i.type === 202; } /* Stream */)
             : null;
     }
-    function polylinePoints(item) {
-        checkArgument(item, 'item');
-        return item.screen.map(function (s) { return s.join(','); }).join(' ');
+    function polylinePoints(entry) {
+        checkArgument(entry, 'entry');
+        return entry.screen.map(function (s) { return s.join(','); }).join(' ');
     }
-    function itemTypeAbbr(item) {
-        checkArgument(item, 'item');
-        if (item.type >= 100 && item.type < 200)
+    function entryTypeAbbr(entry) {
+        checkArgument(entry, 'entry');
+        if (entry.type >= 100 && entry.type < 200)
             return langText('нп.', 'нп.', 'pop.');
-        switch (item.type) {
+        switch (entry.type) {
             case 200 /* WaterUnknown */:
                 return langText('вод.', 'вад.', 'wat.');
             case 201 /* River */:
@@ -63375,37 +63375,37 @@ var Toponym = (function (exports) {
             case 204 /* Pond */:
                 return langText('пруд', 'саж.', 'pond');
             default:
-                throw outOfRange('item.type');
+                throw outOfRange('entry.type');
         }
     }
-    function itemTypeText(item) {
-        checkArgument(item, 'item');
-        switch (item.type) {
+    function entryTypeText(entry) {
+        checkArgument(entry, 'entry');
+        switch (entry.type) {
             case 100 /* PopulatedUnknown */:
                 return langText('Населённый пункт', 'Населены пункт', 'Populated locality');
-            //case ItemType.Agrogorodok:
+            //case EntryType.Agrogorodok:
             //    return langText('Агрогородок', 'Аграгарадок', 'Agrotown');
-            //case ItemType.Gorod:
+            //case EntryType.Gorod:
             //    return langText('Город', 'Горад', 'City');
-            //case ItemType.GorodskojPoselok:
+            //case EntryType.GorodskojPoselok:
             //    return langText('Городской посёлок', 'Гарадскі пасёлак', 'Urban settlement');
-            //case ItemType.Derevnya:
+            //case EntryType.Derevnya:
             //    return langText('Деревня', 'Вёска', 'Hamlet');
-            //case ItemType.KurortnyPoselok:
+            //case EntryType.KurortnyPoselok:
             //    return langText('Курортный посёлок', 'Курортны пасёлак', 'Resort settlement');
-            //case ItemType.Poselok:
+            //case EntryType.Poselok:
             //    return langText('Посёлок', 'Пасёлак', 'Settlement');
-            //case ItemType.PoselokGorodskogoTipa:
+            //case EntryType.PoselokGorodskogoTipa:
             //    return langText(
             //        'Посёлок городского типа', 'Пасёлак гарадскога тыпу', 'Urban-type settlement');
-            //case ItemType.RabochiPoselok:
+            //case EntryType.RabochiPoselok:
             //    return langText('Рабочий посёлок', 'Працоўны пасёлак', 'Working settlement');
-            //case ItemType.Selo:
+            //case EntryType.Selo:
             //    return langText('Село', 'Сяло', 'Village');
-            //case ItemType.SelskiNaselennyPunkt:
+            //case EntryType.SelskiNaselennyPunkt:
             //    return langText(
             //        'Сельский населённый пункт', 'Сельскі населены пункт', 'Rural settlement');
-            //case ItemType.Hutor:
+            //case EntryType.Hutor:
             //    return langText('Хутор', 'Хутар', 'Bowery');
             case 200 /* WaterUnknown */:
                 return langText('Водоём', 'Вадаём', 'Water');
@@ -63418,27 +63418,29 @@ var Toponym = (function (exports) {
             case 204 /* Pond */:
                 return langText('Пруд', 'Сажалка', 'Pond');
             default:
-                throw outOfRange('item.type');
+                throw outOfRange('entry.type');
         }
     }
-    function linkLoadmap(item) {
-        checkArgument(item, 'item');
+    function linkLoadmap(entry) {
+        checkArgument(entry, 'entry');
         return 'http://' + "m.loadmap.net/" + langText('ru', 'ru', 'en') +
-            ("?qq=" + item.gps[0] + "%20" + item.gps[1] + "&z=13&s=100000&c=41&g=1");
+            ("?qq=" + entry.geo[0] + "%20" + entry.geo[1] + "&z=13&s=100000&c=41&g=1");
     }
-    function linkOsm(item) {
-        checkArgument(item, 'item');
-        return 'http://' + "www.openstreetmap.org/?mlat=" + item.gps[0] + "&mlon=" + item.gps[1] + "&zoom=14";
+    function linkOsm(entry) {
+        checkArgument(entry, 'entry');
+        return 'http://' + "www.openstreetmap.org/" +
+            ("?mlat=" + entry.geo[0] + "&mlon=" + entry.geo[1] + "&zoom=14");
     }
-    function linkGoogle(item) {
-        checkArgument(item, 'item');
+    function linkGoogle(entry) {
+        checkArgument(entry, 'entry');
         return 'https://' + "www.google." + langText('ru', 'by', 'com') + "/maps/" +
-            ("place//@" + item.gps[0] + "," + item.gps[1] + ",5000m/data=!3m1!1e3!4m2!3m1!1s0x0:0x0?hl=ru");
+            ("place//@" + entry.geo[0] + "," + entry.geo[1] + ",5000m/data=!3m1!1e3!4m2!3m1!1s0x0:0x0?hl=ru");
     }
-    function linkYandex(item) {
-        checkArgument(item, 'item');
+    function linkYandex(entry) {
+        checkArgument(entry, 'entry');
         return "https://" + "yandex." + langText('ru', 'by', 'com') + "/maps" +
-            ("?ll=" + item.gps[1] + "," + item.gps[0] + "&pt=" + item.gps[1] + "," + item.gps[0] + "&z=14&l=sat%2Cskl");
+            ("?ll=" + entry.geo[1] + "," + entry.geo[0]) +
+            ("&pt=" + entry.geo[1] + "," + entry.geo[0] + "&z=14&l=sat%2Cskl");
     }
     var isFirstTime = true;
     function checkFirstTime() {
@@ -63478,7 +63480,7 @@ var Toponym = (function (exports) {
             this.loadDelay = 1000;
             this.groups = [];
             this.currentGroupIndex = 0;
-            this.itemsShowLimit = null;
+            this.entriesShowLimit = null;
             this.init();
             $scope.$on('navigate', function () {
                 _this.onNavigate();
@@ -63509,7 +63511,7 @@ var Toponym = (function (exports) {
                     return "continue";
                 if (!group.value) {
                     group.status = 1 /* Success */;
-                    group.items = null;
+                    group.entries = null;
                     group.lastValue = '';
                     group.lastType = 0 /* All */;
                     return "continue";
@@ -63519,22 +63521,22 @@ var Toponym = (function (exports) {
                 group.isLoading = group.isLoading || 0;
                 group.isLoading++;
                 this_1.service
-                    .getItems(group.value, group.type)
+                    .getEntries(group.value, group.type)
                     .then(function (response) {
                     group.lastValue = value;
                     group.lastType = type;
                     group.status = response.status;
-                    group.items = response.items;
+                    group.entries = response.entries;
                     group.matchCount = response.matchCount;
-                    _this.itemsShowLimit = 50;
+                    _this.entriesShowLimit = 50;
                     return _this.$timeout();
                 })
                     .catch(function () {
                     group.status = 3 /* Failure */;
-                    group.items = null;
+                    group.entries = null;
                 })
                     .finally(function () {
-                    _this.itemsShowLimit = null;
+                    _this.entriesShowLimit = null;
                     if (group.isLoading)
                         group.isLoading--;
                 });
@@ -63594,11 +63596,11 @@ var Toponym = (function (exports) {
                 .removeClass("color" + (this.currentGroupIndex + 1))
                 .addClass("color" + (index + 1));
             this.currentGroupIndex = index;
-            this.itemsShowLimit = 50;
+            this.entriesShowLimit = 50;
             return this.$timeout()
                 .then(function () {
                 side.css({ transition: transition });
-                _this.itemsShowLimit = null;
+                _this.entriesShowLimit = null;
                 return _this.$timeout();
             });
         };
@@ -63612,50 +63614,50 @@ var Toponym = (function (exports) {
             checkArgument(index, 'index');
             return index === 0 && this.groups.length === 1 && !this.groups[0].value;
         };
-        MainController.prototype.onClickMark = function (item, groupIndex) {
+        MainController.prototype.onClickMark = function (entry, groupIndex) {
             var _this = this;
-            checkArgument(item, 'item');
+            checkArgument(entry, 'entry');
             checkArgument(groupIndex, 'groupIndex');
             var windowHeight = $(window).height();
             if (groupIndex === this.currentGroupIndex) {
-                var itemElement = $('#side .item.highlight');
-                var itemElementOffset = itemElement.offset();
-                if (!itemElement.length)
+                var entryElement = $('#side .entry.highlight');
+                var entryElementOffset = entryElement.offset();
+                if (!entryElement.length)
                     throw invalidOperation();
-                if (!item._isExpanded)
-                    this.onToggleItem(item);
-                if (itemElementOffset != null && windowHeight != null)
+                if (!entry._isExpanded)
+                    this.onToggleEntry(entry);
+                if (entryElementOffset != null && windowHeight != null)
                     // "html" для FireFox
                     $('html, body').animate({
-                        scrollTop: itemElementOffset.top - windowHeight / 2.5
+                        scrollTop: entryElementOffset.top - windowHeight / 2.5
                     }, 500);
             }
             else {
                 this.onSelectGroup(groupIndex)
                     .then(function () {
-                    var itemElement = $('#side .item.highlight');
-                    var itemElementOffset = itemElement.offset();
-                    if (!itemElement.length)
+                    var entryElement = $('#side .entry.highlight');
+                    var entryElementOffset = entryElement.offset();
+                    if (!entryElement.length)
                         throw invalidOperation();
-                    if (!item._isExpanded)
-                        _this.onToggleItem(item);
-                    if (itemElementOffset != null && windowHeight != null)
+                    if (!entry._isExpanded)
+                        _this.onToggleEntry(entry);
+                    if (entryElementOffset != null && windowHeight != null)
                         // "html" для FireFox
                         $('html, body')
-                            .scrollTop(itemElementOffset.top - windowHeight / 2.5);
+                            .scrollTop(entryElementOffset.top - windowHeight / 2.5);
                 });
             }
         };
-        MainController.prototype.onToggleItem = function (item) {
-            checkArgument(item, 'item');
-            if (!item._isExpanded) {
-                if (this.expandedItem)
-                    this.expandedItem._isExpanded = false;
-                this.expandedItem = item;
+        MainController.prototype.onToggleEntry = function (entry) {
+            checkArgument(entry, 'entry');
+            if (!entry._isExpanded) {
+                if (this.expandedEntry)
+                    this.expandedEntry._isExpanded = false;
+                this.expandedEntry = entry;
             }
             else
-                this.expandedItem = null;
-            item._isExpanded = !item._isExpanded;
+                this.expandedEntry = null;
+            entry._isExpanded = !entry._isExpanded;
         };
         MainController.prototype.shareFbUrl = function () {
             return 'https://www.facebook.com/dialog/share?display=popup&app_id=' + exports.fbAppId +
@@ -63709,11 +63711,14 @@ var Toponym = (function (exports) {
         };
         MainController.prototype.isQueryEmpty = function () {
             var group = this.currentGroup();
-            return group && group.status === 1 /* Success */ && !group.items;
+            return group && group.status === 1 /* Success */ && !group.entries;
         };
-        MainController.prototype.isNoItemsFound = function () {
+        MainController.prototype.isNoEntriesFound = function () {
             var group = this.currentGroup();
-            return group && group.status === 1 /* Success */ && !!group.items && !group.items.length;
+            return group &&
+                group.status === 1 /* Success */ &&
+                !!group.entries &&
+                !group.entries.length;
         };
         MainController.prototype.isQuerySyntaxError = function () {
             var group = this.currentGroup();
@@ -63725,7 +63730,7 @@ var Toponym = (function (exports) {
         };
         MainController.prototype.isCuttedList = function () {
             var group = this.currentGroup();
-            return !!group.items && group.items.length < group.matchCount;
+            return !!group.entries && group.entries.length < group.matchCount;
         };
         MainController.prototype.isShowPopulated = function () {
             var group = this.currentGroup();
@@ -63757,28 +63762,28 @@ var Toponym = (function (exports) {
             this.$http = $http;
             this.$q = $q;
         }
-        Service.prototype.getItems = function (query, type) {
+        Service.prototype.getEntries = function (query, type) {
             var _this = this;
             checkArgument(query, 'query');
             return this.$http
-                .post('/ajax/items', { query: query, type: type, language: exports.language })
+                .post('/xhr/entries', { query: query, type: type, language: exports.language })
                 .then(function (callback) {
                 var response = callback.data;
                 if (!response || response.status === 3 /* Failure */)
                     return _this.$q.reject();
-                if (response.items)
-                    for (var _i = 0, _a = response.items; _i < _a.length; _i++) {
-                        var item = _a[_i];
-                        _this.initLocal(item);
+                if (response.entries)
+                    for (var _i = 0, _a = response.entries; _i < _a.length; _i++) {
+                        var entry = _a[_i];
+                        _this.initLocal(entry);
                     }
                 return response;
             });
         };
-        Service.prototype.initLocal = function (item) {
-            if (item.type >= 100 && item.type < 200)
-                item._typeClass = 'populated';
-            else if (item.type >= 200 && item.type < 300)
-                item._typeClass = 'water';
+        Service.prototype.initLocal = function (entry) {
+            if (entry.type >= 100 && entry.type < 200)
+                entry._typeClass = 'populated';
+            else if (entry.type >= 200 && entry.type < 300)
+                entry._typeClass = 'water';
         };
         return Service;
     }());
@@ -63856,14 +63861,14 @@ var Toponym = (function (exports) {
         '$rootScope', function ($rootScope) {
             $rootScope.Core = {
                 rusCase: rusCase,
-                itemTypeAbbr: itemTypeAbbr,
-                itemTypeText: itemTypeText,
+                entryTypeAbbr: entryTypeAbbr,
+                entryTypeText: entryTypeText,
                 linkLoadmap: linkLoadmap,
                 linkOsm: linkOsm,
                 linkGoogle: linkGoogle,
                 linkYandex: linkYandex,
-                pointItems: pointItems,
-                polylineItems: polylineItems,
+                pointEntries: pointEntries,
+                polylineEntries: polylineEntries,
                 polylinePoints: polylinePoints
             };
         }

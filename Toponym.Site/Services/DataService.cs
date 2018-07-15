@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using Toponym.Core;
 using Toponym.Core.Models;
 using Toponym.Site.Models;
 using Group = Toponym.Site.Models.Group;
@@ -15,42 +14,42 @@ namespace Toponym.Site.Services
 {
     public class DataService
     {
-        private readonly IReadOnlyList<Item> _items;
+        private readonly IReadOnlyList<Entry> _entries;
         public static string CssBundleHash;
         public static string JsBundleHash;
 
         public DataService(IHostingEnvironment environment)
         {
-            var dataPath = Path.Combine(environment.ContentRootPath, "App_Data", CoreConstants.DataFile);
+            var dataPath = Path.Combine(environment.ContentRootPath, "App_Data", Constants.DataFileName);
 
-            using (var fileStream = new FileStream(dataPath, FileMode.Open))
+            using (var fileStream = File.OpenRead(dataPath))
             using (var streamReader = new StreamReader(fileStream))
             using (var jsonTextReader = new JsonTextReader(streamReader))
             {
-                var data = new JsonSerializer().Deserialize<List<ItemStorageData>>(jsonTextReader);
-                _items = data.Select(i => new Item(i)).ToList();
+                var data = new JsonSerializer().Deserialize<List<EntryData>>(jsonTextReader);
+                _entries = data.Select(i => new Entry(i)).ToList();
             }
 
-            CssBundleHash = GetFileHash(Path.Combine(environment.WebRootPath, @"css\toponym.min.css"));
-            JsBundleHash = GetFileHash(Path.Combine(environment.WebRootPath, @"js\toponym.min.js"));
+            CssBundleHash = GetFileHash(Path.Combine(environment.WebRootPath, @"assets\css\toponym.min.css"));
+            JsBundleHash = GetFileHash(Path.Combine(environment.WebRootPath, @"assets\js\toponym.min.js"));
         }
 
-        public List<Item> GetItems(Regex regex, Group group, Language language)
+        public List<Entry> GetEntries(Regex regex, Group group, Language language)
         {
-            IEnumerable<Item> groupItems;
+            IEnumerable<Entry> groupEntries;
 
             switch (group)
             {
                 case Group.All:
-                    groupItems = _items;
+                    groupEntries = _entries;
                     break;
 
                 case Group.Populated:
-                    groupItems = _items.Where(i => i.Category == Category.Populated);
+                    groupEntries = _entries.Where(i => i.Category == Category.Populated);
                     break;
 
                 case Group.Water:
-                    groupItems = _items.Where(i => i.Category == Category.Water);
+                    groupEntries = _entries.Where(i => i.Category == Category.Water);
                     break;
 
                 default:
@@ -60,13 +59,13 @@ namespace Toponym.Site.Services
             switch (language)
             {
                 case Language.Russian:
-                    return groupItems.Where(i => regex.IsMatch(i.TitleRuIndex)).ToList();
+                    return groupEntries.Where(i => regex.IsMatch(i.TitleRuIndex)).ToList();
 
                 case Language.Belarusian:
-                    return groupItems.Where(i => i.TitleBe != null && regex.IsMatch(i.TitleBeIndex)).ToList();
+                    return groupEntries.Where(i => i.TitleBe != null && regex.IsMatch(i.TitleBeIndex)).ToList();
 
                 case Language.English:
-                    return groupItems.Where(i => regex.IsMatch(i.TitleEn)).ToList();
+                    return groupEntries.Where(i => regex.IsMatch(i.TitleEn)).ToList();
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(language));

@@ -1,6 +1,6 @@
 ﻿export interface IResponse {
     status: Status;
-    items: IItem[] | null;
+    entries: IEntry[] | null;
     matchCount: number;
 }
 
@@ -19,10 +19,10 @@ export const enum Status {
     Failure = 3
 }
 
-export interface IItem {
+export interface IEntry {
     title: string;
-    type: ItemType;
-    gps: number[];
+    type: EntryType;
+    geo: number[];
     screen: number[][];
     _typeClass: string;
     _isExpanded: boolean;
@@ -34,7 +34,7 @@ export const enum GroupType {
     Water = 2
 }
 
-export const enum ItemType {
+export const enum EntryType {
     Unknown = 0,
 
     // Населённые пункты

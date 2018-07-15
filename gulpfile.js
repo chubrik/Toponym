@@ -35,7 +35,7 @@ gulp.task('less', () => {
         .pipe(cleanCss());
 
     return merge(bundleDev, bundleMin)
-        .pipe(gulp.dest(path.join(siteRoot, './wwwroot/css')));
+        .pipe(gulp.dest(path.join(wwwRoot, './assets/css')));
 });
 
 gulp.task('watch', gulp.parallel(
@@ -46,9 +46,9 @@ gulp.task('watch', gulp.parallel(
     },
     () => {
         gulp.watch(
-            path.join(siteRoot, './dist/js/**').replace(/\\/g, '/'),
+            path.join(siteRoot, './$temp/js/**').replace(/\\/g, '/'),
             (done) => {
-                execSync('node ./Toponym.Site/dev/ts-bundle.js');
+                execSync('node ./Toponym.Site/app/dev/ts-bundle.js');
                 done();
             });
     },
@@ -69,8 +69,8 @@ gulp.task('watch', gulp.parallel(
 gulp.task('clean', (done) => {
     fs.removeSync(path.join(repoRoot, './Toponym.Core/bin'));
     fs.removeSync(path.join(siteRoot, './bin'));
-    fs.removeSync(path.join(siteRoot, './dist'));
-    fs.removeSync(path.join(wwwRoot, './css'));
-    fs.removeSync(path.join(wwwRoot, './js'));
+    fs.removeSync(path.join(siteRoot, './$temp'));
+    fs.removeSync(path.join(wwwRoot, './assets/css'));
+    fs.removeSync(path.join(wwwRoot, './assets/js'));
     done();
 });

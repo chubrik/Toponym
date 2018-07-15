@@ -14,7 +14,7 @@
 
     var hostUpper = defaultHost.First().ToString().ToUpper() + defaultHost.Substring(1);
     var canonicalUrl = "http://" + defaultHost + Context.Request.Path + Context.Request.QueryString;
-    var logoUrl = "http://" + defaultHost + Url.Content("~/img/logo-big.png");
+    var logoUrl = "http://" + defaultHost + Url.Content("~/assets/img/logo-big.png");
 
     var titleBase = text(lang, "Карта топонимов Беларуси", "Карта тапонімаў Беларусі", "Toponyms map of Belarus");
     var altTitleBase = text(lang, "Белорусские топонимы", "Беларускія тапонімы", "Belarusian toponyms");
@@ -48,7 +48,7 @@
 <!doctype html>
 <html lang="@text(lang, "ru", "be", "en")" ng-app="toponym" ng-strict-di>
 <head prefix="og: http://ogp.me/ns#">
-    <link href="/css/@(Constants.IsDebug ? "toponym.dev.css" : "toponym.min.css")?@DataService.CssBundleHash" rel="stylesheet">
+    <link href="/assets/css/@(Constants.IsDebug ? "toponym.dev.css" : "toponym.min.css")?@DataService.CssBundleHash" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,500|Material+Icons&subset=latin,cyrillic" rel="stylesheet">
     <meta charset="utf-8">
     <title>@htmlTitle</title>
@@ -81,7 +81,7 @@
     <meta name="viewport" content="width=1170">
     @if (Context.Request.IsIos()) {
         <meta name="apple-mobile-web-app-title" content="@text(lang, "Топоним", "Тапонім", "Toponym")">
-        <link rel="apple-touch-icon" href="@Url.Content("~/img/logo-touch.png")">
+        <link rel="apple-touch-icon" href="@Url.Content("~/assets/img/logo-touch.png")">
     }
 </head>
 <body>
@@ -93,7 +93,7 @@
         <header>
             <h1>
                 <a href="" class="underline-area" ng-class="{disabled: ctrl.isReseted()}" ng-click="ctrl.onReset()" tabindex="-1">
-                    <img src="@Url.Content("~/img/logo-title.png")" alt="@hostUpper"> <span class="underline">@pageTitle</span>
+                    <img src="@Url.Content("~/assets/img/logo-title.png")" alt="@hostUpper"> <span class="underline">@pageTitle</span>
                 </a>
             </h1>
         </header>
@@ -109,13 +109,13 @@
             <hr>
             © 2016 <a href="http://@text(lang, "chubrik.ru", "chubrik.ru", "chubrik.org")/" target="_blank" tabindex="-1">@text(lang, "Аркадий Чубрик", "Аркадзь Чубрык", "Arkadi Chubrik")</a>
             &nbsp;·&nbsp;
-            <a href="https://github.com/chubrik/Toponym" target="_blank" tabindex="-1"><img class="github" src="@Url.Content("~/img/icon-github.png")">GitHub</a>
+            <a href="https://github.com/chubrik/Toponym" target="_blank" tabindex="-1"><img class="github" src="@Url.Content("~/assets/img/icon-github.png")">GitHub</a>
             &nbsp;·&nbsp;
             <a href="@("mailto:info@" + defaultHost)" tabindex="-1">@("info@" + defaultHost)</a>
         </footer>
     </div>
 
-    <script src="/js/@(Constants.IsDebug ? "toponym.dev.js" : "toponym.min.js")?@DataService.JsBundleHash"></script>
+    <script src="/assets/js/@(Constants.IsDebug ? "toponym.dev.js" : "toponym.min.js")?@DataService.JsBundleHash"></script>
 
     <script>
         Toponym.startup({

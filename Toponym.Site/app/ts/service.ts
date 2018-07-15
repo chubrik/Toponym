@@ -1,5 +1,5 @@
 ﻿import { checkArgument } from './errors';
-import { GroupType, IResponse, IItem, Status } from './types';
+import { GroupType, IResponse, IEntry, Status } from './types';
 import { language } from './app.module';
 
 export class Service {
@@ -9,31 +9,31 @@ export class Service {
     constructor(private $http: ng.IHttpService, private $q: ng.IQService) {
     }
 
-    getItems(query: string, type: GroupType): ng.IPromise<IResponse> {
+    getEntries(query: string, type: GroupType): ng.IPromise<IResponse> {
         checkArgument(query, 'query');
 
         return this.$http
-            .post<IResponse>('/ajax/items', { query, type, language })
+            .post<IResponse>('/xhr/entries', { query, type, language })
             .then((callback: any) => {
                 const response: IResponse = callback.data;
 
                 if (!response || response.status === Status.Failure)
                     return this.$q.reject();
 
-                if (response.items)
-                    for (let item of response.items)
-                        this.initLocal(item);
+                if (response.entries)
+                    for (let entry of response.entries)
+                        this.initLocal(entry);
 
                 return response;
             });
     }
 
-    private initLocal(item: IItem): void {
+    private initLocal(entry: IEntry): void {
 
-        if (item.type >= 100 && item.type < 200)
-            item._typeClass = 'populated';
+        if (entry.type >= 100 && entry.type < 200)
+            entry._typeClass = 'populated';
 
-        else if (item.type >= 200 && item.type < 300)
-            item._typeClass = 'water';
+        else if (entry.type >= 200 && entry.type < 300)
+            entry._typeClass = 'water';
     }
 }

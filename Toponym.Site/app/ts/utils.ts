@@ -1,4 +1,4 @@
-﻿import { Language, IItem, ItemType, IGroup } from './types';
+﻿import { Language, IEntry, EntryType, IGroup } from './types';
 import { language } from './app.module';
 import { checkArgument, invalidArgument, outOfRange } from './errors';
 
@@ -52,142 +52,144 @@ export function langText(russian: string, belarusian: string, english: string): 
     }
 }
 
-export function pointItems(group: IGroup): IItem[] | null {
+export function pointEntries(group: IGroup): IEntry[] | null {
     checkArgument(group, 'group');
 
-    return group.items
-        ? group.items.filter(i => i.type !== ItemType.River && i.type !== ItemType.Stream)
+    return group.entries
+        ? group.entries.filter(i => i.type !== EntryType.River && i.type !== EntryType.Stream)
         : null;
 }
 
-export function polylineItems(group: IGroup): IItem[] | null {
+export function polylineEntries(group: IGroup): IEntry[] | null {
     checkArgument(group, 'group');
 
-    return group.items
-        ? group.items.filter(i => i.type === ItemType.River || i.type === ItemType.Stream)
+    return group.entries
+        ? group.entries.filter(i => i.type === EntryType.River || i.type === EntryType.Stream)
         : null;
 }
 
-export function polylinePoints(item: IItem): string {
-    checkArgument(item, 'item');
+export function polylinePoints(entry: IEntry): string {
+    checkArgument(entry, 'entry');
 
-    return item.screen.map(s => s.join(',')).join(' ');
+    return entry.screen.map(s => s.join(',')).join(' ');
 }
 
-export function itemTypeAbbr(item: IItem): string {
-    checkArgument(item, 'item');
+export function entryTypeAbbr(entry: IEntry): string {
+    checkArgument(entry, 'entry');
 
-    if (item.type >= 100 && item.type < 200)
+    if (entry.type >= 100 && entry.type < 200)
         return langText('нп.', 'нп.', 'pop.');
 
-    switch (item.type) {
+    switch (entry.type) {
 
-        case ItemType.WaterUnknown:
+        case EntryType.WaterUnknown:
             return langText('вод.', 'вад.', 'wat.');
 
-        case ItemType.River:
+        case EntryType.River:
             return langText('р.', 'р.', 'riv.');
 
-        case ItemType.Stream:
+        case EntryType.Stream:
             return langText('руч.', 'руч.', 'str.');
 
-        case ItemType.Lake:
+        case EntryType.Lake:
             return langText('оз.', 'воз.', 'lake');
 
-        case ItemType.Pond:
+        case EntryType.Pond:
             return langText('пруд', 'саж.', 'pond');
 
         default:
-            throw outOfRange('item.type');
+            throw outOfRange('entry.type');
     }
 }
 
-export function itemTypeText(item: IItem): string {
-    checkArgument(item, 'item');
+export function entryTypeText(entry: IEntry): string {
+    checkArgument(entry, 'entry');
 
-    switch (item.type) {
+    switch (entry.type) {
 
-        case ItemType.PopulatedUnknown:
+        case EntryType.PopulatedUnknown:
             return langText('Населённый пункт', 'Населены пункт', 'Populated locality');
 
-        //case ItemType.Agrogorodok:
+        //case EntryType.Agrogorodok:
         //    return langText('Агрогородок', 'Аграгарадок', 'Agrotown');
 
-        //case ItemType.Gorod:
+        //case EntryType.Gorod:
         //    return langText('Город', 'Горад', 'City');
 
-        //case ItemType.GorodskojPoselok:
+        //case EntryType.GorodskojPoselok:
         //    return langText('Городской посёлок', 'Гарадскі пасёлак', 'Urban settlement');
 
-        //case ItemType.Derevnya:
+        //case EntryType.Derevnya:
         //    return langText('Деревня', 'Вёска', 'Hamlet');
 
-        //case ItemType.KurortnyPoselok:
+        //case EntryType.KurortnyPoselok:
         //    return langText('Курортный посёлок', 'Курортны пасёлак', 'Resort settlement');
 
-        //case ItemType.Poselok:
+        //case EntryType.Poselok:
         //    return langText('Посёлок', 'Пасёлак', 'Settlement');
 
-        //case ItemType.PoselokGorodskogoTipa:
+        //case EntryType.PoselokGorodskogoTipa:
         //    return langText(
         //        'Посёлок городского типа', 'Пасёлак гарадскога тыпу', 'Urban-type settlement');
 
-        //case ItemType.RabochiPoselok:
+        //case EntryType.RabochiPoselok:
         //    return langText('Рабочий посёлок', 'Працоўны пасёлак', 'Working settlement');
 
-        //case ItemType.Selo:
+        //case EntryType.Selo:
         //    return langText('Село', 'Сяло', 'Village');
 
-        //case ItemType.SelskiNaselennyPunkt:
+        //case EntryType.SelskiNaselennyPunkt:
         //    return langText(
         //        'Сельский населённый пункт', 'Сельскі населены пункт', 'Rural settlement');
 
-        //case ItemType.Hutor:
+        //case EntryType.Hutor:
         //    return langText('Хутор', 'Хутар', 'Bowery');
 
-        case ItemType.WaterUnknown:
+        case EntryType.WaterUnknown:
             return langText('Водоём', 'Вадаём', 'Water');
 
-        case ItemType.River:
+        case EntryType.River:
             return langText('Река', 'Рака', 'River');
 
-        case ItemType.Stream:
+        case EntryType.Stream:
             return langText('Ручей', 'Ручай', 'Stream');
 
-        case ItemType.Lake:
+        case EntryType.Lake:
             return langText('Озеро', 'Возера', 'Lake');
 
-        case ItemType.Pond:
+        case EntryType.Pond:
             return langText('Пруд', 'Сажалка', 'Pond');
 
         default:
-            throw outOfRange('item.type');
+            throw outOfRange('entry.type');
     }
 }
 
-export function linkLoadmap(item: IItem): string {
-    checkArgument(item, 'item');
+export function linkLoadmap(entry: IEntry): string {
+    checkArgument(entry, 'entry');
 
     return `${'http://'}m.loadmap.net/${langText('ru', 'ru', 'en')}` +
-        `?qq=${item.gps[0]}%20${item.gps[1]}&z=13&s=100000&c=41&g=1`;
+        `?qq=${entry.geo[0]}%20${entry.geo[1]}&z=13&s=100000&c=41&g=1`;
 }
 
-export function linkOsm(item: IItem): string {
-    checkArgument(item, 'item');
+export function linkOsm(entry: IEntry): string {
+    checkArgument(entry, 'entry');
 
-    return `${'http://'}www.openstreetmap.org/?mlat=${item.gps[0]}&mlon=${item.gps[1]}&zoom=14`;
+    return `${'http://'}www.openstreetmap.org/` +
+        `?mlat=${entry.geo[0]}&mlon=${entry.geo[1]}&zoom=14`;
 }
 
-export function linkGoogle(item: IItem): string {
-    checkArgument(item, 'item');
+export function linkGoogle(entry: IEntry): string {
+    checkArgument(entry, 'entry');
 
     return `${'https://'}www.google.${langText('ru', 'by', 'com')}/maps/` +
-        `place//@${item.gps[0]},${item.gps[1]},5000m/data=!3m1!1e3!4m2!3m1!1s0x0:0x0?hl=ru`;
+        `place//@${entry.geo[0]},${entry.geo[1]},5000m/data=!3m1!1e3!4m2!3m1!1s0x0:0x0?hl=ru`;
 }
 
-export function linkYandex(item: IItem): string {
-    checkArgument(item, 'item');
+export function linkYandex(entry: IEntry): string {
+    checkArgument(entry, 'entry');
 
     return `${`https://`}yandex.${langText('ru', 'by', 'com')}/maps` +
-        `?ll=${item.gps[1]},${item.gps[0]}&pt=${item.gps[1]},${item.gps[0]}&z=14&l=sat%2Cskl`;
+        `?ll=${entry.geo[1]},${entry.geo[0]}` +
+        `&pt=${entry.geo[1]},${entry.geo[0]}&z=14&l=sat%2Cskl`;
 }

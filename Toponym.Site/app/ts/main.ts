@@ -1,5 +1,5 @@
 ﻿import { checkArgument, invalidOperation } from './errors';
-import { IGroup, IItem, GroupType, Status } from './types';
+import { IGroup, IEntry, GroupType, Status } from './types';
 import { defaultHost, fbAppId } from './app.module';
 import { langText, rusCase } from './utils';
 import { Service } from './service';
@@ -10,8 +10,8 @@ export class MainController {
     private loadDelay = 1000;
     groups: IGroup[] = [];
     currentGroupIndex = 0;
-    itemsShowLimit: number | null = null;
-    private expandedItem: IItem | null;
+    entriesShowLimit: number | null = null;
+    private expandedEntry: IEntry | null;
     private timer: ng.IPromise<void>;
     static $inject = ['$scope', '$timeout', '$q', 'service', 'url'];
 
@@ -57,7 +57,7 @@ export class MainController {
 
             if (!group.value) {
                 group.status = Status.Success;
-                group.items = null;
+                group.entries = null;
                 group.lastValue = '';
                 group.lastType = GroupType.All;
                 continue;
@@ -69,22 +69,22 @@ export class MainController {
             group.isLoading++;
 
             this.service
-                .getItems(group.value, group.type)
+                .getEntries(group.value, group.type)
                 .then(response => {
                     group.lastValue = value;
                     group.lastType = type;
                     group.status = response.status;
-                    group.items = response.items;
+                    group.entries = response.entries;
                     group.matchCount = response.matchCount;
-                    this.itemsShowLimit = 50;
+                    this.entriesShowLimit = 50;
                     return this.$timeout();
                 })
                 .catch(() => {
                     group.status = Status.Failure;
-                    group.items = null;
+                    group.entries = null;
                 })
                 .finally(() => {
-                    this.itemsShowLimit = null;
+                    this.entriesShowLimit = null;
 
                     if (group.isLoading)
                         group.isLoading--;
@@ -151,12 +151,12 @@ export class MainController {
             .addClass(`color${index + 1}`);
 
         this.currentGroupIndex = index;
-        this.itemsShowLimit = 50;
+        this.entriesShowLimit = 50;
 
         return this.$timeout()
             .then(() => {
                 side.css({ transition: transition });
-                this.itemsShowLimit = null;
+                this.entriesShowLimit = null;
                 return this.$timeout();
             });
     }
@@ -175,62 +175,62 @@ export class MainController {
         return index === 0 && this.groups.length === 1 && !this.groups[0].value;
     }
 
-    onClickMark(item: IItem, groupIndex: number): void {
-        checkArgument(item, 'item');
+    onClickMark(entry: IEntry, groupIndex: number): void {
+        checkArgument(entry, 'entry');
         checkArgument(groupIndex, 'groupIndex');
 
         const windowHeight = $(window).height();
 
         if (groupIndex === this.currentGroupIndex) {
 
-            const itemElement = $('#side .item.highlight');
-            const itemElementOffset = itemElement.offset();
+            const entryElement = $('#side .entry.highlight');
+            const entryElementOffset = entryElement.offset();
 
-            if (!itemElement.length)
+            if (!entryElement.length)
                 throw invalidOperation();
 
-            if (!item._isExpanded)
-                this.onToggleItem(item);
+            if (!entry._isExpanded)
+                this.onToggleEntry(entry);
 
-            if (itemElementOffset != null && windowHeight != null)
+            if (entryElementOffset != null && windowHeight != null)
                 // "html" для FireFox
                 $('html, body').animate({
-                    scrollTop: itemElementOffset.top - windowHeight / 2.5
+                    scrollTop: entryElementOffset.top - windowHeight / 2.5
                 }, 500);
         }
         else {
             this.onSelectGroup(groupIndex)
                 .then(() => {
-                    const itemElement = $('#side .item.highlight');
-                    const itemElementOffset = itemElement.offset();
+                    const entryElement = $('#side .entry.highlight');
+                    const entryElementOffset = entryElement.offset();
 
-                    if (!itemElement.length)
+                    if (!entryElement.length)
                         throw invalidOperation();
 
-                    if (!item._isExpanded)
-                        this.onToggleItem(item);
+                    if (!entry._isExpanded)
+                        this.onToggleEntry(entry);
 
-                    if (itemElementOffset != null && windowHeight != null)
+                    if (entryElementOffset != null && windowHeight != null)
                         // "html" для FireFox
                         $('html, body')
-                            .scrollTop(itemElementOffset.top - windowHeight / 2.5);
+                            .scrollTop(entryElementOffset.top - windowHeight / 2.5);
                 });
         }
     }
 
-    onToggleItem(item: IItem): void {
-        checkArgument(item, 'item');
+    onToggleEntry(entry: IEntry): void {
+        checkArgument(entry, 'entry');
 
-        if (!item._isExpanded) {
-            if (this.expandedItem)
-                this.expandedItem._isExpanded = false;
+        if (!entry._isExpanded) {
+            if (this.expandedEntry)
+                this.expandedEntry._isExpanded = false;
 
-            this.expandedItem = item;
+            this.expandedEntry = entry;
         }
         else
-            this.expandedItem = null;
+            this.expandedEntry = null;
 
-        item._isExpanded = !item._isExpanded;
+        entry._isExpanded = !entry._isExpanded;
     }
 
     shareFbUrl(): string {
@@ -316,12 +316,16 @@ export class MainController {
 
     isQueryEmpty(): boolean {
         const group = this.currentGroup();
-        return group && group.status === Status.Success && !group.items;
+        return group && group.status === Status.Success && !group.entries;
     }
 
-    isNoItemsFound(): boolean {
+    isNoEntriesFound(): boolean {
         const group = this.currentGroup();
-        return group && group.status === Status.Success && !!group.items && !group.items.length;
+
+        return group &&
+            group.status === Status.Success &&
+            !!group.entries &&
+            !group.entries.length;
     }
 
     isQuerySyntaxError(): boolean {
@@ -336,7 +340,7 @@ export class MainController {
 
     isCuttedList(): boolean {
         const group = this.currentGroup();
-        return !!group.items && group.items.length < group.matchCount;
+        return !!group.entries && group.entries.length < group.matchCount;
     }
 
     isShowPopulated(): boolean {

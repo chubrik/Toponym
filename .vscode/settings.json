@@ -2,18 +2,13 @@
   "debug.inlineValues": true,
   "editor.rulers": [95],
   "files.exclude": {
-    ".idea": true,
     ".vs": true
   },
   "search.exclude": {
-    "*/bin": true,
-    "*/obj": true,
-    "*/App_Data": true,
-    "*/dist": true,
     "*/wwwroot": true
   },
   "tsimporter.filesToExclude": [
-    "*/dist"
+    "*/$temp"
   ],
   "tslint.enable": true,
   "typescript.tsdk": "./node_modules/typescript/lib"

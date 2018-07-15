@@ -13,6 +13,6 @@
     "suppressImplicitAnyIndexErrors": true,
     "baseUrl": ".",
     "rootDir": "./Toponym.Site/app/ts",
-    "outDir": "./Toponym.Site/dist/js"
+    "outDir": "./Toponym.Site/$temp/js"
   }
 }

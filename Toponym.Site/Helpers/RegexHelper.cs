@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Toponym.Site.Models;
 
@@ -13,6 +14,8 @@ namespace Toponym.Site.Helpers
 
         public static Regex GetRegex(string query, Language language)
         {
+            Debug.Assert(!string.IsNullOrWhiteSpace(query));
+
             if (string.IsNullOrWhiteSpace(query))
                 throw new ArgumentException(nameof(query));
 
