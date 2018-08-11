@@ -1,5 +1,5 @@
 ﻿import { checkArgument } from './errors';
-import { GroupType, IResponse, IEntry, Status } from './types';
+import { GroupType, IResponse, IEntry, Status, EntryType } from './types';
 import { language } from './app.module';
 
 export class Service {
@@ -30,10 +30,10 @@ export class Service {
 
     private initLocal(entry: IEntry): void {
 
-        if (entry.type >= 100 && entry.type < 200)
+        if (entry.type >= EntryType.Populated && entry.type < EntryType.Water)
             entry._typeClass = 'populated';
 
-        else if (entry.type >= 200 && entry.type < 300)
+        else if (entry.type >= EntryType.Water)
             entry._typeClass = 'water';
     }
 }

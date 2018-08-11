@@ -4,27 +4,21 @@
     {
         Unknown = 0,
 
-        // Populated places
+        // Populated
 
-        PopulatedUnknown = 100,
-        Agrogorodok,
-        Gorod,
-        GorodskojPoselok,
-        Derevnya,
-        KurortnyPoselok,
-        Poselok,
-        PoselokGorodskogoTipa,
-        RabochiPoselok,
-        Selo,
-        SelskiNaselennyPunkt,
-        Hutor,
+        Populated = 10,
+        City,
+        Dwelling,
+        Hamlet,
+        Town,
+        Village,
 
-        // Water objects
+        // Water
 
-        WaterUnknown = 200,
-        River,
-        Stream,
+        Water = 20,
         Lake,
-        Pond
+        Pond,
+        River,
+        Stream
     }
 }

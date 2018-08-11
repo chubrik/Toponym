@@ -11,16 +11,14 @@ namespace Toponym.Site.Extensions
             if (type == EntryType.Unknown)
                 return Category.Unknown;
 
-            var code = (int)type;
-
-            if (code >= 100 && code < 200)
+            if (type >= EntryType.Populated && type < EntryType.Water)
                 return Category.Populated;
 
-            if (code >= 200 && code < 300)
+            if (type >= EntryType.Water && (int)type < 30)
                 return Category.Water;
 
-            if (code >= 300 && code < 400)
-                return Category.Locality;
+            //if (type >= 30)
+            //    return Category.Locality;
 
             throw new ArgumentOutOfRangeException(nameof(type));
         }

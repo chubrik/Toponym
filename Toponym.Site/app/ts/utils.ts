@@ -77,25 +77,40 @@ export function polylinePoints(entry: IEntry): string {
 export function entryTypeAbbr(entry: IEntry): string {
     checkArgument(entry, 'entry');
 
-    if (entry.type >= 100 && entry.type < 200)
-        return langText('нп.', 'нп.', 'pop.');
-
     switch (entry.type) {
 
-        case EntryType.WaterUnknown:
-            return langText('вод.', 'вад.', 'wat.');
+        // case EntryType.Populated:
+        //     return langText('нп.', 'нп.', 'pop.');
 
-        case EntryType.River:
-            return langText('р.', 'р.', 'riv.');
+        case EntryType.City:
+            return langText('г.', 'г.', 'c.');
 
-        case EntryType.Stream:
-            return langText('руч.', 'руч.', 'str.');
+        case EntryType.Dwelling:
+            return langText('х.', 'х.', 'dw.');
+
+        case EntryType.Hamlet:
+            return langText('д.', 'в.', 'h.');
+
+        case EntryType.Town:
+            return langText('г.', 'г.', 't.');
+
+        case EntryType.Village:
+            return langText('п.', 'п.', 'v.');
+
+        // case EntryType.Water:
+        //     return langText('вод.', 'вад.', 'wat.');
 
         case EntryType.Lake:
             return langText('оз.', 'воз.', 'lake');
 
         case EntryType.Pond:
             return langText('пруд', 'саж.', 'pond');
+
+        case EntryType.River:
+            return langText('р.', 'р.', 'riv.');
+
+        case EntryType.Stream:
+            return langText('руч.', 'руч.', 'str.');
 
         default:
             throw outOfRange('entry.type');
@@ -107,58 +122,38 @@ export function entryTypeText(entry: IEntry): string {
 
     switch (entry.type) {
 
-        case EntryType.PopulatedUnknown:
-            return langText('Населённый пункт', 'Населены пункт', 'Populated locality');
+        // case EntryType.Populated:
+        //     return langText('Населённый пункт', 'Населены пункт', 'Populated place');
 
-        //case EntryType.Agrogorodok:
-        //    return langText('Агрогородок', 'Аграгарадок', 'Agrotown');
+        case EntryType.City:
+            return langText('Город', 'Горад', 'City');
 
-        //case EntryType.Gorod:
-        //    return langText('Город', 'Горад', 'City');
+        case EntryType.Dwelling:
+            return langText('Хутор', 'Хутар', 'Dwelling');
 
-        //case EntryType.GorodskojPoselok:
-        //    return langText('Городской посёлок', 'Гарадскі пасёлак', 'Urban settlement');
+        case EntryType.Hamlet:
+            return langText('Деревня', 'Вёска', 'Hamlet');
 
-        //case EntryType.Derevnya:
-        //    return langText('Деревня', 'Вёска', 'Hamlet');
+        case EntryType.Town:
+            return langText('Город', 'Горад', 'Town');
 
-        //case EntryType.KurortnyPoselok:
-        //    return langText('Курортный посёлок', 'Курортны пасёлак', 'Resort settlement');
+        case EntryType.Village:
+            return langText('Посёлок', 'Пасёлак', 'Village');
 
-        //case EntryType.Poselok:
-        //    return langText('Посёлок', 'Пасёлак', 'Settlement');
-
-        //case EntryType.PoselokGorodskogoTipa:
-        //    return langText(
-        //        'Посёлок городского типа', 'Пасёлак гарадскога тыпу', 'Urban-type settlement');
-
-        //case EntryType.RabochiPoselok:
-        //    return langText('Рабочий посёлок', 'Працоўны пасёлак', 'Working settlement');
-
-        //case EntryType.Selo:
-        //    return langText('Село', 'Сяло', 'Village');
-
-        //case EntryType.SelskiNaselennyPunkt:
-        //    return langText(
-        //        'Сельский населённый пункт', 'Сельскі населены пункт', 'Rural settlement');
-
-        //case EntryType.Hutor:
-        //    return langText('Хутор', 'Хутар', 'Bowery');
-
-        case EntryType.WaterUnknown:
-            return langText('Водоём', 'Вадаём', 'Water');
-
-        case EntryType.River:
-            return langText('Река', 'Рака', 'River');
-
-        case EntryType.Stream:
-            return langText('Ручей', 'Ручай', 'Stream');
+        // case EntryType.Water:
+        //     return langText('Водный объект', 'Водны аб’ект', 'Water object');
 
         case EntryType.Lake:
             return langText('Озеро', 'Возера', 'Lake');
 
         case EntryType.Pond:
             return langText('Пруд', 'Сажалка', 'Pond');
+
+        case EntryType.River:
+            return langText('Река', 'Рака', 'River');
+
+        case EntryType.Stream:
+            return langText('Ручей', 'Ручай', 'Stream');
 
         default:
             throw outOfRange('entry.type');
@@ -168,7 +163,7 @@ export function entryTypeText(entry: IEntry): string {
 export function linkLoadmap(entry: IEntry): string {
     checkArgument(entry, 'entry');
 
-    return `${'http://'}m.loadmap.net/${langText('ru', 'ru', 'en')}` +
+    return `${'http://'}loadmap.net/${langText('ru', 'ru', 'en')}` +
         `?qq=${entry.geo[0]}%20${entry.geo[1]}&z=13&s=100000&c=41&g=1`;
 }
 

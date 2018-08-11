@@ -37,28 +37,20 @@ export const enum GroupType {
 export const enum EntryType {
     Unknown = 0,
 
-    // Населённые пункты
-    PopulatedUnknown = 100,
-    Agrogorodok,
-    Gorod,
-    GorodskojPoselok,
-    Derevnya,
-    KurortnyPoselok,
-    Poselok,
-    PoselokGorodskogoTipa,
-    RabochiPoselok,
-    Selo,
-    SelskiNaselennyPunkt,
-    Hutor,
+    // Populated
+    Populated = 10,
+    City,
+    Dwelling,
+    Hamlet,
+    Town,
+    Village,
 
-    // Водные объекты
-    WaterUnknown = 200,
-    River,
-    Stream,
+    // Water
+    Water = 20,
     Lake,
-    Pond
-
-    // Объекты местности
+    Pond,
+    River,
+    Stream
 }
 
 export const enum Language {
