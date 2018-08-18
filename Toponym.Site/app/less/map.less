@@ -39,7 +39,7 @@
         }
 
         &.color1 > .mark { background-color: @color1; }
-        &.color2 > .mark { background-color: @color2; }
+        &.color2 > .mark { background-color: @color2; opacity: 0.4; }
         &.color3 > .mark { background-color: @color3; }
         &.color4 > .mark { background-color: @color4; }
         &.color5 > .mark { background-color: @color5; }
@@ -53,7 +53,8 @@
 
     .mark {
         position: absolute;
-        opacity: 0.3;
+        opacity: 0.6;
+        padding: 0;
         cursor: pointer;
         .transition(0.2s);
 
@@ -100,10 +101,10 @@
     }
 
     polyline {
-        opacity: 0.5;
+        opacity: 0.8;
         cursor: pointer;
         vector-effect: non-scaling-stroke;
-        stroke-width: 2;
+        stroke-width: 1;
         stroke-linejoin: round;
         stroke-linecap: round;
         fill: none;

@@ -7512,6 +7512,7 @@ footer a:hover .github {
 }
 #map .group.color2 > .mark {
   background-color: #db4437;
+  opacity: 0.4;
 }
 #map .group.color3 > .mark {
   background-color: #f4b400;
@@ -7539,7 +7540,8 @@ footer a:hover .github {
 }
 #map .mark {
   position: absolute;
-  opacity: 0.3;
+  opacity: 0.6;
+  padding: 0;
   cursor: pointer;
   -webkit-transition: 0.2s;
   -moz-transition: 0.2s;
@@ -7547,15 +7549,15 @@ footer a:hover .github {
   transition: 0.2s;
 }
 #map .mark.populated {
-  height: 10px;
-  width: 10px;
-  margin: -5px;
-  border-radius: 5px;
+  height: 4px;
+  width: 4px;
+  margin: -2px;
+  border-radius: 2px;
 }
 #map .mark.water {
-  height: 8px;
-  width: 8px;
-  margin: -4px;
+  height: 3px;
+  width: 3px;
+  margin: -2px;
   -webkit-transform: rotate(45deg);
   -moz-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
@@ -7591,10 +7593,10 @@ footer a:hover .github {
   animation: mapHighlightRotated 1s infinite linear;
 }
 #map polyline {
-  opacity: 0.5;
+  opacity: 0.8;
   cursor: pointer;
   vector-effect: non-scaling-stroke;
-  stroke-width: 2;
+  stroke-width: 1;
   stroke-linejoin: round;
   stroke-linecap: round;
   fill: none;

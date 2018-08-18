@@ -4,7 +4,7 @@
     {
         public const string DefaultHost = "toponim.by";
         public const string DataFileName = "data.json";
-        public const int EntryCountLimit = 1000;
+        public const int EntryCountLimit = 100000;
 
         public static bool IsDebug =
 #if DEBUG
