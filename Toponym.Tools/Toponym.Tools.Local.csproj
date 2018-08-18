@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Toponym.Tools</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\OsmDataKit\OsmDataKit\OsmDataKit.Local.csproj" />
+    <ProjectReference Include="..\..\Toponym\Toponym.Core\Toponym.Core.csproj" />
+  </ItemGroup>
+
+</Project>
