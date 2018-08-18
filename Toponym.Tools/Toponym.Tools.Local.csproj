@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\OsmDataKit\OsmDataKit\OsmDataKit.Local.csproj" />
-    <ProjectReference Include="..\..\Toponym\Toponym.Core\Toponym.Core.csproj" />
+    <ProjectReference Include="..\Toponym.Core\Toponym.Core.csproj" />
   </ItemGroup>
 
 </Project>
