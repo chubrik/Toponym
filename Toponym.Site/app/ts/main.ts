@@ -1,5 +1,5 @@
 ﻿import { checkArgument, invalidOperation } from './errors';
-import { IGroup, IEntry, GroupType, Status } from './types';
+import { IGroup, IEntry, Status, allEntryCategories, EntryCategory } from './types';
 import { defaultHost, fbAppId } from './app.module';
 import { langText, rusCase } from './utils';
 import { Service } from './service';
@@ -32,18 +32,18 @@ export class MainController {
         const queries = this.url.getQueries();
 
         if (!queries.length)
-            queries.push({ value: '', type: GroupType.All });
+            queries.push({ value: '', category: allEntryCategories });
 
         for (let query of queries) {
             this.groups.push({
                 value: query.value,
-                type: query.type,
+                category: query.category,
                 status: Status.Success
             } as IGroup);
         }
 
         this.$timeout(() => {
-            $('input')[0].focus();
+            $('input[type=text]')[0].focus();
         });
     }
 
@@ -52,27 +52,27 @@ export class MainController {
         for (let group of this.groups) {
             //console.log(`onNavigate: ${group.value}, last: ${group.lastValue}`);
 
-            if (group.value === group.lastValue && group.type === group.lastType)
+            if (group.value === group.lastValue && group.category === group.lastCategory)
                 continue;
 
             if (!group.value) {
                 group.status = Status.Success;
                 group.entries = null;
                 group.lastValue = '';
-                group.lastType = GroupType.All;
+                group.lastCategory = allEntryCategories;
                 continue;
             }
 
             const value = group.value;
-            const type = group.type;
+            const category = group.category;
             group.isLoading = group.isLoading || 0;
             group.isLoading++;
 
             this.service
-                .getEntries(group.value, group.type)
+                .getEntries(group.value, group.category)
                 .then(response => {
                     group.lastValue = value;
-                    group.lastType = type;
+                    group.lastCategory = category;
                     group.status = response.status;
                     group.entries = response.entries;
                     group.matchCount = response.matchCount;
@@ -99,13 +99,13 @@ export class MainController {
     onAddGroup(): void {
         this.groups.push({
             value: '',
-            type: this.groups[this.groups.length - 1].type,
+            category: this.groups[this.groups.length - 1].category,
             status: Status.Success
         } as IGroup);
 
         this.$timeout(() => {
             const index = this.groups.length - 1;
-            $('input')[index].focus();
+            $('input[type=text]')[index].focus();
         });
     }
 
@@ -113,7 +113,7 @@ export class MainController {
         checkArgument(index, 'index');
 
         const focusIndex = index < this.groups.length - 1 ? index + 1 : index - 1;
-        $('input')[focusIndex].focus();
+        $('input[type=text]')[focusIndex].focus();
         this.groups.splice(index, 1);
         this.url.go(this.groups);
     }
@@ -297,21 +297,21 @@ export class MainController {
 
         this.groups[this.currentGroupIndex].value = value;
         this.url.go(this.groups);
-        $('input')[this.currentGroupIndex].focus();
+        $('input[type=text]')[this.currentGroupIndex].focus();
     }
 
     onReset(): void {
         this.groups.splice(1);
         this.groups[0].value = '';
-        this.groups[0].type = GroupType.All;
+        this.groups[0].category = allEntryCategories;
         this.url.go(this.groups);
-        $('input')[0].focus();
+        $('input[type=text]')[0].focus();
     }
 
     isReseted(): boolean {
         return this.groups.length === 1 &&
             !this.groups[0].value &&
-            this.groups[0].type === GroupType.All;
+            this.groups[0].category === allEntryCategories;
     }
 
     isQueryEmpty(): boolean {
@@ -344,29 +344,40 @@ export class MainController {
     }
 
     isShowPopulated(): boolean {
-        const group = this.currentGroup();
-        return group.type === GroupType.All || group.type === GroupType.Populated;
+        return Boolean(this.currentGroup().category & EntryCategory.Populated);
     }
 
     isShowWater(): boolean {
-        const group = this.currentGroup();
-        return group.type === GroupType.All || group.type === GroupType.Water;
+        return Boolean(this.currentGroup().category & EntryCategory.Water);
+    }
+
+    isShowLocality(): boolean {
+        return Boolean(this.currentGroup().category & EntryCategory.Locality);
     }
 
     onClickShowPopulated(event: JQueryMouseEventObject): void {
-        checkArgument(event, 'event');
-
-        const show = (event.currentTarget as HTMLInputElement).checked;
-        this.currentGroup().type = show ? GroupType.All : GroupType.Water;
-        $(window).scrollTop(0);
-        this.url.go(this.groups);
+        this.onClickShowCategory(event, EntryCategory.Populated);
     }
 
     onClickShowWater(event: JQueryMouseEventObject): void {
+        this.onClickShowCategory(event, EntryCategory.Water);
+    }
+
+    onClickShowLocality(event: JQueryMouseEventObject): void {
+        this.onClickShowCategory(event, EntryCategory.Locality);
+    }
+
+    private onClickShowCategory(event: JQueryMouseEventObject, category: EntryCategory): void {
         checkArgument(event, 'event');
 
-        const show = (event.currentTarget as HTMLInputElement).checked;
-        this.currentGroup().type = show ? GroupType.All : GroupType.Populated;
+        const isChecked = (event.currentTarget as HTMLInputElement).checked;
+        const currentCategory = this.currentGroup().category;
+        let newCategory = isChecked ? currentCategory + category : currentCategory - category;
+
+        if (!newCategory)
+            newCategory = allEntryCategories - category;
+
+        this.currentGroup().category = newCategory;
         $(window).scrollTop(0);
         this.url.go(this.groups);
     }

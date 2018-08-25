@@ -65191,6 +65191,8 @@ var Toponym = (function (exports) {
                 return langText('р.', 'р.', 'riv.');
             case 24 /* Stream */:
                 return langText('руч.', 'руч.', 'str.');
+            case 30 /* Locality */:
+                return langText('ур.', 'ур.', 'loc.');
             default:
                 throw outOfRange('entry.type');
         }
@@ -65220,6 +65222,8 @@ var Toponym = (function (exports) {
                 return langText('Река', 'Рака', 'River');
             case 24 /* Stream */:
                 return langText('Ручей', 'Ручай', 'Stream');
+            case 30 /* Locality */:
+                return langText('Урочище', 'Урочышча', 'Locality');
             default:
                 throw outOfRange('entry.type');
         }
@@ -65273,6 +65277,7 @@ var Toponym = (function (exports) {
         if (!has(argValue))
             throw invalidArgument(argName);
     }
+    var allEntryCategories = 1 /* Populated */ | 2 /* Water */ | 4 /* Locality */;
     var MainController = /** @class */ (function () {
         function MainController($scope, $timeout, $q, service, url) {
             var _this = this;
@@ -65293,41 +65298,41 @@ var Toponym = (function (exports) {
         MainController.prototype.init = function () {
             var queries = this.url.getQueries();
             if (!queries.length)
-                queries.push({ value: '', type: 0 /* All */ });
+                queries.push({ value: '', category: allEntryCategories });
             for (var _i = 0, queries_1 = queries; _i < queries_1.length; _i++) {
                 var query = queries_1[_i];
                 this.groups.push({
                     value: query.value,
-                    type: query.type,
+                    category: query.category,
                     status: 1 /* Success */
                 });
             }
             this.$timeout(function () {
-                $('input')[0].focus();
+                $('input[type=text]')[0].focus();
             });
         };
         MainController.prototype.onNavigate = function () {
             var _this = this;
             var _loop_1 = function (group) {
                 //console.log(`onNavigate: ${group.value}, last: ${group.lastValue}`);
-                if (group.value === group.lastValue && group.type === group.lastType)
+                if (group.value === group.lastValue && group.category === group.lastCategory)
                     return "continue";
                 if (!group.value) {
                     group.status = 1 /* Success */;
                     group.entries = null;
                     group.lastValue = '';
-                    group.lastType = 0 /* All */;
+                    group.lastCategory = allEntryCategories;
                     return "continue";
                 }
                 var value = group.value;
-                var type = group.type;
+                var category = group.category;
                 group.isLoading = group.isLoading || 0;
                 group.isLoading++;
                 this_1.service
-                    .getEntries(group.value, group.type)
+                    .getEntries(group.value, group.category)
                     .then(function (response) {
                     group.lastValue = value;
-                    group.lastType = type;
+                    group.lastCategory = category;
                     group.status = response.status;
                     group.entries = response.entries;
                     group.matchCount = response.matchCount;
@@ -65357,18 +65362,18 @@ var Toponym = (function (exports) {
             var _this = this;
             this.groups.push({
                 value: '',
-                type: this.groups[this.groups.length - 1].type,
+                category: this.groups[this.groups.length - 1].category,
                 status: 1 /* Success */
             });
             this.$timeout(function () {
                 var index = _this.groups.length - 1;
-                $('input')[index].focus();
+                $('input[type=text]')[index].focus();
             });
         };
         MainController.prototype.onDeleteGroup = function (index) {
             checkArgument(index, 'index');
             var focusIndex = index < this.groups.length - 1 ? index + 1 : index - 1;
-            $('input')[focusIndex].focus();
+            $('input[type=text]')[focusIndex].focus();
             this.groups.splice(index, 1);
             this.url.go(this.groups);
         };
@@ -65498,19 +65503,19 @@ var Toponym = (function (exports) {
             checkArgument(value, 'value');
             this.groups[this.currentGroupIndex].value = value;
             this.url.go(this.groups);
-            $('input')[this.currentGroupIndex].focus();
+            $('input[type=text]')[this.currentGroupIndex].focus();
         };
         MainController.prototype.onReset = function () {
             this.groups.splice(1);
             this.groups[0].value = '';
-            this.groups[0].type = 0 /* All */;
+            this.groups[0].category = allEntryCategories;
             this.url.go(this.groups);
-            $('input')[0].focus();
+            $('input[type=text]')[0].focus();
         };
         MainController.prototype.isReseted = function () {
             return this.groups.length === 1 &&
                 !this.groups[0].value &&
-                this.groups[0].type === 0 /* All */;
+                this.groups[0].category === allEntryCategories;
         };
         MainController.prototype.isQueryEmpty = function () {
             var group = this.currentGroup();
@@ -65536,24 +65541,31 @@ var Toponym = (function (exports) {
             return !!group.entries && group.entries.length < group.matchCount;
         };
         MainController.prototype.isShowPopulated = function () {
-            var group = this.currentGroup();
-            return group.type === 0 /* All */ || group.type === 1 /* Populated */;
+            return Boolean(this.currentGroup().category & 1 /* Populated */);
         };
         MainController.prototype.isShowWater = function () {
-            var group = this.currentGroup();
-            return group.type === 0 /* All */ || group.type === 2 /* Water */;
+            return Boolean(this.currentGroup().category & 2 /* Water */);
+        };
+        MainController.prototype.isShowLocality = function () {
+            return Boolean(this.currentGroup().category & 4 /* Locality */);
         };
         MainController.prototype.onClickShowPopulated = function (event) {
-            checkArgument(event, 'event');
-            var show = event.currentTarget.checked;
-            this.currentGroup().type = show ? 0 /* All */ : 2 /* Water */;
-            $(window).scrollTop(0);
-            this.url.go(this.groups);
+            this.onClickShowCategory(event, 1 /* Populated */);
         };
         MainController.prototype.onClickShowWater = function (event) {
+            this.onClickShowCategory(event, 2 /* Water */);
+        };
+        MainController.prototype.onClickShowLocality = function (event) {
+            this.onClickShowCategory(event, 4 /* Locality */);
+        };
+        MainController.prototype.onClickShowCategory = function (event, category) {
             checkArgument(event, 'event');
-            var show = event.currentTarget.checked;
-            this.currentGroup().type = show ? 0 /* All */ : 1 /* Populated */;
+            var isChecked = event.currentTarget.checked;
+            var currentCategory = this.currentGroup().category;
+            var newCategory = isChecked ? currentCategory + category : currentCategory - category;
+            if (!newCategory)
+                newCategory = allEntryCategories - category;
+            this.currentGroup().category = newCategory;
             $(window).scrollTop(0);
             this.url.go(this.groups);
         };
@@ -65565,11 +65577,11 @@ var Toponym = (function (exports) {
             this.$http = $http;
             this.$q = $q;
         }
-        Service.prototype.getEntries = function (query, type) {
+        Service.prototype.getEntries = function (query, category) {
             var _this = this;
             checkArgument(query, 'query');
             return this.$http
-                .post('/xhr/entries', { query: query, type: type, language: exports.language })
+                .post('/xhr/entries', { query: query, category: category, language: exports.language })
                 .then(function (callback) {
                 var response = callback.data;
                 if (!response || response.status === 3 /* Failure */)
@@ -65583,10 +65595,13 @@ var Toponym = (function (exports) {
             });
         };
         Service.prototype.initLocal = function (entry) {
-            if (entry.type >= 10 /* Populated */ && entry.type < 20 /* Water */)
-                entry._typeClass = 'populated';
-            else if (entry.type >= 20 /* Water */)
-                entry._typeClass = 'water';
+            var type = entry.type;
+            if (type >= 10 /* Populated */ && type < 20 /* Water */)
+                entry._categoryClass = 'populated';
+            else if (type >= 20 /* Water */ && type < 30 /* Locality */)
+                entry._categoryClass = 'water';
+            else if (type >= 30 /* Locality */)
+                entry._categoryClass = 'locality';
         };
         return Service;
     }());
@@ -65607,11 +65622,13 @@ var Toponym = (function (exports) {
             var found = false;
             for (var i = 5; i > 0; i--) {
                 var value = params['q' + i];
-                var type = params['t' + i];
                 if (!value && !found)
                     continue;
                 found = true;
-                result.unshift({ value: value || '', type: +type || 0 /* All */ });
+                var category = +params['t' + i];
+                if (category <= 0 || category > allEntryCategories)
+                    category = allEntryCategories;
+                result.unshift({ value: value || '', category: category });
             }
             return result;
         };
@@ -65620,8 +65637,9 @@ var Toponym = (function (exports) {
             var params = {};
             for (var i = 0; i < 5; i++) {
                 var group = groups[i];
+                var showCategoryOnUrl = group && group.category && group.category != allEntryCategories;
                 params['q' + (i + 1)] = group ? group.value : null;
-                params['t' + (i + 1)] = group && group.type ? group.type : null;
+                params['t' + (i + 1)] = showCategoryOnUrl ? group.category : null;
             }
             this.$state.go('app.queries', params);
         };

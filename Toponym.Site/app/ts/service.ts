@@ -1,5 +1,5 @@
 ﻿import { checkArgument } from './errors';
-import { GroupType, IResponse, IEntry, Status, EntryType } from './types';
+import { IResponse, IEntry, Status, EntryType, EntryCategory } from './types';
 import { language } from './app.module';
 
 export class Service {
@@ -9,11 +9,11 @@ export class Service {
     constructor(private $http: ng.IHttpService, private $q: ng.IQService) {
     }
 
-    getEntries(query: string, type: GroupType): ng.IPromise<IResponse> {
+    getEntries(query: string, category: EntryCategory): ng.IPromise<IResponse> {
         checkArgument(query, 'query');
 
         return this.$http
-            .post<IResponse>('/xhr/entries', { query, type, language })
+            .post<IResponse>('/xhr/entries', { query, category, language })
             .then((callback: any) => {
                 const response: IResponse = callback.data;
 
@@ -29,11 +29,15 @@ export class Service {
     }
 
     private initLocal(entry: IEntry): void {
+        const type = entry.type;
 
-        if (entry.type >= EntryType.Populated && entry.type < EntryType.Water)
-            entry._typeClass = 'populated';
+        if (type >= EntryType.Populated && type < EntryType.Water)
+            entry._categoryClass = 'populated';
 
-        else if (entry.type >= EntryType.Water)
-            entry._typeClass = 'water';
+        else if (type >= EntryType.Water && type < EntryType.Locality)
+            entry._categoryClass = 'water';
+
+        else if (type >= EntryType.Locality)
+            entry._categoryClass = 'locality';
     }
 }

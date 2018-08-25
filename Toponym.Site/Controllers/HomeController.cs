@@ -20,14 +20,19 @@ namespace Toponym.Site.Controllers
 
         [Route("")]
         [Route("{lang:regex(^(ru|be|en)$)}")]
-        public IActionResult Index(string q1, Group? t1, string lang = "ru")
+        public IActionResult Index(string q1, EntryCategory? t1, string lang = "ru")
         {
             if (!CheckHost(Request, out IActionResult result))
                 return result;
 
+            var firstCategory =
+                t1 > 0 && t1 <= Constants.AllEntryCategories
+                    ? (EntryCategory)t1
+                    : Constants.AllEntryCategories;
+
             var language = LangHelper.GetByQueryParam(lang);
             ViewBag.FirstQuery = q1;
-            ViewBag.FirstType = t1 ?? Group.All;
+            ViewBag.FirstCategory = firstCategory;
             ViewBag.MatchCount = 0;
             ViewBag.Language = language;
 
@@ -37,7 +42,7 @@ namespace Toponym.Site.Controllers
             var regex = RegexHelper.GetRegex(q1, language);
 
             if (regex != null)
-                ViewBag.MatchCount = _dataService.GetEntries(regex, t1 ?? Group.All, language).Count;
+                ViewBag.MatchCount = _dataService.GetEntries(regex, firstCategory, language).Count;
 
             return View();
         }
@@ -45,7 +50,7 @@ namespace Toponym.Site.Controllers
         public class EntriesRequest
         {
             public string Query { get; set; }
-            public Group Type { get; set; }
+            public EntryCategory Category { get; set; }
             public Language Language { get; set; }
         }
 
@@ -61,7 +66,7 @@ namespace Toponym.Site.Controllers
             if (regex == null)
                 return JsonResult(ResponseStatus.SyntaxError);
 
-            var matched = _dataService.GetEntries(regex, request.Type, request.Language);
+            var matched = _dataService.GetEntries(regex, request.Category, request.Language);
             var limited = matched.Take(Constants.EntryCountLimit);
             var data = limited.Select(i => i.ToTransport(request.Language)).ToList();
             return JsonResult(data, matched.Count);

@@ -8,7 +8,6 @@ using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using Toponym.Core.Models;
 using Toponym.Site.Models;
-using Group = Toponym.Site.Models.Group;
 
 namespace Toponym.Site.Services
 {
@@ -34,27 +33,9 @@ namespace Toponym.Site.Services
             JsBundleHash = GetFileHash(Path.Combine(environment.WebRootPath, @"assets\js\toponym.min.js"));
         }
 
-        public List<Entry> GetEntries(Regex regex, Group group, Language language)
+        public List<Entry> GetEntries(Regex regex, EntryCategory category, Language language)
         {
-            IEnumerable<Entry> groupEntries;
-
-            switch (group)
-            {
-                case Group.All:
-                    groupEntries = _entries;
-                    break;
-
-                case Group.Populated:
-                    groupEntries = _entries.Where(i => i.Category == Category.Populated);
-                    break;
-
-                case Group.Water:
-                    groupEntries = _entries.Where(i => i.Category == Category.Water);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(group));
-            }
+            var groupEntries = _entries.Where(i => (i.Category & category) != 0);
 
             switch (language)
             {

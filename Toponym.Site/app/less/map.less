@@ -64,10 +64,14 @@
             border-radius: ceil(@mark-round-w / 2);
         }
 
-        &.water {
+        &.water,
+        &.locality {
             height: @mark-square-w;
             width: @mark-square-w;
             margin: round(-@mark-square-w / 2);
+        }
+
+        &.water {
             .rotate(45);
         }
 
@@ -78,7 +82,8 @@
                 margin: round(-@mark-round-w-tablet / 2);
             }
 
-            &.water {
+            &.water,
+            &.locality {
                 height: @mark-square-w-tablet;
                 width: @mark-square-w-tablet;
                 margin: round(-@mark-square-w-tablet / 2);
