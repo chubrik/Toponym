@@ -14,6 +14,7 @@ namespace Toponym.Tools
         public const string BorderScreenDataPath = "border-screen.json";
         public const string BorderScreenHtmlPath = "border-screen.html";
         public const string PopulatedDataPath = "populated.json";
+        public const string LocalitiesDataPath = "localities.json";
         public const string LakesDataPath = "lakes.json";
         public const string PondsDataPath = "ponds.json";
         public const string WatersDataPath = "waters.json";

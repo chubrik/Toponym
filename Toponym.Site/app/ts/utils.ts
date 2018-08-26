@@ -112,6 +112,9 @@ export function entryTypeAbbr(entry: IEntry): string {
         case EntryType.Stream:
             return langText('руч.', 'руч.', 'str.');
 
+        case EntryType.Locality:
+            return langText('ур.', 'ур.', 'loc.');
+
         default:
             throw outOfRange('entry.type');
     }
@@ -154,6 +157,9 @@ export function entryTypeText(entry: IEntry): string {
 
         case EntryType.Stream:
             return langText('Ручей', 'Ручай', 'Stream');
+
+        case EntryType.Locality:
+            return langText('Урочище', 'Урочышча', 'Locality');
 
         default:
             throw outOfRange('entry.type');

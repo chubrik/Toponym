@@ -7554,10 +7554,13 @@ footer a:hover .github {
   margin: -2px;
   border-radius: 2px;
 }
-#map .mark.water {
+#map .mark.water,
+#map .mark.locality {
   height: 3px;
   width: 3px;
   margin: -2px;
+}
+#map .mark.water {
   -webkit-transform: rotate(45deg);
   -moz-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
@@ -7570,7 +7573,8 @@ footer a:hover .github {
     width: 8px;
     margin: -4px;
   }
-  #map .mark.water {
+  #map .mark.water,
+  #map .mark.locality {
     height: 7px;
     width: 7px;
     margin: -4px;
@@ -7651,13 +7655,10 @@ lesshat-selector {
   -o-transition: 0.7s;
   transition: 0.7s;
 }
-#side > p.group-type-margin {
-  margin-top: 30px;
-}
 #side.silented {
   opacity: 0.35;
 }
-#side .group-type {
+#side .group-categories {
   background-color: white;
   position: fixed;
   top: 67px;
@@ -7668,6 +7669,9 @@ lesshat-selector {
 }
 #side label {
   margin: 0 10px 0 0;
+}
+#side > p.group-categories-margin {
+  margin-top: 53px;
 }
 #side .tutorial {
   margin-top: 3px;

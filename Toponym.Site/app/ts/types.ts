@@ -7,8 +7,8 @@
 export interface IGroup extends IResponse {
     value: string;
     lastValue: string;
-    type: GroupType;
-    lastType: GroupType;
+    category: EntryCategory;
+    lastCategory: EntryCategory;
     isLoading: number;
     isIntensive: boolean;
 }
@@ -24,15 +24,19 @@ export interface IEntry {
     type: EntryType;
     geo: number[];
     screen: number[][];
-    _typeClass: string;
+    _categoryClass: string;
     _isExpanded: boolean;
 }
 
-export const enum GroupType {
-    All = 0,
+export const enum EntryCategory {
+    Unknown = 0,
     Populated = 1,
-    Water = 2
+    Water = 2,
+    Locality = 4
 }
+
+export const allEntryCategories =
+    EntryCategory.Populated | EntryCategory.Water | EntryCategory.Locality;
 
 export const enum EntryType {
     Unknown = 0,
@@ -50,7 +54,10 @@ export const enum EntryType {
     Lake,
     Pond,
     River,
-    Stream
+    Stream,
+
+    // Locality
+    Locality = 30
 }
 
 export const enum Language {

@@ -19,6 +19,10 @@
         Lake,
         Pond,
         River,
-        Stream
+        Stream,
+
+        // Locality
+
+        Locality = 30
     }
 }

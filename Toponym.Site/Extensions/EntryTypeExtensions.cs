@@ -6,19 +6,19 @@ namespace Toponym.Site.Extensions
 {
     public static class EntryTypeExtensions
     {
-        public static Category ToCategory(this EntryType type)
+        public static EntryCategory ToCategory(this EntryType type)
         {
             if (type == EntryType.Unknown)
-                return Category.Unknown;
+                return EntryCategory.Unknown;
 
             if (type >= EntryType.Populated && type < EntryType.Water)
-                return Category.Populated;
+                return EntryCategory.Populated;
 
-            if (type >= EntryType.Water && (int)type < 30)
-                return Category.Water;
+            if (type >= EntryType.Water && type < EntryType.Locality)
+                return EntryCategory.Water;
 
-            //if (type >= 30)
-            //    return Category.Locality;
+            if (type >= EntryType.Locality)
+                return EntryCategory.Locality;
 
             throw new ArgumentOutOfRangeException(nameof(type));
         }

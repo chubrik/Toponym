@@ -7,12 +7,15 @@
 <div id="side" class="color1" ng-class="{silented: ctrl.isSilentedGroup(ctrl.currentGroupIndex)}"
      ng-mouseover="ctrl.groups[ctrl.currentGroupIndex].isIntensive = true" ng-mouseleave="ctrl.groups[ctrl.currentGroupIndex].isIntensive = false">
 
-    <div class="group-type" ng-if="ctrl.isNoEntriesFound() || ctrl.currentGroup().entries.length">
+    <div class="group-categories" ng-if="ctrl.isNoEntriesFound() || ctrl.currentGroup().entries.length">
         <label>
             <input type="checkbox" ng-click="ctrl.onClickShowPopulated($event)" ng-checked="ctrl.isShowPopulated()"> @text(lang, "Ойконимы", "Айконімы", "Oikonyms")
         </label>
         <label>
             <input type="checkbox" ng-click="ctrl.onClickShowWater($event)" ng-checked="ctrl.isShowWater()"> @text(lang, "Гидронимы", "Гідронімы", "Hydronyms")
+        </label>
+        <label>
+            <input type="checkbox" ng-click="ctrl.onClickShowLocality($event)" ng-checked="ctrl.isShowLocality()"> @text(lang, "Малые топонимы", "Малыя тапонімы", "Small toponyms")
         </label>
     </div>
     <div ng-if="ctrl.isQueryEmpty()" class="tutorial">
@@ -24,10 +27,10 @@
     <p ng-if="ctrl.isServerError()">
         @text(lang, "Ошибка связи с сервером", "Памылка сувязі з серверам", "Server connection error")
     </p>
-    <p class="group-type-margin" ng-if="ctrl.isNoEntriesFound()">
+    <p class="group-categories-margin" ng-if="ctrl.isNoEntriesFound()">
         @text(lang, "Совпадений не найдено", "Супадзенняў ня знойдзена", "No matches found")
     </p>
-    <p class="group-type-margin" ng-if="ctrl.currentGroup().entries.length">
+    <p class="group-categories-margin" ng-if="ctrl.currentGroup().entries.length">
         @if (lang == Language.Russian) {
             @:{{Core.rusCase(ctrl.currentGroup().matchCount, ['Найден', 'Найдено'], false) + ' ' + Core.rusCase(ctrl.currentGroup().matchCount, ['топоним', 'топонима', 'топонимов']) + (ctrl.isCuttedList() ? '.' : ':')}}
             <span ng-if="ctrl.isCuttedList()">
@@ -98,7 +101,7 @@
 
 <div id="map">
     <div class="group color{{$index + 1}}" ng-repeat="group in ctrl.groups" ng-class="{silented: ctrl.isSilentedGroup($index)}">
-        <div class="mark {{entry._typeClass}}"
+        <div class="mark {{entry._categoryClass}}"
              ng-repeat="entry in Core.pointEntries(group)"
              ng-class="{highlight: entry._mapHighlight}"
              ng-style="{left: entry.screen[0][0] + '%', top: entry.screen[0][1] + '%'}"

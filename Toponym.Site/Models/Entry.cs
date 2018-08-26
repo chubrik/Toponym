@@ -18,7 +18,7 @@ namespace Toponym.Site.Models
         public EntryType Type { get; }
         public GeoCoords Coords { get; }
         public List<ScreenCoords> Screen { get; }
-        public Category Category { get; }
+        public EntryCategory Category { get; }
 
         public Entry(EntryData data)
         {
