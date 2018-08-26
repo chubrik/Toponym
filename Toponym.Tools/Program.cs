@@ -1,7 +1,5 @@
 using Kit;
-using System.Collections.Generic;
 using System.Linq;
-using Toponym.Core.Models;
 using Toponym.Tools.Extensions;
 using Toponym.Tools.Helpers;
 using Toponym.Tools.Services;
@@ -16,7 +14,6 @@ namespace Toponym.Tools
             //ConsoleClient.Setup(minLevel: LogLevel.Log);
 
             var arg = args.Length > 0 ? args[0] : "master";
-            List<EntryData> data;
 
             switch (arg)
             {
@@ -28,9 +25,8 @@ namespace Toponym.Tools
                     var lakes = LakeService.Build();
                     var waters = WaterService.Build();
                     var rivers = RiverService.Build();
-                    //data = localities.ToSortedList();
-                    data = populated.Concat(localities).Concat(lakes).Concat(waters).Concat(rivers).ToSortedList();
-                    //EntryHelper.Validate(data);
+                    var data = populated.Concat(localities).Concat(lakes).Concat(waters).Concat(rivers).ToSortedList();
+                    EntryHelper.Validate(data);
                     JsonFileClient.Write(Constants.ResultDataPath, data);
                     var wrappedJson = FileClient.ReadText(Constants.ResultDataPath).Replace("},{", "},\r\n{");
                     FileClient.Write(Constants.ResultDataPath, wrappedJson);
@@ -62,10 +58,8 @@ namespace Toponym.Tools
                     break;
 
                 case "rivers":
-                    LogService.LogInfo("Build rivers");
                     ProjectionService.Build();
-                    data = RiverService.Build();
-                    LogService.LogInfo("Build rivers complete");
+                    RiverService.Build();
                     break;
 
                 case "ponds":

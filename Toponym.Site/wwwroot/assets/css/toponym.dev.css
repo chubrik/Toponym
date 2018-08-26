@@ -7653,9 +7653,6 @@ lesshat-selector {
   -o-transition: 0.7s;
   transition: 0.7s;
 }
-#side > p.group-categories-margin {
-  margin-top: 53px;
-}
 #side.silented {
   opacity: 0.35;
 }
@@ -7670,6 +7667,9 @@ lesshat-selector {
 }
 #side label {
   margin: 0 10px 0 0;
+}
+#side > p.group-categories-margin {
+  margin-top: 53px;
 }
 #side .tutorial {
   margin-top: 3px;

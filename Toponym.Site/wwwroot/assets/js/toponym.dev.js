@@ -65626,7 +65626,7 @@ var Toponym = (function (exports) {
                     continue;
                 found = true;
                 var category = +params['t' + i];
-                if (category <= 0 || category > allEntryCategories)
+                if (!category || category <= 0 || category > allEntryCategories)
                     category = allEntryCategories;
                 result.unshift({ value: value || '', category: category });
             }
