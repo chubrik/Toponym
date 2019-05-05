@@ -1,5 +1,4 @@
-﻿using OsmDataKit.Models;
-using OsmDataKit.Services;
+﻿using OsmDataKit;
 using OsmSharp;
 using System;
 using System.Collections.Generic;
@@ -11,7 +10,7 @@ namespace Toponym.Tools.Services
 {
     public class GeoService
     {
-        public static OsmRelation LoadRelation(
+        public static RelationObject LoadRelation(
             string cacheName, long relationId, string sourcePath = null) =>
             OsmObjectService.LoadRelationObject(
                 sourcePath ?? Constants.OsmNewSourcePath, cacheName, relationId);
@@ -23,14 +22,14 @@ namespace Toponym.Tools.Services
                 sourcePath ?? Constants.OsmNewSourcePath, cacheName, predicate);
 
             var allObjects =
-                (response.AllNodesDict.Values as IEnumerable<OsmObject>)
+                (response.AllNodesDict.Values as IEnumerable<GeoObject>)
                     .Concat(response.AllWaysDict.Values)
                     .Concat(response.AllRelationsDict.Values);
 
             foreach (var geo in allObjects)
             {
-                var titleRu = OsmHelper.TitleRu(geo);
-                var titleBe = OsmHelper.TitleBe(geo);
+                var titleRu = GeoHelper.TitleRu(geo);
+                var titleBe = GeoHelper.TitleBe(geo);
                 geo.SetTitleRu(titleRu);
                 geo.SetTitleBe(titleBe);
                 geo.Title = titleRu;

@@ -1,5 +1,5 @@
 ﻿using Kit;
-using OsmDataKit.Models;
+using OsmDataKit;
 using OsmSharp;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +26,7 @@ namespace Toponym.Tools.Services
                      !i.Tags.Contains("water", "riverbank") &&
                      !i.Tags.Contains("waterway", "riverbank") &&
                      !i.Tags.Contains("waterway", "stream") &&
-                     OsmHelper.TitleRu(i) != null,
+                     GeoHelper.TitleRu(i) != null,
                 Constants.OsmOldSourcePath);
 
             LogService.Log("Filter & fix");
@@ -37,8 +37,8 @@ namespace Toponym.Tools.Services
 #endif
             var filteredWays = response.Ways.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
             var filteredRelations = response.Relations.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
-            var wayData = filteredWays.Select(i => i.ToEntryDataPoint(EntryType.Lake));
-            var relData = filteredRelations.Select(i => i.ToEntryDataPoint(EntryType.Lake));
+            var wayData = filteredWays.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
+            var relData = filteredRelations.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
             var data = wayData.Concat(relData).ToSortedList();
             JsonFileClient.Write(Constants.WatersDataPath, data);
             LogService.LogInfo("Build waters complete");
@@ -108,7 +108,7 @@ namespace Toponym.Tools.Services
             2245551 // протока Волотова
         };
 
-        private static bool Filter(OsmObject geo)
+        private static bool Filter(GeoObject geo)
         {
             var normTitle = geo.TitleRu().ToLower().Replace("ё", "е");
 
@@ -171,7 +171,7 @@ namespace Toponym.Tools.Services
 
         #endregion
 
-        private static T Fix<T>(T geo) where T : OsmObject
+        private static T Fix<T>(T geo) where T : GeoObject
         {
             var titleRu = Regex.Replace(geo.TitleRu(),
                 @"(?<=^|\s)(озеро|озёра)(?=\s|$)|^о\.|^оз\.", "", RegexOptions.IgnoreCase).Trim(' ', '«', '»');
@@ -244,7 +244,7 @@ namespace Toponym.Tools.Services
             return geo;
         }
 
-        private static void BuildHtmlLinks(List<OsmWay> ways, List<OsmRelation> relations)
+        private static void BuildHtmlLinks(List<WayObject> ways, List<RelationObject> relations)
         {
             var html = "";
 

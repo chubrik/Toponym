@@ -1,4 +1,4 @@
-﻿using OsmDataKit.Models;
+﻿using OsmDataKit;
 using System;
 using Toponym.Core.Models;
 using Toponym.Tools.Helpers;

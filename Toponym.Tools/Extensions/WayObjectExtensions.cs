@@ -1,4 +1,4 @@
-﻿using OsmDataKit.Models;
+﻿using OsmDataKit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,13 +7,9 @@ using Toponym.Tools.Helpers;
 
 namespace Toponym.Tools.Extensions
 {
-    public static class OsmExtensions
+    public static class WayObjectExtensions
     {
-        public static EntryData ToEntryDataPoint(this OsmObject geo, EntryType type) =>
-            EntryHelper.GetData(
-                geo.TitleRu(), geo.TitleBe(), type, geo.AverageCoords);
-
-        public static EntryData ToEntryDataWay(this OsmWay way, EntryType type)
+        public static EntryData ToEntryData(this WayObject way, EntryType type)
         {
             var firstCoords = way.Nodes.First() as IGeoCoords;
             var coordsList = way.Nodes as IReadOnlyList<IGeoCoords>;

@@ -1,4 +1,4 @@
-﻿using OsmDataKit.Models;
+﻿using OsmDataKit;
 using OsmSharp;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Toponym.Tools.Helpers
 {
-    public static class OsmHelper
+    public static class GeoHelper
     {
         private static readonly List<string> _tagRuNames = new List<string> { "name", "int_name", "alt_name" };
 
@@ -22,7 +22,7 @@ namespace Toponym.Tools.Helpers
             return TitleRuBase(geo.Tags.ToDictionary(i => i.Key, i => i.Value));
         }
 
-        public static string TitleRu(OsmObject geo)
+        public static string TitleRu(GeoObject geo)
         {
             Debug.Assert(geo != null);
 
@@ -55,7 +55,7 @@ namespace Toponym.Tools.Helpers
             return null;
         }
 
-        public static string TitleBe(OsmObject geo)
+        public static string TitleBe(GeoObject geo)
         {
             Debug.Assert(geo != null);
 

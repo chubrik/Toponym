@@ -1,5 +1,5 @@
 ﻿using Kit;
-using OsmDataKit.Models;
+using OsmDataKit;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -17,7 +17,7 @@ namespace Toponym.Tools.Services
 
             var response = GeoService.Load(
                 "lakes-old",
-                i => i.Tags.Contains("water", "lake") && OsmHelper.TitleRu(i) != null,
+                i => i.Tags.Contains("water", "lake") && GeoHelper.TitleRu(i) != null,
                 Constants.OsmOldSourcePath);
 
             LogService.Log("Filter & fix");
@@ -27,15 +27,15 @@ namespace Toponym.Tools.Services
 #endif
             var filteredWays = response.Ways.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
             var filteredRelations = response.Relations.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
-            var wayData = filteredWays.Select(i => i.ToEntryDataPoint(EntryType.Lake));
-            var relData = filteredRelations.Select(i => i.ToEntryDataPoint(EntryType.Lake));
+            var wayData = filteredWays.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
+            var relData = filteredRelations.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
             var data = relData.Concat(wayData).ToSortedList();
             JsonFileClient.Write(Constants.LakesDataPath, data);
             LogService.LogInfo("Build lakes complete");
             return data;
         }
 
-        private static bool Filter(OsmObject geo)
+        private static bool Filter(GeoObject geo)
         {
             var normTitle = geo.TitleRu().ToLower().Replace("ё", "е");
 
@@ -57,7 +57,7 @@ namespace Toponym.Tools.Services
             return true;
         }
 
-        private static T Fix<T>(T geo) where T : OsmObject
+        private static T Fix<T>(T geo) where T : GeoObject
         {
             var titleRu = Regex.Replace(geo.TitleRu(),
                 @"(?<=^|\s)(оз\.?|озеро|озёра)(?=\s|$)|^оз\.", "", RegexOptions.IgnoreCase).Trim(' ', '"');

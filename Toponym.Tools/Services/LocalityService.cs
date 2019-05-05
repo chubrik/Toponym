@@ -1,5 +1,5 @@
 ﻿using Kit;
-using OsmDataKit.Models;
+using OsmDataKit;
 using OsmSharp;
 using System;
 using System.Collections.Generic;
@@ -20,9 +20,9 @@ namespace Toponym.Tools.Services
             var response = GeoService.Load(
                 "localities",
                 i => i.Tags.Contains("place", "locality") &&
-                OsmHelper.TitleRu(i) != null);
+                GeoHelper.TitleRu(i) != null);
 
-            var allGeos = (response.Nodes as IEnumerable<OsmObject>)
+            var allGeos = (response.Nodes as IEnumerable<GeoObject>)
                 .Concat(response.Ways)
                 .Concat(response.Relations);
 
@@ -35,7 +35,7 @@ namespace Toponym.Tools.Services
             return data;
         }
 
-        private static bool Filter(OsmObject geo)
+        private static bool Filter(GeoObject geo)
         {
             var normRu = geo.TitleRu().ToLower();
 
@@ -63,7 +63,7 @@ namespace Toponym.Tools.Services
 
         private const string TitleNumPattern = @"^.+(?=[ -]\d(-е)?$)";
 
-        private static OsmObject Fix(OsmObject geo)
+        private static GeoObject Fix(GeoObject geo)
         {
             var titleRu = geo.TitleRu();
 
@@ -121,20 +121,20 @@ namespace Toponym.Tools.Services
             return geo;
         }
 
-        private static EntryData GetEntryData(OsmObject geo)
+        private static EntryData GetEntryData(GeoObject geo)
         {
             var geoType = geo.Type;
 
             switch (geoType)
             {
                 case OsmGeoType.Node:
-                    return EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), EntryType.Locality, (OsmNode)geo);
+                    return EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), EntryType.Locality, (NodeObject)geo);
 
                 case OsmGeoType.Way:
-                    return ((OsmWay)geo).ToEntryDataPoint(EntryType.Locality);
+                    return ((WayObject)geo).ToEntryDataAsPoint(EntryType.Locality);
 
                 case OsmGeoType.Relation:
-                    return ((OsmRelation)geo).ToEntryDataPoint(EntryType.Locality);
+                    return ((RelationObject)geo).ToEntryDataAsPoint(EntryType.Locality);
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(geoType));

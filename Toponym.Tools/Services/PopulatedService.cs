@@ -1,5 +1,5 @@
 ﻿using Kit;
-using OsmDataKit.Models;
+using OsmDataKit;
 using OsmSharp;
 using System;
 using System.Collections.Generic;
@@ -23,9 +23,9 @@ namespace Toponym.Tools.Services
                       i.Tags.ContainsKey("old_place") ||
                       i.Tags.ContainsKey("abandoned:place") ||
                       i.Tags.Contains("landuse", "residential")) &&
-                     OsmHelper.TitleRu(i) != null);
+                     GeoHelper.TitleRu(i) != null);
 
-            var allGeos = (response.Nodes as IEnumerable<OsmObject>)
+            var allGeos = (response.Nodes as IEnumerable<GeoObject>)
                 .Concat(response.Ways)
                 .Concat(response.Relations)
                 .Concat(response.BrokenWays)
@@ -37,7 +37,7 @@ namespace Toponym.Tools.Services
             var badNames = filteredByType.Where(i => !FilterByName(i)).ToList();
 
             var filtered = filteredByType.Where(FilterByName).Select(Fix).ToList();
-            var nodes = filtered.Where(i => i.Type == OsmGeoType.Node).Select(i => (OsmNode)i).ToList();
+            var nodes = filtered.Where(i => i.Type == OsmGeoType.Node).Select(i => (NodeObject)i).ToList();
             var final = filtered.Where(i => i.Type != OsmGeoType.Node).ToList();
             var areasLookup = final.ToLookup(i => i.TitleRu());
 
@@ -57,7 +57,7 @@ namespace Toponym.Tools.Services
             return data;
         }
 
-        private static bool FilterByType(OsmObject geo)
+        private static bool FilterByType(GeoObject geo)
         {
             if (!geo.Tags.ContainsKey("place"))
                 return false;
@@ -74,7 +74,7 @@ namespace Toponym.Tools.Services
             return true;
         }
 
-        private static bool FilterByName(OsmObject geo)
+        private static bool FilterByName(GeoObject geo)
         {
             var titleRu = geo.TitleRu();
 
@@ -103,9 +103,9 @@ namespace Toponym.Tools.Services
 
         private const string TitleNumPattern = @"^.+(?=[ -]\d(-е)?$)";
 
-        private static OsmObject Fix(OsmObject geo)
+        private static GeoObject Fix(GeoObject geo)
         {
-            if (geo is OsmRelation relation)
+            if (geo is RelationObject relation)
             {
                 var label = relation.Members.FirstOrDefault(i => i.Role == "label");
 
@@ -175,12 +175,12 @@ namespace Toponym.Tools.Services
             return geo;
         }
 
-        private static bool IsInside(OsmObject area, OsmNode node)
+        private static bool IsInside(GeoObject area, NodeObject node)
         {
             var areaNodes =
-                area is OsmWay way
+                area is WayObject way
                     ? way.Nodes
-                    : area is OsmRelation relation
+                    : area is RelationObject relation
                         ? relation.AllNodes
                         : throw new InvalidOperationException();
 
@@ -196,7 +196,7 @@ namespace Toponym.Tools.Services
                 node.Longitude < right;
         }
 
-        private static EntryData GetEntryData(OsmObject geo)
+        private static EntryData GetEntryData(GeoObject geo)
         {
             var placeType = GetPlaceType(geo);
             EntryType entryType;
@@ -232,20 +232,20 @@ namespace Toponym.Tools.Services
             switch (geoType)
             {
                 case OsmGeoType.Node:
-                    return EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), entryType, (OsmNode)geo);
+                    return EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), entryType, (NodeObject)geo);
 
                 case OsmGeoType.Way:
-                    return ((OsmWay)geo).ToEntryDataPoint(entryType);
+                    return ((WayObject)geo).ToEntryDataAsPoint(entryType);
 
                 case OsmGeoType.Relation:
-                    return ((OsmRelation)geo).ToEntryDataPoint(entryType);
+                    return ((RelationObject)geo).ToEntryDataAsPoint(entryType);
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(geoType));
             }
         }
 
-        private static string GetPlaceType(OsmObject geo)
+        private static string GetPlaceType(GeoObject geo)
         {
             if (geo.Tags.TryGetValue("old_place", out var result) ||
                 geo.Tags.TryGetValue("abandoned:place", out result))

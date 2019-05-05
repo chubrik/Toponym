@@ -1,5 +1,5 @@
 ﻿using Kit;
-using OsmDataKit.Models;
+using OsmDataKit;
 using OsmSharp;
 using System;
 using System.Collections.Generic;
@@ -27,7 +27,7 @@ namespace Toponym.Tools.Services
 
             var response = GeoService.Load(
                 "rivers-old",
-                i => i.Tags.Contains("waterway", "river") && OsmHelper.TitleRu(i) != null,
+                i => i.Tags.Contains("waterway", "river") && GeoHelper.TitleRu(i) != null,
                 Constants.OsmOldSourcePath);
 
             FixBrokenNeman(response);
@@ -58,11 +58,11 @@ namespace Toponym.Tools.Services
                     return geos;
                 });
 
-            var ways = response.Ways.Concat(memberWays.Select(i => (OsmWay)i));
+            var ways = response.Ways.Concat(memberWays.Select(i => (WayObject)i));
             var preFiltered = ways.Where(PreFilter).Select(PreFix);
             var rivers = GetMergedWays(preFiltered);
             var postFiltered = rivers.Where(PostFilter).Select(PostFix);
-            var data = postFiltered.Select(i => i.ToEntryDataWay(EntryType.River)).ToSortedList();
+            var data = postFiltered.Select(i => i.ToEntryData(EntryType.River)).ToSortedList();
             JsonFileClient.Write(Constants.RiversDataPath, data);
             LogService.LogInfo("Build rivers complete");
             return data;
@@ -76,9 +76,9 @@ namespace Toponym.Tools.Services
             neman.SetMembers(members);
         }
 
-        private static bool PreFilter(OsmWay geo)
+        private static bool PreFilter(WayObject way)
         {
-            var normTitle = geo.TitleRu().ToLower().Replace("ё", "е");
+            var normTitle = way.TitleRu().ToLower().Replace("ё", "е");
 
             if (normTitle.Contains("канал") ||
                 normTitle.Contains("канава") ||
@@ -93,7 +93,7 @@ namespace Toponym.Tools.Services
             return true;
         }
 
-        private static T PreFix<T>(T geo) where T : OsmObject
+        private static T PreFix<T>(T geo) where T : GeoObject
         {
             var titleRu = geo.TitleRu();
             var titleBe = geo.TitleBe();
@@ -257,20 +257,20 @@ namespace Toponym.Tools.Services
                 50281450 // Янка
             };
 
-        private static bool PostFilter(OsmWay geo)
+        private static bool PostFilter(WayObject way)
         {
-            if (_badIds.Contains(geo.Id))
+            if (_badIds.Contains(way.Id))
                 return false;
 
             return true;
         }
 
-        private static T PostFix<T>(T geo) where T : OsmObject => geo;
+        private static T PostFix<T>(T geo) where T : GeoObject => geo;
 
-        private static List<OsmWay> GetMergedWays(IEnumerable<OsmWay> ways)
+        private static List<WayObject> GetMergedWays(IEnumerable<WayObject> ways)
         {
             var groups = ways.GroupBy(i => i.TitleRu().ToLower().Replace('ё', 'е'));
-            var rivers = new List<OsmWay>();
+            var rivers = new List<WayObject>();
 
             foreach (var group in groups)
             {
@@ -286,7 +286,7 @@ namespace Toponym.Tools.Services
             return rivers;
         }
 
-        private static OsmWay GetMergedWay(ICollection<OsmWay> waysLeft)
+        private static WayObject GetMergedWay(ICollection<WayObject> waysLeft)
         {
             var first = waysLeft.First();
             var id = first.Id;
@@ -300,7 +300,7 @@ namespace Toponym.Tools.Services
             while (repeat)
             {
                 repeat = false;
-                var usedWays = new List<OsmWay>();
+                var usedWays = new List<WayObject>();
 
                 foreach (var way in waysLeft)
                 {
@@ -333,7 +333,7 @@ namespace Toponym.Tools.Services
             while (repeat)
             {
                 repeat = false;
-                var usedWays = new List<OsmWay>();
+                var usedWays = new List<WayObject>();
 
                 foreach (var way in waysLeft)
                 {
@@ -359,13 +359,13 @@ namespace Toponym.Tools.Services
                     break;
             }
 
-            return new OsmWay(id, first.Tags, nodes, first.Data);
+            return new WayObject(id, first.Tags, nodes, first.Data);
         }
 
         /// <summary>
         /// Ближе 5 км
         /// </summary>
-        private static bool IsNear(OsmNode first, OsmNode second) =>
+        private static bool IsNear(NodeObject first, NodeObject second) =>
             Math.Abs(first.Latitude - second.Latitude) < 0.09 && // 5 / 55
             Math.Abs(first.Longitude - second.Longitude) < 0.075; // 5 / 65
     }

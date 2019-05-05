@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Toponym.Core.Models;
 
 namespace Toponym.Tools.Extensions

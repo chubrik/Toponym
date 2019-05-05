@@ -1,5 +1,5 @@
 ﻿using Kit;
-using OsmDataKit.Extensions;
+using OsmDataKit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +27,7 @@ namespace Toponym.Tools.Services
             var center = border.AverageCoords();
 
             Data.Lat0 = CoordsHelper.DegToRad(center.Latitude);
-            Data.Long0 = CoordsHelper.DegToRad(center.Longitude);
+            Data.Lng0 = CoordsHelper.DegToRad(center.Longitude);
             Data.Tan0 = 1 / Math.Tan(Data.Lat0);
             Data.Sin0 = Math.Sin(Data.Lat0);
 

@@ -1,5 +1,5 @@
 ﻿using Kit;
-using OsmDataKit.Models;
+using OsmDataKit;
 using OsmSharp;
 using System;
 using System.Collections.Generic;
@@ -46,13 +46,13 @@ namespace Toponym.Tools.Services
             return border;
         }
 
-        private static IEnumerable<OsmNode> LoadNodes()
+        private static IEnumerable<NodeObject> LoadNodes()
         {
             var relation = GeoService.LoadRelation("border", Constants.OsmBorderRelationId);
-            var ways = relation.Members.Where(i => i.Geo.Type == OsmGeoType.Way && i.Role == "outer").Select(i => (OsmWay)i.Geo);
+            var ways = relation.Members.Where(i => i.Geo.Type == OsmGeoType.Way && i.Role == "outer").Select(i => (WayObject)i.Geo);
 
             LogService.Log("Sort nodes");
-            var sortedNodes = new List<OsmNode>();
+            var sortedNodes = new List<NodeObject>();
             var waysLeft = ways.ToList();
             var cursorNode = waysLeft.SelectMany(i => i.Nodes).First(i => i.Id == Constants.OsmBorderStartNodeId);
             var thisWay = waysLeft.Single(i => i.Id == Constants.OsmBorderStartWayId);
