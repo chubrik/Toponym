@@ -249,12 +249,12 @@ namespace Toponym.Tools.Services
             var html = "";
 
             for (var i = 0; i < relations.Count; i++)
-                html += $"{i + 1}. <a href=\"http://" +
+                html += $"{i + 1}. <a href=\"https://" +
                         $"www.openstreetmap.org/relation/{relations[i].Id}\" " +
                         $"target=\"_blank\">{relations[i].TitleRu()}</a><br>\n";
 
             for (var i = 0; i < ways.Count; i++)
-                html += $"{i + 1 + relations.Count}. <a href=\"http://" +
+                html += $"{i + 1 + relations.Count}. <a href=\"https://" +
                         $"www.openstreetmap.org/way/{ways[i].Id}\" " +
                         $"target=\"_blank\">{ways[i].TitleRu()}</a><br>\n";
 

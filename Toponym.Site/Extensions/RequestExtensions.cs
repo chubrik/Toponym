@@ -26,7 +26,7 @@ namespace Toponym.Site.Extensions
             return userAgent.Contains("Twitterbot");
         }
 
-        // http://stackoverflow.com/questions/9038625/detect-if-device-is-ios
+        // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
         public static bool IsIos(this HttpRequest request)
         {
             var userAgent = request.Headers["User-Agent"].Single();

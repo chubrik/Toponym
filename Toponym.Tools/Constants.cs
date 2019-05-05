@@ -20,8 +20,8 @@ namespace Toponym.Tools
         public const string WatersDataPath = "waters.json";
         public const string RiversDataPath = "rivers.json";
         public const string ResultDataPath = "data.json";
-        public const long OsmBorderRelationId = 59065; // http://www.openstreetmap.org/relation/59065
-        public const long OsmBorderStartWayId = 22763008; // http://www.openstreetmap.org/way/22763008
-        public const long OsmBorderStartNodeId = 146383660; // http://www.openstreetmap.org/node/146383660
+        public const long OsmBorderRelationId = 59065; // https://www.openstreetmap.org/relation/59065
+        public const long OsmBorderStartWayId = 22763008; // https://www.openstreetmap.org/way/22763008
+        public const long OsmBorderStartNodeId = 146383660; // https://www.openstreetmap.org/node/146383660
     }
 }

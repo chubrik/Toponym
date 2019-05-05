@@ -166,17 +166,10 @@ export function entryTypeText(entry: IEntry): string {
     }
 }
 
-export function linkLoadmap(entry: IEntry): string {
-    checkArgument(entry, 'entry');
-
-    return `${'http://'}loadmap.net/${langText('ru', 'ru', 'en')}` +
-        `?qq=${entry.geo[0]}%20${entry.geo[1]}&z=13&s=100000&c=41&g=1`;
-}
-
 export function linkOsm(entry: IEntry): string {
     checkArgument(entry, 'entry');
 
-    return `${'http://'}www.openstreetmap.org/` +
+    return `${'https://'}www.openstreetmap.org/` +
         `?mlat=${entry.geo[0]}&mlon=${entry.geo[1]}&zoom=14`;
 }
 
@@ -193,4 +186,11 @@ export function linkYandex(entry: IEntry): string {
     return `${`https://`}yandex.${langText('ru', 'by', 'com')}/maps` +
         `?ll=${entry.geo[1]},${entry.geo[0]}` +
         `&pt=${entry.geo[1]},${entry.geo[0]}&z=14&l=sat%2Cskl`;
+}
+
+export function linkLoadmap(entry: IEntry): string {
+    checkArgument(entry, 'entry');
+
+    return `${'http://'}loadmap.net/${langText('ru', 'ru', 'en')}` +
+        `?qq=${entry.geo[0]}%20${entry.geo[1]}&z=13&s=100000&c=41&g=1`;
 }

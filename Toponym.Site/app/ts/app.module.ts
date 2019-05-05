@@ -54,10 +54,10 @@ angular
                 rusCase,
                 entryTypeAbbr,
                 entryTypeText,
-                linkLoadmap,
                 linkOsm,
                 linkGoogle,
                 linkYandex,
+                linkLoadmap,
                 pointEntries,
                 polylineEntries,
                 polylinePoints

@@ -245,8 +245,14 @@ namespace Toponym.Tools.Services
             }
         }
 
-        private static string GetPlaceType(OsmObject geo) =>
-            geo.Tags.TryGetValue("old_place") ?? geo.Tags.TryGetValue("abandoned:place") ?? geo.Tags["place"];
+        private static string GetPlaceType(OsmObject geo)
+        {
+            if (geo.Tags.TryGetValue("old_place", out var result) ||
+                geo.Tags.TryGetValue("abandoned:place", out result))
+                return result;
+
+            return geo.Tags["place"];
+        }
 
         private static void FixMinskCenter(List<EntryData> data)
         {
