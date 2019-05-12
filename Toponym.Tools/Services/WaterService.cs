@@ -30,13 +30,13 @@ namespace Toponym.Tools.Services
                 Constants.OsmOldSourcePath);
 
             LogService.Log("Filter & fix");
-#if DEBUG
-            var rejectedWays = response.Ways.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
-            var rejectedRelations = response.Relations.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
+
+            var rejectedWays = response.RootWays.Values.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
+            var rejectedRelations = response.RootRelations.Values.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
             BuildHtmlLinks(rejectedWays, rejectedRelations);
-#endif
-            var filteredWays = response.Ways.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
-            var filteredRelations = response.Relations.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
+
+            var filteredWays = response.RootWays.Values.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
+            var filteredRelations = response.RootRelations.Values.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
             var wayData = filteredWays.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
             var relData = filteredRelations.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
             var data = wayData.Concat(relData).ToSortedList();

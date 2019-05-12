@@ -25,15 +25,9 @@ namespace Toponym.Tools.Services
                       i.Tags.Contains("landuse", "residential")) &&
                      GeoHelper.TitleRu(i) != null);
 
-            var allGeos = (response.Nodes as IEnumerable<GeoObject>)
-                .Concat(response.Ways)
-                .Concat(response.Relations)
-                .Concat(response.BrokenWays)
-                .Concat(response.BrokenRelations);
-
             LogService.Log("Filter & fix");
 
-            var filteredByType = allGeos.Where(FilterByType).OrderBy(i => i.TitleRu()).ToList();
+            var filteredByType = response.RootObjects().Where(FilterByType).OrderBy(i => i.TitleRu()).ToList();
             var badNames = filteredByType.Where(i => !FilterByName(i)).ToList();
 
             var filtered = filteredByType.Where(FilterByName).Select(Fix).ToList();
@@ -181,7 +175,7 @@ namespace Toponym.Tools.Services
                 area is WayObject way
                     ? way.Nodes
                     : area is RelationObject relation
-                        ? relation.AllNodes
+                        ? relation.AllNodes()
                         : throw new InvalidOperationException();
 
             var top = areaNodes.Max(i => i.Latitude);

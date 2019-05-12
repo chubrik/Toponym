@@ -22,14 +22,10 @@ namespace Toponym.Tools.Services
                 i => i.Tags.Contains("place", "locality") &&
                 GeoHelper.TitleRu(i) != null);
 
-            var allGeos = (response.Nodes as IEnumerable<GeoObject>)
-                .Concat(response.Ways)
-                .Concat(response.Relations);
-
             LogService.Log("Filter & fix");
 
-            var filtered = allGeos.Where(Filter).Select(Fix).ToList();
-            var data = filtered.Select(GetEntryData).ToList();
+            var filtered = response.RootObjects().Where(Filter).Select(Fix).ToList();
+            var data = filtered.Select(GetEntryData).OrderBy(i => i.TitleRu).ToList();
             JsonFileClient.Write(Constants.LocalitiesDataPath, data);
             LogService.LogInfo("Build populated complete");
             return data;

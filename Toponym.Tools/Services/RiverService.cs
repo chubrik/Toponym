@@ -31,9 +31,9 @@ namespace Toponym.Tools.Services
                 Constants.OsmOldSourcePath);
 
             FixBrokenNeman(response);
-            var relations = response.Relations.Concat(response.BrokenRelations);
+            var rootRelations = response.RootRelations.Values;
 
-            var memberWays = relations.SelectMany(
+            var memberWays = rootRelations.SelectMany(
                 relation =>
                 {
                     var members = relation.Members.Where(i => i.Role == "main_stream" || i.Role == "");
@@ -52,13 +52,13 @@ namespace Toponym.Tools.Services
                                 geo.SetTitleBe(relation.TitleBe());
                             }
 
-                            return geo;
+                            return geo as WayObject;
                         });
 
                     return geos;
                 });
 
-            var ways = response.Ways.Concat(memberWays.Select(i => (WayObject)i));
+            var ways = response.RootWays.Values.Concat(memberWays);
             var preFiltered = ways.Where(PreFilter).Select(PreFix);
             var rivers = GetMergedWays(preFiltered);
             var postFiltered = rivers.Where(PostFilter).Select(PostFix);
@@ -70,10 +70,10 @@ namespace Toponym.Tools.Services
 
         private static void FixBrokenNeman(OsmObjectResponse response)
         {
-            var neman = response.Relations.First(i => i.TitleRu() == "Неман");
+            var neman = response.RootRelations.Values.Single(i => i.TitleRu() == "Неман");
             var members = neman.Members.ToList();
             members.Remove(members.First(i => i.Geo.TitleRu() == "Неманец"));
-            neman.SetMembers(members);
+            neman.ReplaceMembers(members);
         }
 
         private static bool PreFilter(WayObject way)
@@ -359,7 +359,7 @@ namespace Toponym.Tools.Services
                     break;
             }
 
-            return new WayObject(id, first.Tags, nodes, first.Data);
+            return new WayObject(id, nodes, first.Tags);
         }
 
         /// <summary>

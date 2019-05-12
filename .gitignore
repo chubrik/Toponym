@@ -2,6 +2,7 @@
 bin/
 obj/
 $*/
+*.Local.*
 *.pubxml
 *.user
 node_modules/

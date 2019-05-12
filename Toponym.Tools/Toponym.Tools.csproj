@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OsmDataKit" Version="1.6.0" />
+    <PackageReference Include="OsmDataKit" Version="2.0.0-pre01" />
   </ItemGroup>
 
   <ItemGroup>
