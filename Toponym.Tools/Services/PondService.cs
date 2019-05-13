@@ -11,7 +11,7 @@ namespace Toponym.Tools.Services
     {
         public static List<EntryData> Build()
         {
-            LogService.LogInfo("Build ponds");
+            LogService.BeginInfo("Build ponds");
 
             var response = GeoService.Load(
                 "ponds-old",
@@ -22,7 +22,7 @@ namespace Toponym.Tools.Services
             var relData = response.RootRelations.Values.Select(i => i.ToEntryDataAsPoint(EntryType.Pond));
             var data = relData.Concat(wayData).ToSortedList();
             JsonFileClient.Write(Constants.PondsDataPath, data);
-            LogService.LogInfo("Build ponds complete");
+            LogService.EndSuccess("Build ponds completed");
             return data;
         }
     }

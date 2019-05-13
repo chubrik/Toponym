@@ -11,14 +11,14 @@ namespace Toponym.Tools
         public static void Main(string[] args)
         {
             Kit.Kit.Setup(baseDirectory: "../../..");
-            //ConsoleClient.Setup(minLevel: LogLevel.Log);
+            ConsoleClient.Setup(minLevel: LogLevel.Log);
 
             var arg = args.Length > 0 ? args[0] : "master";
 
             switch (arg)
             {
                 case "master":
-                    LogService.LogInfo("Build master");
+                    LogService.BeginInfo("Build master");
                     ProjectionService.Build();
                     var populated = PopulatedService.Build();
                     var localities = LocalityService.Build();
@@ -30,7 +30,7 @@ namespace Toponym.Tools
                     JsonFileClient.Write(Constants.ResultDataPath, data);
                     var wrappedJson = FileClient.ReadText(Constants.ResultDataPath).Replace("},{", "},\r\n{");
                     FileClient.Write(Constants.ResultDataPath, wrappedJson);
-                    LogService.LogInfo("Build master complete");
+                    LogService.EndSuccess("Build master completed");
                     break;
 
                 case "projection":

@@ -15,7 +15,7 @@ namespace Toponym.Tools.Services
     {
         public static List<EntryData> Build()
         {
-            LogService.LogInfo("Build populated");
+            LogService.BeginInfo("Build populated");
 
             var response = GeoService.Load(
                 "populated",
@@ -25,7 +25,7 @@ namespace Toponym.Tools.Services
                       i.Tags.Contains("landuse", "residential")) &&
                      GeoHelper.TitleRu(i) != null);
 
-            LogService.Log("Filter & fix");
+            LogService.LogInfo("Filter & fix");
 
             var filteredByType = response.RootObjects().Where(FilterByType).OrderBy(i => i.TitleRu()).ToList();
             var badNames = filteredByType.Where(i => !FilterByName(i)).ToList();
@@ -47,7 +47,7 @@ namespace Toponym.Tools.Services
             var data = final.Select(GetEntryData).ToList();
             FixMinskCenter(data);
             JsonFileClient.Write(Constants.PopulatedDataPath, data);
-            LogService.LogInfo("Build populated complete");
+            LogService.EndSuccess("Build populated completed");
             return data;
         }
 

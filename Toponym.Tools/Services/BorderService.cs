@@ -14,14 +14,14 @@ namespace Toponym.Tools.Services
     {
         public static IReadOnlyList<IGeoCoords> Build()
         {
-            LogService.LogInfo("Load border");
+            LogService.BeginInfo("Load border");
             List<IGeoCoords> border;
 
             if (FileClient.Exists(Constants.BorderDataPath))
             {
                 var readData = JsonFileClient.Read<List<double[]>>(Constants.BorderDataPath);
                 border = readData.Select(i => new GeoCoords(i[0], i[1]) as IGeoCoords).ToList();
-                LogService.LogInfo("Load border complete");
+                LogService.EndInfo("Load border completed");
                 return border;
             }
 
@@ -42,7 +42,7 @@ namespace Toponym.Tools.Services
 
             var saveData = border.Select(i => new[] { i.Latitude, i.Longitude }).ToList();
             JsonFileClient.Write(Constants.BorderDataPath, saveData);
-            LogService.LogInfo("Load border complete");
+            LogService.EndSuccess("Load border completed");
             return border;
         }
 
@@ -51,7 +51,7 @@ namespace Toponym.Tools.Services
             var relation = GeoService.LoadRelation("border", Constants.OsmBorderRelationId);
             var ways = relation.Members.Where(i => i.Geo.Type == OsmGeoType.Way && i.Role == "outer").Select(i => (WayObject)i.Geo);
 
-            LogService.Log("Sort nodes");
+            LogService.Begin("Sort nodes");
             var sortedNodes = new List<NodeObject>();
             var waysLeft = ways.ToList();
             var cursorNode = waysLeft.SelectMany(i => i.Nodes).First(i => i.Id == Constants.OsmBorderStartNodeId);
@@ -78,13 +78,13 @@ namespace Toponym.Tools.Services
                 thisWay = waysLeft.Single(i => i.Nodes.Contains(cursorNode));
             }
 
-            LogService.Log("Sort nodes complete");
+            LogService.End("Sort nodes completed");
             return sortedNodes;
         }
 
         public static void BuildScreen(IEnumerable<IGeoCoords> border)
         {
-            LogService.LogInfo("Build border screen coords");
+            LogService.BeginInfo("Build border screen coords");
             var borderScreen = new List<ScreenCoords>();
             var prevX = 0f;
             var prevY = 0f;
@@ -113,7 +113,7 @@ namespace Toponym.Tools.Services
             html += borderScreen.Select(i => $"{i.X.ToString(CultureInfo.InvariantCulture)},{i.Y.ToString(CultureInfo.InvariantCulture)}").Join(" ");
             html += "\" />\n    </svg>\n</div>\n";
             FileClient.Write(Constants.BorderScreenHtmlPath, html);
-            LogService.LogInfo("Build border screen coords complete");
+            LogService.EndSuccess("Build border screen coords completed");
         }
     }
 }

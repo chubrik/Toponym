@@ -1,4 +1,5 @@
-﻿using OsmDataKit;
+﻿using Kit;
+using OsmDataKit;
 using OsmSharp;
 using System;
 using System.Linq;
@@ -12,14 +13,16 @@ namespace Toponym.Tools.Services
         public static RelationObject LoadRelation(string cacheName, long relationId, string sourcePath = null)
         {
             var request = new OsmRequest { RelationIds = new[] { relationId } };
-            var response = OsmObjectService.LoadObjects(sourcePath ?? Constants.OsmNewSourcePath, cacheName, request);
+            var response = OsmService.LoadObjects(sourcePath ?? Constants.OsmNewSourcePath, cacheName, request);
             return response.RootRelations.Values.Single();
         }
 
         public static OsmObjectResponse Load(string cacheName, Func<OsmGeo, bool> predicate, string sourcePath = null)
         {
-            var response = OsmObjectService.LoadObjects(
+            var response = OsmService.LoadObjects(
                 sourcePath ?? Constants.OsmNewSourcePath, cacheName, predicate);
+
+            LogService.Begin("Set titles");
 
             foreach (var geo in response.AllObjects())
             {
@@ -36,6 +39,7 @@ namespace Toponym.Tools.Services
                 return titleBe != null ? titleRu + " / " + titleBe : titleRu;
             };
 
+            LogService.End("Set titles completed");
             return response;
         }
     }

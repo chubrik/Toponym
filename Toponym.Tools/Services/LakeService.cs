@@ -13,14 +13,14 @@ namespace Toponym.Tools.Services
     {
         public static List<EntryData> Build()
         {
-            LogService.LogInfo("Build lakes");
+            LogService.BeginInfo("Build lakes");
 
             var response = GeoService.Load(
                 "lakes-old",
                 i => i.Tags.Contains("water", "lake") && GeoHelper.TitleRu(i) != null,
                 Constants.OsmOldSourcePath);
 
-            LogService.Log("Filter & fix");
+            LogService.LogInfo("Filter & fix");
 #if DEBUG
             var rejectedWays = response.RootWays.Values.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
             var rejectedRelations = response.RootRelations.Values.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
@@ -31,7 +31,7 @@ namespace Toponym.Tools.Services
             var relData = filteredRelations.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
             var data = relData.Concat(wayData).ToSortedList();
             JsonFileClient.Write(Constants.LakesDataPath, data);
-            LogService.LogInfo("Build lakes complete");
+            LogService.EndSuccess("Build lakes completed");
             return data;
         }
 

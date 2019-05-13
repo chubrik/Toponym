@@ -15,19 +15,19 @@ namespace Toponym.Tools.Services
     {
         public static List<EntryData> Build()
         {
-            LogService.LogInfo("Build localities");
+            LogService.BeginInfo("Build localities");
 
             var response = GeoService.Load(
                 "localities",
                 i => i.Tags.Contains("place", "locality") &&
                 GeoHelper.TitleRu(i) != null);
 
-            LogService.Log("Filter & fix");
+            LogService.LogInfo("Filter & fix");
 
             var filtered = response.RootObjects().Where(Filter).Select(Fix).ToList();
             var data = filtered.Select(GetEntryData).OrderBy(i => i.TitleRu).ToList();
             JsonFileClient.Write(Constants.LocalitiesDataPath, data);
-            LogService.LogInfo("Build populated complete");
+            LogService.EndSuccess("Build populated completed");
             return data;
         }
 

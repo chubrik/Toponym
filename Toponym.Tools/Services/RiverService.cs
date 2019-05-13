@@ -15,7 +15,7 @@ namespace Toponym.Tools.Services
     {
         public static List<EntryData> Build()
         {
-            LogService.LogInfo("Build rivers");
+            LogService.BeginInfo("Build rivers");
 
             //var response = OsmService.Get("rivers",
             //    i => (i.Tags.Contains("water", "river") ||
@@ -64,7 +64,7 @@ namespace Toponym.Tools.Services
             var postFiltered = rivers.Where(PostFilter).Select(PostFix);
             var data = postFiltered.Select(i => i.ToEntryData(EntryType.River)).ToSortedList();
             JsonFileClient.Write(Constants.RiversDataPath, data);
-            LogService.LogInfo("Build rivers complete");
+            LogService.EndSuccess("Build rivers completed");
             return data;
         }
 
