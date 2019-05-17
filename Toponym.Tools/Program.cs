@@ -11,8 +11,6 @@ namespace Toponym.Tools
         public static void Main(string[] args)
         {
             Kit.Kit.Setup(baseDirectory: "../../..");
-            ConsoleClient.Setup(minLevel: LogLevel.Log);
-
             var arg = args.Length > 0 ? args[0] : "master";
 
             switch (arg)

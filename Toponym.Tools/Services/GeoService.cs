@@ -24,7 +24,7 @@ namespace Toponym.Tools.Services
 
             LogService.Begin("Set titles");
 
-            foreach (var geo in response.AllObjects())
+            foreach (var geo in response.DeepObjects())
             {
                 var titleRu = GeoHelper.TitleRu(geo);
                 var titleBe = GeoHelper.TitleBe(geo);

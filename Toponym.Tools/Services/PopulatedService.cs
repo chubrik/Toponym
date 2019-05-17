@@ -175,7 +175,7 @@ namespace Toponym.Tools.Services
                 area is WayObject way
                     ? way.Nodes
                     : area is RelationObject relation
-                        ? relation.AllNodes()
+                        ? relation.DeepNodes()
                         : throw new InvalidOperationException();
 
             var top = areaNodes.Max(i => i.Latitude);
