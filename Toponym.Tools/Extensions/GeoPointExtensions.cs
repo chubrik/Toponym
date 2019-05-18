@@ -10,12 +10,12 @@ namespace Toponym.Tools.Extensions
     {
         private static readonly double _coeffPercent = ProjectionService.Data.Coeff * 100;
 
-        public static ScreenCoords ToScreen(this IGeoPoint geoPoint)
+        public static ScreenPoint ToScreen(this IGeoPoint geoPoint)
         {
             GeoPointHelper.CalculateRaw(geoPoint, out double rawX, out double rawY);
             var x = (float)Math.Round((rawX - ProjectionService.Data.MinRawX) * _coeffPercent, 2);
             var y = (float)Math.Round((rawY - ProjectionService.Data.MinRawY) * _coeffPercent, 2);
-            return new ScreenCoords(x, y);
+            return new ScreenPoint(x, y);
         }
     }
 }

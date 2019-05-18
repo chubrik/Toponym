@@ -32,8 +32,8 @@ namespace Toponym.Site.Extensions
             {
                 Title = title,
                 Type = entry.Type,
-                Coords = new[] { entry.Coords.Latitude, entry.Coords.Longitude },
-                Screen = entry.Screen.Select(i => new[] { i.X, i.Y }).ToList()
+                GeoPoint = new[] { entry.GeoPoint.Latitude, entry.GeoPoint.Longitude },
+                ScreenPoints = entry.ScreenPoints.Select(i => new[] { i.X, i.Y }).ToList()
             };
         }
     }

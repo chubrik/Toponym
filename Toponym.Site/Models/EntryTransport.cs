@@ -14,9 +14,9 @@ namespace Toponym.Site.Models
         public EntryType Type { get; set; }
 
         [JsonProperty("geo")]
-        public float[] Coords { get; set; }
+        public float[] GeoPoint { get; set; }
 
         [JsonProperty("screen")]
-        public List<float[]> Screen { get; set; }
+        public List<float[]> ScreenPoints { get; set; }
     }
 }

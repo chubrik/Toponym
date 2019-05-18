@@ -13,7 +13,7 @@ namespace Toponym.Tools.Extensions
         {
             var firstGeoPoint = way.Nodes.First() as IGeoPoint;
             var geoPoints = way.Nodes as IReadOnlyList<IGeoPoint>;
-            var screenPoints = new List<ScreenCoords>();
+            var screenPoints = new List<ScreenPoint>();
             var prevX = 0f;
             var prevY = 0f;
 

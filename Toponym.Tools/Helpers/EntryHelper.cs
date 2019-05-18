@@ -13,12 +13,12 @@ namespace Toponym.Tools.Helpers
         public static EntryData GetData(
             string titleRu, string titleBe, EntryType type, IGeoPoint geoPoint)
         {
-            var screenPoints = new List<ScreenCoords> { geoPoint.ToScreen() };
+            var screenPoints = new List<ScreenPoint> { geoPoint.ToScreen() };
             return GetData(titleRu, titleBe, type, geoPoint, screenPoints);
         }
 
         public static EntryData GetData(
-            string titleRu, string titleBe, EntryType type, IGeoPoint geoPoint, IEnumerable<ScreenCoords> screenPoints)
+            string titleRu, string titleBe, EntryType type, IGeoPoint geoPoint, IEnumerable<ScreenPoint> screenPoints)
         {
             Debug.Assert(titleRu != null);
 
@@ -34,8 +34,8 @@ namespace Toponym.Tools.Helpers
                 TitleBe = titleBe,
                 TitleEn = TextHelper.CyrillicToLatin(titleRu),
                 Type = type,
-                Coords = new[] { latitude, longitude },
-                Screen = screenPoints.Select(i => new[] { i.X, i.Y }).ToList()
+                GeoPoint = new[] { latitude, longitude },
+                ScreenPoints = screenPoints.Select(i => new[] { i.X, i.Y }).ToList()
             };
         }
 

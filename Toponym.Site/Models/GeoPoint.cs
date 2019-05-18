@@ -1,6 +1,6 @@
 ﻿namespace Toponym.Site.Models
 {
-    public class GeoCoords
+    public class GeoPoint
     {
         /// <summary>
         /// To top on the globe
@@ -12,7 +12,7 @@
         /// </summary>
         public float Longitude { get; }
 
-        public GeoCoords(float latitude, float longitude)
+        public GeoPoint(float latitude, float longitude)
         {
             Latitude = latitude;
             Longitude = longitude;

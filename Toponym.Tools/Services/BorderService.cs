@@ -85,7 +85,7 @@ namespace Toponym.Tools.Services
         public static void BuildScreen(IEnumerable<IGeoPoint> geoPoints)
         {
             LogService.BeginInfo("Build border screen points");
-            var screenPoints = new List<ScreenCoords>();
+            var screenPoints = new List<ScreenPoint>();
             var prevX = 0f;
             var prevY = 0f;
 

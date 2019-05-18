@@ -253,8 +253,8 @@ namespace Toponym.Tools.Services
             var minsk = data.Single(i => i.TitleRu == "Минск");
             var geoPoint = new GeoPoint(53.90234, 27.56188);
             var fakeEntry = EntryHelper.GetData(minsk.TitleRu, minsk.TitleBe, minsk.Type, geoPoint);
-            minsk.Coords = fakeEntry.Coords;
-            minsk.Screen = fakeEntry.Screen;
+            minsk.GeoPoint = fakeEntry.GeoPoint;
+            minsk.ScreenPoints = fakeEntry.ScreenPoints;
         }
     }
 }

@@ -16,8 +16,8 @@ namespace Toponym.Site.Models
         public string TitleRuIndex { get; }
         public string TitleBeIndex { get; }
         public EntryType Type { get; }
-        public GeoCoords Coords { get; }
-        public List<ScreenCoords> Screen { get; }
+        public GeoPoint GeoPoint { get; }
+        public IReadOnlyList<ScreenPoint> ScreenPoints { get; }
         public EntryCategory Category { get; }
 
         public Entry(EntryData data)
@@ -41,8 +41,8 @@ namespace Toponym.Site.Models
 
             Type = data.Type;
             Category = data.Type.ToCategory();
-            Coords = new GeoCoords(data.Coords[0], data.Coords[1]);
-            Screen = data.Screen.Select(i => new ScreenCoords(i[0], i[1])).ToList();
+            GeoPoint = new GeoPoint(data.GeoPoint[0], data.GeoPoint[1]);
+            ScreenPoints = data.ScreenPoints.Select(i => new ScreenPoint(i[0], i[1])).ToList();
         }
     }
 }
