@@ -11,26 +11,26 @@ namespace Toponym.Tools.Extensions
     {
         public static EntryData ToEntryData(this WayObject way, EntryType type)
         {
-            var firstCoords = way.Nodes.First() as IGeoCoords;
-            var coordsList = way.Nodes as IReadOnlyList<IGeoCoords>;
-            var entryScreen = new List<ScreenCoords>();
+            var firstGeoPoint = way.Nodes.First() as IGeoPoint;
+            var geoPoints = way.Nodes as IReadOnlyList<IGeoPoint>;
+            var screenPoints = new List<ScreenCoords>();
             var prevX = 0f;
             var prevY = 0f;
 
-            foreach (var coords in coordsList.Take(coordsList.Count - 1))
+            foreach (var geoPoint in geoPoints.Take(geoPoints.Count - 1))
             {
-                var screen = coords.ToScreen();
+                var screenPoint = geoPoint.ToScreen();
 
-                if (Math.Abs(screen.X - prevX) < 0.3 && Math.Abs(screen.Y - prevY) < 0.3) // 3 пикселя
+                if (Math.Abs(screenPoint.X - prevX) < 0.3 && Math.Abs(screenPoint.Y - prevY) < 0.3) // 3 пикселя
                     continue;
 
-                entryScreen.Add(screen);
-                prevX = screen.X;
-                prevY = screen.Y;
+                screenPoints.Add(screenPoint);
+                prevX = screenPoint.X;
+                prevY = screenPoint.Y;
             }
 
-            entryScreen.Add(way.Nodes.Last().ToScreen());
-            return EntryHelper.GetData(way.TitleRu(), way.TitleBe(), type, firstCoords, entryScreen);
+            screenPoints.Add(way.Nodes.Last().ToScreen());
+            return EntryHelper.GetData(way.TitleRu(), way.TitleBe(), type, firstGeoPoint, screenPoints);
         }
     }
 }

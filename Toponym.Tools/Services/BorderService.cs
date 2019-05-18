@@ -12,20 +12,20 @@ namespace Toponym.Tools.Services
 {
     public class BorderService
     {
-        public static IReadOnlyList<IGeoCoords> Build()
+        public static IReadOnlyList<IGeoPoint> Build()
         {
             LogService.BeginInfo("Load border");
-            List<IGeoCoords> border;
+            List<IGeoPoint> geoPoints;
 
             if (FileClient.Exists(Constants.BorderDataPath))
             {
                 var readData = JsonFileClient.Read<List<double[]>>(Constants.BorderDataPath);
-                border = readData.Select(i => new GeoCoords(i[0], i[1]) as IGeoCoords).ToList();
+                geoPoints = readData.Select(i => new GeoPoint(i[0], i[1]) as IGeoPoint).ToList();
                 LogService.EndInfo("Load border completed");
-                return border;
+                return geoPoints;
             }
 
-            border = new List<IGeoCoords>();
+            geoPoints = new List<IGeoPoint>();
             var nodes = LoadNodes();
             var prevLatitude = 0d;
             var prevLongitude = 0d;
@@ -35,15 +35,15 @@ namespace Toponym.Tools.Services
                 if (node.Latitude.Equals(prevLatitude) && node.Longitude.Equals(prevLongitude))
                     continue;
 
-                border.Add(node);
+                geoPoints.Add(node);
                 prevLatitude = node.Latitude;
                 prevLongitude = node.Longitude;
             }
 
-            var saveData = border.Select(i => new[] { i.Latitude, i.Longitude }).ToList();
+            var saveData = geoPoints.Select(i => new[] { i.Latitude, i.Longitude }).ToList();
             JsonFileClient.Write(Constants.BorderDataPath, saveData);
             LogService.EndSuccess("Load border completed");
-            return border;
+            return geoPoints;
         }
 
         private static IEnumerable<NodeObject> LoadNodes()
@@ -82,26 +82,26 @@ namespace Toponym.Tools.Services
             return sortedNodes;
         }
 
-        public static void BuildScreen(IEnumerable<IGeoCoords> border)
+        public static void BuildScreen(IEnumerable<IGeoPoint> geoPoints)
         {
-            LogService.BeginInfo("Build border screen coords");
-            var borderScreen = new List<ScreenCoords>();
+            LogService.BeginInfo("Build border screen points");
+            var screenPoints = new List<ScreenCoords>();
             var prevX = 0f;
             var prevY = 0f;
 
-            foreach (var coords in border)
+            foreach (var geoPoint in geoPoints)
             {
-                var screen = coords.ToScreen();
+                var screenPoint = geoPoint.ToScreen();
 
-                if (Math.Abs(screen.X - prevX) < 0.1 && Math.Abs(screen.Y - prevY) < 0.1)
+                if (Math.Abs(screenPoint.X - prevX) < 0.1 && Math.Abs(screenPoint.Y - prevY) < 0.1)
                     continue;
 
-                borderScreen.Add(screen);
-                prevX = screen.X;
-                prevY = screen.Y;
+                screenPoints.Add(screenPoint);
+                prevX = screenPoint.X;
+                prevY = screenPoint.Y;
             }
 
-            var data = borderScreen.Select(i => new[] { i.X, i.Y }).ToList();
+            var data = screenPoints.Select(i => new[] { i.X, i.Y }).ToList();
             JsonFileClient.Write(Constants.BorderScreenDataPath, data);
 
             const int width = 1000;
@@ -110,10 +110,10 @@ namespace Toponym.Tools.Services
             html += $"<div style=\"width: {width}px; height: {height}px; overflow-y: hidden; margin: 0 auto; padding: 6px 10px 10px 224px\">\n";
             html += $"    <svg width=\"{width}\" height=\"{width}\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"none\" style=\"overflow: visible\">\n";
             html += "        <polygon stroke=\"black\" vector-effect=\"non-scaling-stroke\" stroke-width=\"0.35\" sstroke-linejoin=\"round\" fill=\"#fcfcfc\" points=\"";
-            html += borderScreen.Select(i => $"{i.X.ToString(CultureInfo.InvariantCulture)},{i.Y.ToString(CultureInfo.InvariantCulture)}").Join(" ");
+            html += screenPoints.Select(i => $"{i.X.ToString(CultureInfo.InvariantCulture)},{i.Y.ToString(CultureInfo.InvariantCulture)}").Join(" ");
             html += "\" />\n    </svg>\n</div>\n";
             FileClient.Write(Constants.BorderScreenHtmlPath, html);
-            LogService.EndSuccess("Build border screen coords completed");
+            LogService.EndSuccess("Build border screen points completed");
         }
     }
 }

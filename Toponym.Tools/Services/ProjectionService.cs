@@ -23,20 +23,20 @@ namespace Toponym.Tools.Services
                 return;
             }
 
-            var border = BorderService.Build();
-            var center = border.AverageCoords();
+            var borderGeoPoints = BorderService.Build();
+            var centerGeoPoint = borderGeoPoints.CenterPoint();
 
-            Data.Lat0 = CoordsHelper.DegToRad(center.Latitude);
-            Data.Lng0 = CoordsHelper.DegToRad(center.Longitude);
+            Data.Lat0 = GeoPointHelper.DegToRad(centerGeoPoint.Latitude);
+            Data.Lng0 = GeoPointHelper.DegToRad(centerGeoPoint.Longitude);
             Data.Tan0 = 1 / Math.Tan(Data.Lat0);
             Data.Sin0 = Math.Sin(Data.Lat0);
 
             var rawXs = new List<double>();
             var rawYs = new List<double>();
 
-            foreach (var coords in border)
+            foreach (var geoPoint in borderGeoPoints)
             {
-                CoordsHelper.CalculateRaw(coords, out double rawX, out double rawY);
+                GeoPointHelper.CalculateRaw(geoPoint, out double rawX, out double rawY);
                 rawXs.Add(rawX);
                 rawYs.Add(rawY);
             }
@@ -48,7 +48,7 @@ namespace Toponym.Tools.Services
 
             JsonFileClient.Write(Constants.ProjectionDataPath, Data);
             LogService.EndSuccess("Build projection completed");
-            BorderService.BuildScreen(border);
+            BorderService.BuildScreen(borderGeoPoints);
         }
     }
 }

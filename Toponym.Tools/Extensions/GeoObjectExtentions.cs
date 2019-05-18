@@ -23,7 +23,6 @@ namespace Toponym.Tools.Extensions
             osmObject.Tags[TitleBeKey] = value;
 
         public static EntryData ToEntryDataAsPoint(this GeoObject geo, EntryType type) =>
-            EntryHelper.GetData(
-                geo.TitleRu(), geo.TitleBe(), type, geo.CenterCoords());
+            EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), type, geo.CenterPoint());
     }
 }
