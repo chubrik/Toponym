@@ -13,8 +13,8 @@
     var text = new Func<Language, string, string, string, string>(LangHelper.Text);
 
     var hostUpper = defaultHost.First().ToString().ToUpper() + defaultHost.Substring(1);
-    var canonicalUrl = "http://" + defaultHost + Context.Request.Path + Context.Request.QueryString;
-    var logoUrl = "http://" + defaultHost + Url.Content("~/assets/img/logo-big.png");
+    var canonicalUrl = "https://" + defaultHost + Context.Request.Path + Context.Request.QueryString;
+    var logoUrl = "https://" + defaultHost + Url.Content("~/assets/img/logo-big.png");
 
     var titleBase = text(lang, "Карта топонимов Беларуси", "Карта тапонімаў Беларусі", "Toponyms map of Belarus");
     var altTitleBase = text(lang, "Белорусские топонимы", "Беларускія тапонімы", "Belarusian toponyms");

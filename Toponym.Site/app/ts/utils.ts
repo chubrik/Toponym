@@ -191,6 +191,6 @@ export function linkYandex(entry: IEntry): string {
 export function linkLoadmap(entry: IEntry): string {
     checkArgument(entry, 'entry');
 
-    return `${'http://'}loadmap.net/${langText('ru', 'ru', 'en')}` +
+    return `${'http://'}m.loadmap.net/${langText('ru', 'ru', 'en')}` +
         `?qq=${entry.geo[0]}%20${entry.geo[1]}&z=13&s=100000&c=41&g=1`;
 }
