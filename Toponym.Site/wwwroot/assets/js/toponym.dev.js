@@ -65704,7 +65704,7 @@ var Toponym = (function (exports) {
     }
     function linkLoadmap(entry) {
         checkArgument(entry, 'entry');
-        return 'http://' + "loadmap.net/" + langText('ru', 'ru', 'en') +
+        return 'http://' + "m.loadmap.net/" + langText('ru', 'ru', 'en') +
             ("?qq=" + entry.geo[0] + "%20" + entry.geo[1] + "&z=13&s=100000&c=41&g=1");
     }
     var isFirstTime = true;
@@ -65949,7 +65949,7 @@ var Toponym = (function (exports) {
                 encodeURIComponent(text + '\n\n' + this.canonicalUrl() + '\n' + tags);
         };
         MainController.prototype.canonicalUrl = function () {
-            return 'http://' + exports.defaultHost + window.location.pathname + window.location.search;
+            return 'https://' + exports.defaultHost + window.location.pathname + window.location.search;
         };
         MainController.prototype.onClickShareButton = function ($event, suffix) {
             checkArgument($event, '$event');

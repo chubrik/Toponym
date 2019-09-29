@@ -278,7 +278,7 @@ export class MainController {
     }
 
     private canonicalUrl(): string {
-        return 'http://' + defaultHost + window.location.pathname + window.location.search;
+        return 'https://' + defaultHost + window.location.pathname + window.location.search;
     }
 
     onClickShareButton($event: Event, suffix: string): void {
