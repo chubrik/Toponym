@@ -10599,7 +10599,7 @@ return jQuery;
 
 
 /**
- * @license AngularJS v1.7.8
+ * @license AngularJS v1.7.9
  * (c) 2010-2018 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -10699,7 +10699,7 @@ function isValidObjectMaxDepth(maxDepth) {
 function minErr(module, ErrorConstructor) {
   ErrorConstructor = ErrorConstructor || Error;
 
-  var url = 'https://errors.angularjs.org/1.7.8/';
+  var url = 'https://errors.angularjs.org/1.7.9/';
   var regex = url.replace('.', '\\.') + '[\\s\\S]*';
   var errRegExp = new RegExp(regex, 'g');
 
@@ -11081,8 +11081,10 @@ function baseExtend(dst, objs, deep) {
         } else if (isElement(src)) {
           dst[key] = src.clone();
         } else {
-          if (!isObject(dst[key])) dst[key] = isArray(src) ? [] : {};
-          baseExtend(dst[key], [src], true);
+          if (key !== '__proto__') {
+            if (!isObject(dst[key])) dst[key] = isArray(src) ? [] : {};
+            baseExtend(dst[key], [src], true);
+          }
         }
       } else {
         dst[key] = src;
@@ -13405,11 +13407,11 @@ function toDebugString(obj, maxDepth) {
 var version = {
   // These placeholder strings will be replaced by grunt's `build` task.
   // They need to be double- or single-quoted.
-  full: '1.7.8',
+  full: '1.7.9',
   major: 1,
   minor: 7,
-  dot: 8,
-  codeName: 'enthusiastic-oblation'
+  dot: 9,
+  codeName: 'pollution-eradication'
 };
 
 
@@ -13559,7 +13561,7 @@ function publishExternalAPI(angular) {
       });
     }
   ])
-  .info({ angularVersion: '1.7.8' });
+  .info({ angularVersion: '1.7.9' });
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -18060,7 +18062,7 @@ function $TemplateCacheProvider() {
  *
  * This example show how you might use `$doCheck` to trigger changes in your component's inputs even if the
  * actual identity of the component doesn't change. (Be aware that cloning and deep equality checks on large
- * arrays or objects can have a negative impact on your application performance)
+ * arrays or objects can have a negative impact on your application performance.)
  *
  * <example name="doCheckArrayExample" module="do-check-module">
  *   <file name="index.html">
@@ -18383,7 +18385,7 @@ function $TemplateCacheProvider() {
  * would result in the whole app "stalling" until all templates are loaded asynchronously - even in the
  * case when only one deeply nested directive has `templateUrl`.
  *
- * Template loading is asynchronous even if the template has been preloaded into the {@link $templateCache}
+ * Template loading is asynchronous even if the template has been preloaded into the {@link $templateCache}.
  *
  * You can specify `templateUrl` as a string representing the URL or as a function which takes two
  * arguments `tElement` and `tAttrs` (described in the `compile` function api below) and returns
@@ -18444,7 +18446,7 @@ function $TemplateCacheProvider() {
  * own templates or compile functions. Compiling these directives results in an infinite loop and
  * stack overflow errors.
  *
- * This can be avoided by manually using $compile in the postLink function to imperatively compile
+ * This can be avoided by manually using `$compile` in the postLink function to imperatively compile
  * a directive's template instead of relying on automatic template compilation via `template` or
  * `templateUrl` declaration or manual compilation inside the compile function.
  * </div>
@@ -18548,17 +18550,17 @@ function $TemplateCacheProvider() {
  *
  * * `true` - transclude the content (i.e. the child nodes) of the directive's element.
  * * `'element'` - transclude the whole of the directive's element including any directives on this
- *   element that defined at a lower priority than this directive. When used, the `template`
+ *   element that are defined at a lower priority than this directive. When used, the `template`
  *   property is ignored.
  * * **`{...}` (an object hash):** - map elements of the content onto transclusion "slots" in the template.
  *
- * **Mult-slot transclusion** is declared by providing an object for the `transclude` property.
+ * **Multi-slot transclusion** is declared by providing an object for the `transclude` property.
  *
  * This object is a map where the keys are the name of the slot to fill and the value is an element selector
  * used to match the HTML to the slot. The element selector should be in normalized form (e.g. `myElement`)
  * and will match the standard element variants (e.g. `my-element`, `my:element`, `data-my-element`, etc).
  *
- * For further information check out the guide on {@link guide/directive#matching-directives Matching Directives}
+ * For further information check out the guide on {@link guide/directive#matching-directives Matching Directives}.
  *
  * If the element selector is prefixed with a `?` then that slot is optional.
  *
@@ -18583,7 +18585,7 @@ function $TemplateCacheProvider() {
  * </div>
  *
  * If you want to manually control the insertion and removal of the transcluded content in your directive
- * then you must use this transclude function. When you call a transclude function it returns a a jqLite/JQuery
+ * then you must use this transclude function. When you call a transclude function it returns a jqLite/JQuery
  * object that contains the compiled DOM, which is linked to the correct transclusion scope.
  *
  * When you call a transclusion function you can pass in a **clone attach function**. This function accepts
@@ -18668,8 +18670,8 @@ function $TemplateCacheProvider() {
  * The {@link ng.$compile.directive.Attributes Attributes} object - passed as a parameter in the
  * `link()` or `compile()` functions. It has a variety of uses.
  *
- * * *Accessing normalized attribute names:* Directives like 'ngBind' can be expressed in many ways:
- *   'ng:bind', `data-ng-bind`, or 'x-ng-bind'. The attributes object allows for normalized access
+ * * *Accessing normalized attribute names:* Directives like `ngBind` can be expressed in many ways:
+ *   `ng:bind`, `data-ng-bind`, or `x-ng-bind`. The attributes object allows for normalized access
  *   to the attributes.
  *
  * * *Directive inter-communication:* All directives share the same instance of the attributes
@@ -18710,25 +18712,24 @@ function $TemplateCacheProvider() {
    <file name="index.html">
     <script>
       angular.module('compileExample', [], function($compileProvider) {
-        // configure new 'compile' directive by passing a directive
-        // factory function. The factory function injects the '$compile'
+        // Configure new 'compile' directive by passing a directive
+        // factory function. The factory function injects '$compile'.
         $compileProvider.directive('compile', function($compile) {
-          // directive factory creates a link function
+          // The directive factory creates a link function.
           return function(scope, element, attrs) {
             scope.$watch(
               function(scope) {
-                 // watch the 'compile' expression for changes
+                // Watch the 'compile' expression for changes.
                 return scope.$eval(attrs.compile);
               },
               function(value) {
-                // when the 'compile' expression changes
-                // assign it into the current DOM
+                // When the 'compile' expression changes
+                // assign it into the current DOM.
                 element.html(value);
 
-                // compile the new DOM and link it to the current
-                // scope.
-                // NOTE: we only compile .childNodes so that
-                // we don't get into infinite loop compiling ourselves
+                // Compile the new DOM and link it to the current scope.
+                // NOTE: we only compile '.childNodes' so that we
+                // don't get into an infinite loop compiling ourselves.
                 $compile(element.contents())(scope);
               }
             );
@@ -18801,13 +18802,13 @@ function $TemplateCacheProvider() {
  *        }
  *        ```
  *      * `futureParentElement` - defines the parent to which the `cloneAttachFn` will add
- *        the cloned elements; only needed for transcludes that are allowed to contain non html
- *        elements (e.g. SVG elements). See also the directive.controller property.
+ *        the cloned elements; only needed for transcludes that are allowed to contain non HTML
+ *        elements (e.g. SVG elements). See also the `directive.controller` property.
  *
  * Calling the linking function returns the element of the template. It is either the original
  * element passed in, or the clone of the element if the `cloneAttachFn` is provided.
  *
- * After linking the view is not updated until after a call to $digest which typically is done by
+ * After linking the view is not updated until after a call to `$digest`, which typically is done by
  * AngularJS automatically.
  *
  * If you need access to the bound view, there are two ways to do it:
@@ -18815,21 +18816,23 @@ function $TemplateCacheProvider() {
  * - If you are not asking the linking function to clone the template, create the DOM element(s)
  *   before you send them to the compiler and keep this reference around.
  *   ```js
- *     var element = $compile('<p>{{total}}</p>')(scope);
+ *     var element = angular.element('<p>{{total}}</p>');
+ *     $compile(element)(scope);
  *   ```
  *
  * - if on the other hand, you need the element to be cloned, the view reference from the original
  *   example would not point to the clone, but rather to the original template that was cloned. In
- *   this case, you can access the clone via the cloneAttachFn:
+ *   this case, you can access the clone either via the `cloneAttachFn` or the value returned by the
+ *   linking function:
  *   ```js
- *     var templateElement = angular.element('<p>{{total}}</p>'),
- *         scope = ....;
- *
+ *     var templateElement = angular.element('<p>{{total}}</p>');
  *     var clonedElement = $compile(templateElement)(scope, function(clonedElement, scope) {
- *       //attach the clone to DOM document at the right place
+ *       // Attach the clone to DOM document at the right place.
  *     });
  *
- *     //now we have reference to the cloned DOM via `clonedElement`
+ *     // Now we have reference to the cloned DOM via `clonedElement`.
+ *     // NOTE: The `clonedElement` returned by the linking function is the same as the
+ *     //       `clonedElement` passed to `cloneAttachFn`.
  *   ```
  *
  *
@@ -19355,9 +19358,9 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
    * @description
    * Register a new directive with the compiler.
    *
-   * @param {string|Object} name Name of the directive in camel-case (i.e. <code>ngBind</code> which
-   *    will match as <code>ng-bind</code>), or an object map of directives where the keys are the
-   *    names and the values are the factories.
+   * @param {string|Object} name Name of the directive in camel-case (i.e. `ngBind` which will match
+   *    as `ng-bind`), or an object map of directives where the keys are the names and the values
+   *    are the factories.
    * @param {Function|Array} directiveFactory An injectable directive factory function. See the
    *    {@link guide/directive directive guide} and the {@link $compile compile API} for more info.
    * @returns {ng.$compileProvider} Self for chaining.
@@ -45024,14 +45027,7 @@ var ngHideDirective = ['$animate', function($animate) {
 var ngStyleDirective = ngDirective(function(scope, element, attr) {
   scope.$watchCollection(attr.ngStyle, function ngStyleWatchAction(newStyles, oldStyles) {
     if (oldStyles && (newStyles !== oldStyles)) {
-      if (!newStyles) {
-        newStyles = {};
-      }
-      forEach(oldStyles, function(val, style) {
-        if (newStyles[style] == null) {
-          newStyles[style] = '';
-        }
-      });
+      forEach(oldStyles, function(val, style) { element.css(style, ''); });
     }
     if (newStyles) element.css(newStyles);
   });
@@ -47040,7 +47036,7 @@ $provide.value("$locale", {
  *         This causes it to be incompatible with plugins that depend on @uirouter/core.
  *         We recommend switching to the ui-router-core.js and ui-router-angularjs.js bundles instead.
  *         For more information, see https://ui-router.github.io/blog/uirouter-for-angularjs-umd-bundles
- * @version v1.0.22
+ * @version v1.0.23
  * @link https://ui-router.github.io
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -47301,12 +47297,12 @@ $provide.value("$locale", {
      * A value is "injectable" if it is a function, or if it is an ng1 array-notation-style array
      * where all the elements in the array are Strings, except the last one, which is a Function
      */
-    function isInjectable(val$$1) {
-        if (isArray(val$$1) && val$$1.length) {
-            var head = val$$1.slice(0, -1), tail = val$$1.slice(-1);
+    function isInjectable(val) {
+        if (isArray(val) && val.length) {
+            var head = val.slice(0, -1), tail = val.slice(-1);
             return !(head.filter(not(isString)).length || tail.filter(not(isFunction)).length);
         }
-        return isFunction(val$$1);
+        return isFunction(val);
     }
     /**
      * Predicate which checks if a value looks like a Promise
@@ -47440,8 +47436,8 @@ $provide.value("$locale", {
     }
     /** pushes a values to an array and returns the value */
     var pushTo = curry(_pushTo);
-    function _pushTo(arr, val$$1) {
-        return arr.push(val$$1), val$$1;
+    function _pushTo(arr, val) {
+        return arr.push(val), val;
     }
     /** Given an array of (deregistration) functions, calls all functions and removes each one from the source array */
     var deregAll = function (functions) {
@@ -48428,8 +48424,8 @@ $provide.value("$locale", {
             var cfgheader = 'view config state (view name)';
             var mapping = pairs
                 .map(function (_a) {
-                var uiView = _a.uiView, viewConfig = _a.viewConfig;
                 var _b;
+                var uiView = _a.uiView, viewConfig = _a.viewConfig;
                 var uiv = uiView && uiView.fqn;
                 var cfg = viewConfig && viewConfig.viewDecl.$context.name + ": (" + viewConfig.viewDecl.$name + ")";
                 return _b = {}, _b[uivheader] = uiv, _b[cfgheader] = cfg, _b;
@@ -48700,21 +48696,21 @@ $provide.value("$locale", {
             var raw = isDefined(config.raw) ? !!config.raw : !!type.raw;
             var squash = getSquashPolicy(config, isOptional, urlConfig.defaultSquashPolicy());
             var replace = getReplace(config, arrayMode, isOptional, squash);
-            var inherit$$1 = isDefined(config.inherit) ? !!config.inherit : !!type.inherit;
+            var inherit = isDefined(config.inherit) ? !!config.inherit : !!type.inherit;
             // array config: param name (param[]) overrides default settings.  explicit config overrides param name.
             function getArrayMode() {
                 var arrayDefaults = { array: location === exports.DefType.SEARCH ? 'auto' : false };
                 var arrayParamNomenclature = id.match(/\[\]$/) ? { array: true } : {};
                 return extend(arrayDefaults, arrayParamNomenclature, config).array;
             }
-            extend(this, { id: id, type: type, location: location, isOptional: isOptional, dynamic: dynamic, raw: raw, squash: squash, replace: replace, inherit: inherit$$1, array: arrayMode, config: config });
+            extend(this, { id: id, type: type, location: location, isOptional: isOptional, dynamic: dynamic, raw: raw, squash: squash, replace: replace, inherit: inherit, array: arrayMode, config: config });
         }
-        Param.values = function (params, values$$1) {
-            if (values$$1 === void 0) { values$$1 = {}; }
+        Param.values = function (params, values) {
+            if (values === void 0) { values = {}; }
             var paramValues = {};
             for (var _i = 0, params_1 = params; _i < params_1.length; _i++) {
                 var param = params_1[_i];
-                paramValues[param.id] = param.value(values$$1[param.id]);
+                paramValues[param.id] = param.value(values[param.id]);
             }
             return paramValues;
         };
@@ -48749,9 +48745,9 @@ $provide.value("$locale", {
             return Param.changed(params, values1, values2).length === 0;
         };
         /** Returns true if a the parameter values are valid, according to the Param definitions */
-        Param.validates = function (params, values$$1) {
-            if (values$$1 === void 0) { values$$1 = {}; }
-            return params.map(function (param) { return param.validates(values$$1[param.id]); }).reduce(allTrueR, true);
+        Param.validates = function (params, values) {
+            if (values === void 0) { values = {}; }
+            return params.map(function (param) { return param.validates(values[param.id]); }).reduce(allTrueR, true);
         };
         Param.prototype.isDefaultValue = function (value) {
             return this.isOptional && this.type.equals(this.value(), value);
@@ -48778,13 +48774,13 @@ $provide.value("$locale", {
                 }
                 return defaultValue;
             };
-            var replaceSpecialValues = function (val$$1) {
+            var replaceSpecialValues = function (val) {
                 for (var _i = 0, _a = _this.replace; _i < _a.length; _i++) {
                     var tuple = _a[_i];
-                    if (tuple.from === val$$1)
+                    if (tuple.from === val)
                         return tuple.to;
                 }
-                return val$$1;
+                return val;
             };
             value = replaceSpecialValues(value);
             return isUndefined(value) ? getDefaultValue() : this.type.$normalize(value);
@@ -48893,7 +48889,7 @@ $provide.value("$locale", {
     /** @hidden */
     function initDefaultTypes() {
         var makeDefaultType = function (def) {
-            var valToString = function (val$$1) { return (val$$1 != null ? val$$1.toString() : val$$1); };
+            var valToString = function (val) { return (val != null ? val.toString() : val); };
             var defaultTypeBase = {
                 encode: valToString,
                 decode: valToString,
@@ -48915,31 +48911,31 @@ $provide.value("$locale", {
                 inherit: false,
             }),
             int: makeDefaultType({
-                decode: function (val$$1) { return parseInt(val$$1, 10); },
-                is: function (val$$1) {
-                    return !isNullOrUndefined(val$$1) && this.decode(val$$1.toString()) === val$$1;
+                decode: function (val) { return parseInt(val, 10); },
+                is: function (val) {
+                    return !isNullOrUndefined(val) && this.decode(val.toString()) === val;
                 },
                 pattern: /-?\d+/,
             }),
             bool: makeDefaultType({
-                encode: function (val$$1) { return (val$$1 && 1) || 0; },
-                decode: function (val$$1) { return parseInt(val$$1, 10) !== 0; },
+                encode: function (val) { return (val && 1) || 0; },
+                decode: function (val) { return parseInt(val, 10) !== 0; },
                 is: is(Boolean),
                 pattern: /0|1/,
             }),
             date: makeDefaultType({
-                encode: function (val$$1) {
-                    return !this.is(val$$1)
+                encode: function (val) {
+                    return !this.is(val)
                         ? undefined
-                        : [val$$1.getFullYear(), ('0' + (val$$1.getMonth() + 1)).slice(-2), ('0' + val$$1.getDate()).slice(-2)].join('-');
+                        : [val.getFullYear(), ('0' + (val.getMonth() + 1)).slice(-2), ('0' + val.getDate()).slice(-2)].join('-');
                 },
-                decode: function (val$$1) {
-                    if (this.is(val$$1))
-                        return val$$1;
-                    var match = this.capture.exec(val$$1);
+                decode: function (val) {
+                    if (this.is(val))
+                        return val;
+                    var match = this.capture.exec(val);
                     return match ? new Date(match[1], match[2] - 1, match[3]) : undefined;
                 },
-                is: function (val$$1) { return val$$1 instanceof Date && !isNaN(val$$1.valueOf()); },
+                is: function (val) { return val instanceof Date && !isNaN(val.valueOf()); },
                 equals: function (l, r) {
                     return ['getFullYear', 'getMonth', 'getDate'].reduce(function (acc, fn) { return acc && l[fn]() === r[fn](); }, true);
                 },
@@ -49457,25 +49453,11 @@ $provide.value("$locale", {
             };
             // Invokes the resolve function passing the resolved dependencies as arguments
             var invokeResolveFn = function (resolvedDeps) { return _this.resolveFn.apply(null, resolvedDeps); };
-            /**
-             * For RXWAIT policy:
-             *
-             * Given an observable returned from a resolve function:
-             * - enables .cache() mode (this allows multicast subscribers)
-             * - then calls toPromise() (this triggers subscribe() and thus fetches)
-             * - Waits for the promise, then return the cached observable (not the first emitted value).
-             */
-            var waitForRx = function (observable$) {
-                var cached = observable$.cache(1);
-                return cached
-                    .take(1)
-                    .toPromise()
-                    .then(function () { return cached; });
-            };
             // If the resolve policy is RXWAIT, wait for the observable to emit something. otherwise pass through.
             var node = resolveContext.findNode(this);
             var state = node && node.state;
-            var maybeWaitForRx = this.getPolicy(state).async === 'RXWAIT' ? waitForRx : identity;
+            var asyncPolicy = this.getPolicy(state).async;
+            var customAsyncPolicy = isFunction(asyncPolicy) ? asyncPolicy : identity;
             // After the final value has been resolved, update the state of the Resolvable
             var applyResolvedValue = function (resolvedValue) {
                 _this.data = resolvedValue;
@@ -49489,7 +49471,7 @@ $provide.value("$locale", {
                 .when()
                 .then(getResolvableDependencies)
                 .then(invokeResolveFn)
-                .then(maybeWaitForRx)
+                .then(customAsyncPolicy)
                 .then(applyResolvedValue));
         };
         /**
@@ -49710,8 +49692,8 @@ $provide.value("$locale", {
     var parseUrl = function (url) {
         if (!isString(url))
             return false;
-        var root$$1 = url.charAt(0) === '^';
-        return { val: root$$1 ? url.substring(1) : url, root: root$$1 };
+        var root = url.charAt(0) === '^';
+        return { val: root ? url.substring(1) : url, root: root };
     };
     function nameBuilder(state) {
         return state.name;
@@ -49726,7 +49708,7 @@ $provide.value("$locale", {
         }
         return state.data;
     }
-    var getUrlBuilder = function ($urlMatcherFactoryProvider, root$$1) {
+    var getUrlBuilder = function ($urlMatcherFactoryProvider, root) {
         return function urlBuilder(stateObject) {
             var stateDec = stateObject.self;
             // For future states, i.e., states whose name ends with `.**`,
@@ -49744,7 +49726,7 @@ $provide.value("$locale", {
                 return null;
             if (!$urlMatcherFactoryProvider.isMatcher(url))
                 throw new Error("Invalid url '" + url + "' in state '" + stateObject + "'");
-            return parsed && parsed.root ? url : ((parent && parent.navigable) || root$$1()).url.append(url);
+            return parsed && parsed.root ? url : ((parent && parent.navigable) || root()).url.append(url);
         };
     };
     var getNavigableBuilder = function (isRoot) {
@@ -49886,12 +49868,12 @@ $provide.value("$locale", {
         function StateBuilder(matcher, urlMatcherFactory) {
             this.matcher = matcher;
             var self = this;
-            var root$$1 = function () { return matcher.find(''); };
+            var root = function () { return matcher.find(''); };
             var isRoot = function (state) { return state.name === ''; };
             function parentBuilder(state) {
                 if (isRoot(state))
                     return null;
-                return matcher.find(self.parentName(state)) || root$$1();
+                return matcher.find(self.parentName(state)) || root();
             }
             this.builders = {
                 name: [nameBuilder],
@@ -49899,7 +49881,7 @@ $provide.value("$locale", {
                 parent: [parentBuilder],
                 data: [dataBuilder],
                 // Build a URLMatcher if necessary, either via a relative or absolute URL
-                url: [getUrlBuilder(urlMatcherFactory, root$$1)],
+                url: [getUrlBuilder(urlMatcherFactory, root)],
                 // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
                 navigable: [getNavigableBuilder(isRoot)],
                 params: [getParamsBuilder(urlMatcherFactory.paramFactory)],
@@ -50336,9 +50318,9 @@ $provide.value("$locale", {
         /** @hidden */
         StateRegistry.prototype._deregisterTree = function (state) {
             var _this = this;
-            var all$$1 = this.get().map(function (s) { return s.$$state(); });
+            var all = this.get().map(function (s) { return s.$$state(); });
             var getChildren = function (states) {
-                var _children = all$$1.filter(function (s) { return states.indexOf(s.parent) !== -1; });
+                var _children = all.filter(function (s) { return states.indexOf(s.parent) !== -1; });
                 return _children.length === 0 ? _children : _children.concat(getChildren(_children));
             };
             var children = getChildren([state]);
@@ -50520,7 +50502,7 @@ $provide.value("$locale", {
             // Hook returned a promise
             if (isPromise(result)) {
                 // Wait for the promise, then reprocess with the resulting value
-                return result.then(function (val$$1) { return _this.handleHookResult(val$$1); });
+                return result.then(function (val) { return _this.handleHookResult(val); });
             }
             trace.traceHookResult(result, this.transition, this.options);
             // Hook returned false
@@ -51477,10 +51459,10 @@ $provide.value("$locale", {
                 return Rejection.invalid("Cannot transition to abstract state '" + state.name + "'");
             }
             var paramDefs = state.parameters();
-            var values$$1 = this.params();
-            var invalidParams = paramDefs.filter(function (param) { return !param.validates(values$$1[param.id]); });
+            var values = this.params();
+            var invalidParams = paramDefs.filter(function (param) { return !param.validates(values[param.id]); });
             if (invalidParams.length) {
-                var invalidValues = invalidParams.map(function (param) { return "[" + param.id + ":" + stringify(values$$1[param.id]) + "]"; }).join(', ');
+                var invalidValues = invalidParams.map(function (param) { return "[" + param.id + ":" + stringify(values[param.id]) + "]"; }).join(', ');
                 var detail = "The following parameter values are not valid for state '" + state.name + "': " + invalidValues;
                 return Rejection.invalid(detail);
             }
@@ -51595,7 +51577,7 @@ $provide.value("$locale", {
          * @param paramFactory A [[ParamFactory]] object
          * @param config  A [[UrlMatcherCompileConfig]] configuration object
          */
-        function UrlMatcher(pattern$$1, paramTypes, paramFactory, config) {
+        function UrlMatcher(pattern, paramTypes, paramFactory, config) {
             var _this = this;
             /** @hidden */
             this._cache = { path: [this] };
@@ -51608,7 +51590,7 @@ $provide.value("$locale", {
             /** @hidden */
             this._compiled = [];
             this.config = config = defaults(config, defaultConfig);
-            this.pattern = pattern$$1;
+            this.pattern = pattern;
             // Find all placeholders and create a compiled pattern, using either classic or curly syntax:
             //   '*' name
             //   ':' name
@@ -51629,9 +51611,9 @@ $provide.value("$locale", {
             var matchArray;
             var checkParamErrors = function (id) {
                 if (!UrlMatcher.nameValidator.test(id))
-                    throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern$$1 + "'");
+                    throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
                 if (find(_this._params, propEq('id', id)))
-                    throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern$$1 + "'");
+                    throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
             };
             // Split into static segments separated by path parameter placeholders.
             // The number of segments is always 1 more than the number of parameters.
@@ -51647,14 +51629,14 @@ $provide.value("$locale", {
                 return {
                     id: id,
                     regexp: regexp,
-                    segment: pattern$$1.substring(last, m.index),
+                    segment: pattern.substring(last, m.index),
                     type: !regexp ? null : paramTypes.type(regexp) || makeRegexpType(regexp),
                 };
             };
             var details;
             var segment;
             // tslint:disable-next-line:no-conditional-assignment
-            while ((matchArray = placeholder.exec(pattern$$1))) {
+            while ((matchArray = placeholder.exec(pattern))) {
                 details = matchDetails(matchArray, false);
                 if (details.segment.indexOf('?') >= 0)
                     break; // we're into the search part
@@ -51664,7 +51646,7 @@ $provide.value("$locale", {
                 patterns.push([details.segment, tail(this._params)]);
                 last = placeholder.lastIndex;
             }
-            segment = pattern$$1.substring(last);
+            segment = pattern.substring(last);
             // Find any search parameter names and remove them from the last segment
             var i = segment.indexOf('?');
             if (i >= 0) {
@@ -51829,7 +51811,6 @@ $provide.value("$locale", {
         UrlMatcher.prototype.exec = function (path, search, hash, options) {
             var _this = this;
             if (search === void 0) { search = {}; }
-            if (options === void 0) { options = {}; }
             var match = memoizeTo(this._cache, 'pattern', function () {
                 return new RegExp([
                     '^',
@@ -51841,7 +51822,7 @@ $provide.value("$locale", {
             if (!match)
                 return null;
             // options = defaults(options, { isolate: false });
-            var allParams = this.parameters(), pathParams = allParams.filter(function (param) { return !param.isSearch(); }), searchParams = allParams.filter(function (param) { return param.isSearch(); }), nPathSegments = this._cache.path.map(function (urlm) { return urlm._segments.length - 1; }).reduce(function (a, x) { return a + x; }), values$$1 = {};
+            var allParams = this.parameters(), pathParams = allParams.filter(function (param) { return !param.isSearch(); }), searchParams = allParams.filter(function (param) { return param.isSearch(); }), nPathSegments = this._cache.path.map(function (urlm) { return urlm._segments.length - 1; }).reduce(function (a, x) { return a + x; }), values = {};
             if (nPathSegments !== match.length - 1)
                 throw new Error("Unbalanced capture group in route '" + this.pattern + "'");
             function decodePathArray(paramVal) {
@@ -51868,7 +51849,7 @@ $provide.value("$locale", {
                     value = decodePathArray(value);
                 if (isDefined(value))
                     value = param.type.decode(value);
-                values$$1[param.id] = param.value(value);
+                values[param.id] = param.value(value);
             }
             searchParams.forEach(function (param) {
                 var value = search[param.id];
@@ -51878,11 +51859,11 @@ $provide.value("$locale", {
                 }
                 if (isDefined(value))
                     value = param.type.decode(value);
-                values$$1[param.id] = param.value(value);
+                values[param.id] = param.value(value);
             });
             if (hash)
-                values$$1['#'] = hash;
-            return values$$1;
+                values['#'] = hash;
+            return values;
         };
         /**
          * @hidden
@@ -51928,7 +51909,7 @@ $provide.value("$locale", {
          * @returns Returns `true` if `params` validates, otherwise `false`.
          */
         UrlMatcher.prototype.validates = function (params) {
-            var validParamVal = function (param, val$$1) { return !param || param.validates(val$$1); };
+            var validParamVal = function (param, val) { return !param || param.validates(val); };
             params = params || {};
             // I'm not sure why this checks only the param keys passed in, and not all the params known to the matcher
             var paramSchema = this.parameters().filter(function (paramDef) { return params.hasOwnProperty(paramDef.id); });
@@ -51949,8 +51930,8 @@ $provide.value("$locale", {
          * @param values  the values to substitute for the parameters in this pattern.
          * @returns the formatted URL (path and optionally search part).
          */
-        UrlMatcher.prototype.format = function (values$$1) {
-            if (values$$1 === void 0) { values$$1 = {}; }
+        UrlMatcher.prototype.format = function (values) {
+            if (values === void 0) { values = {}; }
             // Build the full path of UrlMatchers (including all parent UrlMatchers)
             var urlMatchers = this._cache.path;
             // Extract all the static segments and Params (processed as ParamDetails)
@@ -51973,7 +51954,7 @@ $provide.value("$locale", {
              */
             function getDetails(param) {
                 // Normalize to typed value
-                var value = param.value(values$$1[param.id]);
+                var value = param.value(values[param.id]);
                 var isValid = param.validates(value);
                 var isDefaultValue = param.isDefaultValue(value);
                 // Check if we're in squash mode for the parameter
@@ -52021,13 +52002,13 @@ $provide.value("$locale", {
                     return;
                 if (!param.raw)
                     encoded = map(encoded, encodeURIComponent);
-                return encoded.map(function (val$$1) { return param.id + "=" + val$$1; });
+                return encoded.map(function (val) { return param.id + "=" + val; });
             })
                 .filter(identity)
                 .reduce(unnestR, [])
                 .join('&');
             // Concat the pathstring with the queryString (if exists) and the hashString (if exists)
-            return pathString + (queryString ? "?" + queryString : '') + (values$$1['#'] ? '#' + values$$1['#'] : '');
+            return pathString + (queryString ? "?" + queryString : '') + (values['#'] ? '#' + values['#'] : '');
         };
         /** @hidden */
         UrlMatcher.nameValidator = /^\w+([-.]+\w+)*(?:\[\])?$/;
@@ -52095,13 +52076,13 @@ $provide.value("$locale", {
          * @param config  The config object hash.
          * @returns The UrlMatcher.
          */
-        UrlMatcherFactory.prototype.compile = function (pattern$$1, config) {
+        UrlMatcherFactory.prototype.compile = function (pattern, config) {
             var urlConfig = this.router.urlService.config;
             // backward-compatible support for config.params -> config.state.params
             var params = config && !config.state && config.params;
             config = params ? __assign({ state: { params: params } }, config) : config;
             var globalConfig = { strict: urlConfig._isStrictMode, caseInsensitive: urlConfig._isCaseInsensitive };
-            return new UrlMatcher(pattern$$1, urlConfig.paramTypes, this.paramFactory, extend(globalConfig, config));
+            return new UrlMatcher(pattern, urlConfig.paramTypes, this.paramFactory, extend(globalConfig, config));
         };
         /**
          * Returns true if the specified object is a [[UrlMatcher]], or false otherwise.
@@ -52115,8 +52096,8 @@ $provide.value("$locale", {
             if (!isObject(object))
                 return false;
             var result = true;
-            forEach(UrlMatcher.prototype, function (val$$1, name) {
-                if (isFunction(val$$1))
+            forEach(UrlMatcher.prototype, function (val, name) {
+                if (isFunction(val))
                     result = result && (isDefined(object[name]) && isFunction(object[name]));
             });
             return result;
@@ -54950,11 +54931,11 @@ $provide.value("$locale", {
      */
     var $q = {
         /** Normalizes a value as a promise */
-        when: function (val$$1) { return new Promise(function (resolve, reject) { return resolve(val$$1); }); },
+        when: function (val) { return new Promise(function (resolve, reject) { return resolve(val); }); },
         /** Normalizes a value as a promise rejection */
-        reject: function (val$$1) {
+        reject: function (val) {
             return new Promise(function (resolve, reject) {
-                reject(val$$1);
+                reject(val);
             });
         },
         /** @returns a deferred object, which has `resolve` and `reject` functions */
@@ -54974,10 +54955,10 @@ $provide.value("$locale", {
             if (isObject(promises)) {
                 // Convert promises map to promises array.
                 // When each promise resolves, map it to a tuple { key: key, val: val }
-                var chain = Object.keys(promises).map(function (key) { return promises[key].then(function (val$$1) { return ({ key: key, val: val$$1 }); }); });
+                var chain = Object.keys(promises).map(function (key) { return promises[key].then(function (val) { return ({ key: key, val: val }); }); });
                 // Then wait for all promises to resolve, and convert them back to an object
-                return $q.all(chain).then(function (values$$1) {
-                    return values$$1.reduce(function (acc, tuple) {
+                return $q.all(chain).then(function (values) {
+                    return values.reduce(function (acc, tuple) {
                         acc[tuple.key] = tuple.val;
                         return acc;
                     }, {});
@@ -55051,10 +55032,10 @@ $provide.value("$locale", {
          * @param locals An object with additional DI tokens and values, such as `{ someToken: { foo: 1 } }`
          */
         invoke: function (fn, context, locals) {
-            var all$$1 = extend({}, globals, locals || {});
+            var all = extend({}, globals, locals || {});
             var params = $injector.annotate(fn);
-            var ensureExist = assertPredicate(function (key) { return all$$1.hasOwnProperty(key); }, function (key) { return "DI can't find injectable: '" + key + "'"; });
-            var args = params.filter(ensureExist).map(function (x) { return all$$1[x]; });
+            var ensureExist = assertPredicate(function (key) { return all.hasOwnProperty(key); }, function (key) { return "DI can't find injectable: '" + key + "'"; });
+            var args = params.filter(ensureExist).map(function (x) { return all[x]; });
             if (isFunction(fn))
                 return fn.apply(context, args);
             else
@@ -55081,15 +55062,15 @@ $provide.value("$locale", {
 
     /** @internalapi @module vanilla */ /** */
     var keyValsToObjectR = function (accum, _a) {
-        var key = _a[0], val$$1 = _a[1];
+        var key = _a[0], val = _a[1];
         if (!accum.hasOwnProperty(key)) {
-            accum[key] = val$$1;
+            accum[key] = val;
         }
         else if (isArray(accum[key])) {
-            accum[key].push(val$$1);
+            accum[key].push(val);
         }
         else {
-            accum[key] = [accum[key], val$$1];
+            accum[key] = [accum[key], val];
         }
         return accum;
     };
@@ -55114,7 +55095,7 @@ $provide.value("$locale", {
             .map(function (key) {
             var param = searchObject[key];
             var vals = isArray(param) ? param : [param];
-            return vals.map(function (val$$1) { return key + '=' + val$$1; });
+            return vals.map(function (val) { return key + '=' + val; });
         })
             .reduce(unnestR, [])
             .join('&');
@@ -55642,14 +55623,14 @@ $provide.value("$locale", {
         }
         Ng1ViewConfig.prototype.load = function () {
             var _this = this;
-            var $q$$1 = services.$q;
+            var $q = services.$q;
             var context = new ResolveContext(this.path);
             var params = this.path.reduce(function (acc, node) { return extend(acc, node.paramValues); }, {});
             var promises = {
-                template: $q$$1.when(this.factory.fromConfig(this.viewDecl, params, context)),
-                controller: $q$$1.when(this.getController(context)),
+                template: $q.when(this.factory.fromConfig(this.viewDecl, params, context)),
+                controller: $q.when(this.getController(context)),
             };
-            return $q$$1.all(promises).then(function (results) {
+            return $q.all(promises).then(function (results) {
                 trace.traceViewServiceEvent('Loaded', _this);
                 _this.controller = results.controller;
                 extend(_this, results.template); // Either { template: "tpl" } or { component: "cmpName" }
@@ -55685,8 +55666,8 @@ $provide.value("$locale", {
                 '$http',
                 '$templateCache',
                 '$injector',
-                function ($http, $templateCache, $injector$$1) {
-                    _this.$templateRequest = $injector$$1.has && $injector$$1.has('$templateRequest') && $injector$$1.get('$templateRequest');
+                function ($http, $templateCache, $injector) {
+                    _this.$templateRequest = $injector.has && $injector.has('$templateRequest') && $injector.get('$templateRequest');
                     _this.$http = $http;
                     _this.$templateCache = $templateCache;
                     return _this;
@@ -56354,16 +56335,16 @@ $provide.value("$locale", {
     ]; };
     // This effectively calls $get() on `$uiRouterProvider` to trigger init (when ng enters runtime)
     runBlock.$inject = ['$injector', '$q', '$uiRouter'];
-    function runBlock($injector$$1, $q$$1, $uiRouter) {
-        services.$injector = $injector$$1;
-        services.$q = $q$$1;
+    function runBlock($injector, $q, $uiRouter) {
+        services.$injector = $injector;
+        services.$q = $q;
         // https://github.com/angular-ui/ui-router/issues/3678
-        if (!$injector$$1.hasOwnProperty('strictDi')) {
+        if (!$injector.hasOwnProperty('strictDi')) {
             try {
-                $injector$$1.invoke(function (checkStrictDi) { });
+                $injector.invoke(function (checkStrictDi) { });
             }
             catch (error) {
-                $injector$$1.strictDi = !!/strict mode/.exec(error && error.toString());
+                $injector.strictDi = !!/strict mode/.exec(error && error.toString());
             }
         }
         // The $injector is now available.
@@ -56373,7 +56354,7 @@ $provide.value("$locale", {
             .map(function (x) { return x.$$state().resolvables; })
             .reduce(unnestR, [])
             .filter(function (x) { return x.deps === 'deferred'; })
-            .forEach(function (resolvable) { return (resolvable.deps = $injector$$1.annotate(resolvable.resolveFn, $injector$$1.strictDi)); });
+            .forEach(function (resolvable) { return (resolvable.deps = $injector.annotate(resolvable.resolveFn, $injector.strictDi)); });
     }
     // $urlRouter service and $urlRouterProvider
     var getUrlRouterProvider = function (uiRouter) { return (uiRouter.urlRouterProvider = new UrlRouterProvider(uiRouter)); };
@@ -56732,8 +56713,8 @@ $provide.value("$locale", {
                             attrs.$set(type.attr, def.href);
                     }
                     if (ref.paramExpr) {
-                        scope.$watch(ref.paramExpr, function (val$$1) {
-                            rawDef.uiStateParams = extend({}, val$$1);
+                        scope.$watch(ref.paramExpr, function (val) {
+                            rawDef.uiStateParams = extend({}, val);
                             update();
                         }, true);
                         rawDef.uiStateParams = extend({}, scope.$eval(ref.paramExpr));
@@ -57278,7 +57259,7 @@ $provide.value("$locale", {
         '$uiViewScroll',
         '$interpolate',
         '$q',
-        function $ViewDirective($view, $animate, $uiViewScroll, $interpolate, $q$$1) {
+        function $ViewDirective($view, $animate, $uiViewScroll, $interpolate, $q) {
             function getRenderer(attrs, scope) {
                 return {
                     enter: function (element, target, cb) {
@@ -57314,7 +57295,7 @@ $provide.value("$locale", {
                 transclude: 'element',
                 compile: function (tElement, tAttrs, $transclude) {
                     return function (scope, $element, attrs) {
-                        var onloadExp = attrs['onload'] || '', autoScrollExp = attrs['autoscroll'], renderer = getRenderer(attrs, scope), inherited = $element.inheritedData('$uiView') || rootData, name = $interpolate(attrs['uiView'] || attrs['name'] || '')(scope) || '$default';
+                        var onloadExp = attrs['onload'] || '', autoScrollExp = attrs['autoscroll'], renderer = getRenderer(), inherited = $element.inheritedData('$uiView') || rootData, name = $interpolate(attrs['uiView'] || attrs['name'] || '')(scope) || '$default';
                         var previousEl, currentEl, currentScope, viewConfig, unregister;
                         var activeUIView = {
                             $type: 'ng1',
@@ -57373,7 +57354,7 @@ $provide.value("$locale", {
                         }
                         function updateView(config) {
                             var newScope = scope.$new();
-                            var animEnter = $q$$1.defer(), animLeave = $q$$1.defer();
+                            var animEnter = $q.defer(), animLeave = $q.defer();
                             var $uiViewData = {
                                 $cfg: config,
                                 $uiView: activeUIView,
@@ -57432,7 +57413,7 @@ $provide.value("$locale", {
     ];
     $ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view', '$q', '$timeout'];
     /** @hidden */
-    function $ViewDirectiveFill($compile, $controller, $transitions, $view, $q$$1, $timeout) {
+    function $ViewDirectiveFill($compile, $controller, $transitions, $view, $q, $timeout) {
         var getControllerAs = parse('viewDecl.controllerAs');
         var getResolveAs = parse('viewDecl.resolveAs');
         return {
@@ -57470,7 +57451,7 @@ $provide.value("$locale", {
                         // scope.$on('$destroy', () => $view.componentUnloaded(controllerInstance, { $scope: scope, $element: $element }));
                         $element.data('$ngControllerController', controllerInstance);
                         $element.children().data('$ngControllerController', controllerInstance);
-                        registerControllerCallbacks($q$$1, $transitions, controllerInstance, scope, cfg);
+                        registerControllerCallbacks($q, $transitions, controllerInstance, scope, cfg);
                     }
                     // Wait for the component to appear in the DOM
                     if (isString(cfg.component)) {
@@ -57485,7 +57466,7 @@ $provide.value("$locale", {
                         var deregisterWatch_1 = scope.$watch(getComponentController, function (ctrlInstance) {
                             if (!ctrlInstance)
                                 return;
-                            registerControllerCallbacks($q$$1, $transitions, ctrlInstance, scope, cfg);
+                            registerControllerCallbacks($q, $transitions, ctrlInstance, scope, cfg);
                             deregisterWatch_1();
                         });
                     }
@@ -57499,9 +57480,9 @@ $provide.value("$locale", {
     /** @hidden incrementing id */
     var _uiCanExitId = 0;
     /** @hidden TODO: move these callbacks to $view and/or `/hooks/components.ts` or something */
-    function registerControllerCallbacks($q$$1, $transitions, controllerInstance, $scope, cfg) {
+    function registerControllerCallbacks($q, $transitions, controllerInstance, $scope, cfg) {
         // Call $onInit() ASAP
-        if (isFunction(controllerInstance.$onInit) && !(cfg.viewDecl.component && hasComponentImpl)) {
+        if (isFunction(controllerInstance.$onInit) && !((cfg.viewDecl.component || cfg.viewDecl.componentProvider) && hasComponentImpl)) {
             controllerInstance.$onInit();
         }
         var viewState = tail(cfg.path).state.self;
@@ -57536,7 +57517,7 @@ $provide.value("$locale", {
                 if (changedToParams.length) {
                     var changedKeys_1 = changedToParams.map(function (x) { return x.id; });
                     // Filter the params to only changed/new to params.  `$transition$.params()` may be used to get all params.
-                    var newValues = filter(toParams, function (val$$1, key) { return changedKeys_1.indexOf(key) !== -1; });
+                    var newValues = filter(toParams, function (val, key) { return changedKeys_1.indexOf(key) !== -1; });
                     controllerInstance.uiOnParamsChanged(newValues, $transition$);
                 }
             };
@@ -57555,8 +57536,8 @@ $provide.value("$locale", {
                 var promise;
                 var ids = (trans[cacheProp_1] = trans[cacheProp_1] || {});
                 if (!prevTruthyAnswer_1(trans)) {
-                    promise = $q$$1.when(controllerInstance.uiCanExit(trans));
-                    promise.then(function (val$$1) { return (ids[id_1] = val$$1 !== false); });
+                    promise = $q.when(controllerInstance.uiCanExit(trans));
+                    promise.then(function (val) { return (ids[id_1] = val !== false); });
                 }
                 return promise;
             };
@@ -57593,171 +57574,171 @@ $provide.value("$locale", {
 
     var index$1 = 'ui.router';
 
-    exports.default = index$1;
-    exports.core = index;
-    exports.watchDigests = watchDigests;
-    exports.getLocals = getLocals;
-    exports.getNg1ViewConfigFactory = getNg1ViewConfigFactory;
-    exports.ng1ViewsBuilder = ng1ViewsBuilder;
-    exports.Ng1ViewConfig = Ng1ViewConfig;
-    exports.StateProvider = StateProvider;
-    exports.UrlRouterProvider = UrlRouterProvider;
-    exports.root = root;
-    exports.fromJson = fromJson;
-    exports.toJson = toJson;
-    exports.forEach = forEach;
-    exports.extend = extend;
-    exports.equals = equals;
-    exports.identity = identity;
-    exports.noop = noop;
-    exports.createProxyFunctions = createProxyFunctions;
-    exports.inherit = inherit;
-    exports.inArray = inArray;
-    exports._inArray = _inArray;
-    exports.removeFrom = removeFrom;
-    exports._removeFrom = _removeFrom;
-    exports.pushTo = pushTo;
-    exports._pushTo = _pushTo;
-    exports.deregAll = deregAll;
-    exports.defaults = defaults;
-    exports.mergeR = mergeR;
-    exports.ancestors = ancestors;
-    exports.pick = pick;
-    exports.omit = omit;
-    exports.pluck = pluck;
-    exports.filter = filter;
-    exports.find = find;
-    exports.mapObj = mapObj;
-    exports.map = map;
-    exports.values = values;
-    exports.allTrueR = allTrueR;
-    exports.anyTrueR = anyTrueR;
-    exports.unnestR = unnestR;
-    exports.flattenR = flattenR;
-    exports.pushR = pushR;
-    exports.uniqR = uniqR;
-    exports.unnest = unnest;
-    exports.flatten = flatten;
-    exports.assertPredicate = assertPredicate;
-    exports.assertMap = assertMap;
-    exports.assertFn = assertFn;
-    exports.pairs = pairs;
-    exports.arrayTuples = arrayTuples;
-    exports.applyPairs = applyPairs;
-    exports.tail = tail;
-    exports.copy = copy;
-    exports._extend = _extend;
-    exports.silenceUncaughtInPromise = silenceUncaughtInPromise;
-    exports.silentRejection = silentRejection;
-    exports.makeStub = makeStub;
-    exports.services = services;
+    exports.$injector = $injector;
+    exports.$q = $q;
+    exports.BaseLocationServices = BaseLocationServices;
+    exports.BaseUrlRule = BaseUrlRule;
+    exports.BrowserLocationConfig = BrowserLocationConfig;
     exports.Glob = Glob;
-    exports.curry = curry;
-    exports.compose = compose;
-    exports.pipe = pipe;
-    exports.prop = prop;
-    exports.propEq = propEq;
-    exports.parse = parse;
-    exports.not = not;
-    exports.and = and;
-    exports.or = or;
-    exports.all = all;
-    exports.any = any;
-    exports.is = is;
-    exports.eq = eq;
-    exports.val = val;
-    exports.invoke = invoke;
-    exports.pattern = pattern;
-    exports.isUndefined = isUndefined;
-    exports.isDefined = isDefined;
-    exports.isNull = isNull;
-    exports.isNullOrUndefined = isNullOrUndefined;
-    exports.isFunction = isFunction;
-    exports.isNumber = isNumber;
-    exports.isString = isString;
-    exports.isObject = isObject;
-    exports.isArray = isArray;
-    exports.isDate = isDate;
-    exports.isRegExp = isRegExp;
-    exports.isInjectable = isInjectable;
-    exports.isPromise = isPromise;
-    exports.Queue = Queue;
-    exports.maxLength = maxLength;
-    exports.padString = padString;
-    exports.kebobString = kebobString;
-    exports.functionToString = functionToString;
-    exports.fnToString = fnToString;
-    exports.stringify = stringify;
-    exports.beforeAfterSubstr = beforeAfterSubstr;
-    exports.hostRegex = hostRegex;
-    exports.stripLastPathElement = stripLastPathElement;
-    exports.splitHash = splitHash;
-    exports.splitQuery = splitQuery;
-    exports.splitEqual = splitEqual;
-    exports.trimHashVal = trimHashVal;
-    exports.splitOnDelim = splitOnDelim;
-    exports.joinNeighborsR = joinNeighborsR;
-    exports.Trace = Trace;
-    exports.trace = trace;
+    exports.HashLocationService = HashLocationService;
+    exports.HookBuilder = HookBuilder;
+    exports.MemoryLocationConfig = MemoryLocationConfig;
+    exports.MemoryLocationService = MemoryLocationService;
+    exports.NATIVE_INJECTOR_TOKEN = NATIVE_INJECTOR_TOKEN;
+    exports.Ng1ViewConfig = Ng1ViewConfig;
     exports.Param = Param;
-    exports.ParamTypes = ParamTypes;
-    exports.StateParams = StateParams;
+    exports.ParamFactory = ParamFactory;
     exports.ParamType = ParamType;
+    exports.ParamTypes = ParamTypes;
     exports.PathNode = PathNode;
     exports.PathUtils = PathUtils;
-    exports.resolvePolicies = resolvePolicies;
-    exports.defaultResolvePolicy = defaultResolvePolicy;
+    exports.PushStateLocationService = PushStateLocationService;
+    exports.Queue = Queue;
+    exports.RegisteredHook = RegisteredHook;
+    exports.Rejection = Rejection;
     exports.Resolvable = Resolvable;
-    exports.NATIVE_INJECTOR_TOKEN = NATIVE_INJECTOR_TOKEN;
     exports.ResolveContext = ResolveContext;
-    exports.resolvablesBuilder = resolvablesBuilder;
     exports.StateBuilder = StateBuilder;
-    exports.StateObject = StateObject;
     exports.StateMatcher = StateMatcher;
+    exports.StateObject = StateObject;
+    exports.StateParams = StateParams;
+    exports.StateProvider = StateProvider;
     exports.StateQueueManager = StateQueueManager;
     exports.StateRegistry = StateRegistry;
     exports.StateService = StateService;
     exports.TargetState = TargetState;
-    exports.HookBuilder = HookBuilder;
-    exports.matchState = matchState;
-    exports.RegisteredHook = RegisteredHook;
-    exports.makeEvent = makeEvent;
-    exports.Rejection = Rejection;
+    exports.Trace = Trace;
     exports.Transition = Transition;
-    exports.TransitionHook = TransitionHook;
     exports.TransitionEventType = TransitionEventType;
-    exports.defaultTransOpts = defaultTransOpts;
+    exports.TransitionHook = TransitionHook;
     exports.TransitionService = TransitionService;
-    exports.UrlRules = UrlRules;
+    exports.UIRouter = UIRouter;
+    exports.UIRouterGlobals = UIRouterGlobals;
+    exports.UIRouterPluginBase = UIRouterPluginBase;
     exports.UrlConfig = UrlConfig;
     exports.UrlMatcher = UrlMatcher;
-    exports.ParamFactory = ParamFactory;
     exports.UrlMatcherFactory = UrlMatcherFactory;
     exports.UrlRouter = UrlRouter;
+    exports.UrlRouterProvider = UrlRouterProvider;
     exports.UrlRuleFactory = UrlRuleFactory;
-    exports.BaseUrlRule = BaseUrlRule;
+    exports.UrlRules = UrlRules;
     exports.UrlService = UrlService;
     exports.ViewService = ViewService;
-    exports.UIRouterGlobals = UIRouterGlobals;
-    exports.UIRouter = UIRouter;
-    exports.$q = $q;
-    exports.$injector = $injector;
-    exports.BaseLocationServices = BaseLocationServices;
-    exports.HashLocationService = HashLocationService;
-    exports.MemoryLocationService = MemoryLocationService;
-    exports.PushStateLocationService = PushStateLocationService;
-    exports.MemoryLocationConfig = MemoryLocationConfig;
-    exports.BrowserLocationConfig = BrowserLocationConfig;
-    exports.keyValsToObjectR = keyValsToObjectR;
-    exports.getParams = getParams;
-    exports.parseUrl = parseUrl$1;
+    exports._extend = _extend;
+    exports._inArray = _inArray;
+    exports._pushTo = _pushTo;
+    exports._removeFrom = _removeFrom;
+    exports.all = all;
+    exports.allTrueR = allTrueR;
+    exports.ancestors = ancestors;
+    exports.and = and;
+    exports.any = any;
+    exports.anyTrueR = anyTrueR;
+    exports.applyPairs = applyPairs;
+    exports.arrayTuples = arrayTuples;
+    exports.assertFn = assertFn;
+    exports.assertMap = assertMap;
+    exports.assertPredicate = assertPredicate;
+    exports.beforeAfterSubstr = beforeAfterSubstr;
     exports.buildUrl = buildUrl;
-    exports.locationPluginFactory = locationPluginFactory;
-    exports.servicesPlugin = servicesPlugin;
+    exports.compose = compose;
+    exports.copy = copy;
+    exports.core = index;
+    exports.createProxyFunctions = createProxyFunctions;
+    exports.curry = curry;
+    exports.default = index$1;
+    exports.defaultResolvePolicy = defaultResolvePolicy;
+    exports.defaultTransOpts = defaultTransOpts;
+    exports.defaults = defaults;
+    exports.deregAll = deregAll;
+    exports.eq = eq;
+    exports.equals = equals;
+    exports.extend = extend;
+    exports.filter = filter;
+    exports.find = find;
+    exports.flatten = flatten;
+    exports.flattenR = flattenR;
+    exports.fnToString = fnToString;
+    exports.forEach = forEach;
+    exports.fromJson = fromJson;
+    exports.functionToString = functionToString;
+    exports.getLocals = getLocals;
+    exports.getNg1ViewConfigFactory = getNg1ViewConfigFactory;
+    exports.getParams = getParams;
     exports.hashLocationPlugin = hashLocationPlugin;
-    exports.pushStateLocationPlugin = pushStateLocationPlugin;
+    exports.hostRegex = hostRegex;
+    exports.identity = identity;
+    exports.inArray = inArray;
+    exports.inherit = inherit;
+    exports.invoke = invoke;
+    exports.is = is;
+    exports.isArray = isArray;
+    exports.isDate = isDate;
+    exports.isDefined = isDefined;
+    exports.isFunction = isFunction;
+    exports.isInjectable = isInjectable;
+    exports.isNull = isNull;
+    exports.isNullOrUndefined = isNullOrUndefined;
+    exports.isNumber = isNumber;
+    exports.isObject = isObject;
+    exports.isPromise = isPromise;
+    exports.isRegExp = isRegExp;
+    exports.isString = isString;
+    exports.isUndefined = isUndefined;
+    exports.joinNeighborsR = joinNeighborsR;
+    exports.kebobString = kebobString;
+    exports.keyValsToObjectR = keyValsToObjectR;
+    exports.locationPluginFactory = locationPluginFactory;
+    exports.makeEvent = makeEvent;
+    exports.makeStub = makeStub;
+    exports.map = map;
+    exports.mapObj = mapObj;
+    exports.matchState = matchState;
+    exports.maxLength = maxLength;
     exports.memoryLocationPlugin = memoryLocationPlugin;
-    exports.UIRouterPluginBase = UIRouterPluginBase;
+    exports.mergeR = mergeR;
+    exports.ng1ViewsBuilder = ng1ViewsBuilder;
+    exports.noop = noop;
+    exports.not = not;
+    exports.omit = omit;
+    exports.or = or;
+    exports.padString = padString;
+    exports.pairs = pairs;
+    exports.parse = parse;
+    exports.parseUrl = parseUrl$1;
+    exports.pattern = pattern;
+    exports.pick = pick;
+    exports.pipe = pipe;
+    exports.pluck = pluck;
+    exports.prop = prop;
+    exports.propEq = propEq;
+    exports.pushR = pushR;
+    exports.pushStateLocationPlugin = pushStateLocationPlugin;
+    exports.pushTo = pushTo;
+    exports.removeFrom = removeFrom;
+    exports.resolvablesBuilder = resolvablesBuilder;
+    exports.resolvePolicies = resolvePolicies;
+    exports.root = root;
+    exports.services = services;
+    exports.servicesPlugin = servicesPlugin;
+    exports.silenceUncaughtInPromise = silenceUncaughtInPromise;
+    exports.silentRejection = silentRejection;
+    exports.splitEqual = splitEqual;
+    exports.splitHash = splitHash;
+    exports.splitOnDelim = splitOnDelim;
+    exports.splitQuery = splitQuery;
+    exports.stringify = stringify;
+    exports.stripLastPathElement = stripLastPathElement;
+    exports.tail = tail;
+    exports.toJson = toJson;
+    exports.trace = trace;
+    exports.trimHashVal = trimHashVal;
+    exports.uniqR = uniqR;
+    exports.unnest = unnest;
+    exports.unnestR = unnestR;
+    exports.val = val;
+    exports.values = values;
+    exports.watchDigests = watchDigests;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 

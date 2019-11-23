@@ -15,8 +15,8 @@
     "watch": "gulp watch"
   },
   "dependencies": {
-    "@uirouter/angularjs": "^1.0.22",
-    "angular": "^1.7.8",
+    "@uirouter/angularjs": "^1.0.23",
+    "angular": "^1.7.9",
     "angular-ui-bootstrap": "^2.5.6",
     "bootstrap": "^3.4.1",
     "jquery": "^3.4.1"
@@ -43,8 +43,8 @@
     "tslint-eslint-rules": "~4.0.0",
     "tslint-microsoft-contrib": "~5.0.3",
     "tslint-misc-rules": "~3.0.0",
-    "typescript": "^3.5.3",
-    "uglify-js": "^3.6.0"
+    "typescript": "^3.7.2",
+    "uglify-js": "^3.6.9"
   },
   "author": "Arkadi Chubrik <arkadi@chubrik.org> (http://www.chubrik.org/)",
   "license": "SEE LICENSE IN http://www.toponim.by/license",
