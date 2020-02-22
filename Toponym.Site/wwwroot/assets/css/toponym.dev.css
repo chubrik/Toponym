@@ -7425,6 +7425,14 @@ button.close {
 #form:hover .add-group {
   opacity: 1;
 }
+body.safari #form input::-webkit-input-placeholder {
+  top: 9px;
+}
+@media screen and (max-width: 1265px), screen and (max-height: 875px) {
+  body.safari #form input::-webkit-input-placeholder {
+    top: 3px;
+  }
+}
 i.mi {
   font-family: 'Material Icons';
   font-weight: normal;
@@ -7992,9 +8000,14 @@ label {
   cursor: pointer;
 }
 input[type="checkbox"] {
+  margin-right: 1px;
   position: relative;
   top: 2px;
   cursor: pointer;
+}
+body.safari input[type="checkbox"] {
+  margin-right: 2px;
+  top: -1px;
 }
 .container {
   position: relative;

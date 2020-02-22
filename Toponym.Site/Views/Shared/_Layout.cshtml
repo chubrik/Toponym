@@ -84,7 +84,7 @@
         <link rel="apple-touch-icon" href="@Url.Content("~/assets/img/logo-touch.png")">
     }
 </head>
-<body>
+<body class="@Context.Request.BrowserName()">
     @(Constants.IsDebug
         ? Html.Raw("    <!-- Debug mode. Counters are hidden. -->\n\n")
         : Html.Partial("_Counters"))

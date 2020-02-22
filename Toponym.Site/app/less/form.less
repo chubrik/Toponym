@@ -148,3 +148,12 @@
         opacity: 1;
     }
 }
+
+// Fix placeholder position in Safari
+body.safari #form input::-webkit-input-placeholder {
+    top: 9px;
+    
+    .tablet-screen({
+        top: 3px;
+    });
+}
