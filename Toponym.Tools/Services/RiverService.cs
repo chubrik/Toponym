@@ -169,7 +169,7 @@ namespace Toponym.Tools.Services
             return geo;
         }
 
-        private static readonly HashSet<long> _badIds =
+        private static readonly HashSet<long> _badWayIds =
             new HashSet<long> {
                 156664420, // Березина
                 338382063,
@@ -259,7 +259,7 @@ namespace Toponym.Tools.Services
 
         private static bool PostFilter(WayObject way)
         {
-            if (_badIds.Contains(way.Id))
+            if (_badWayIds.Contains(way.Id))
                 return false;
 
             return true;

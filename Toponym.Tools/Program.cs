@@ -20,10 +20,9 @@ namespace Toponym.Tools
                     ProjectionService.Build();
                     var populated = PopulatedService.Build();
                     var localities = LocalityService.Build();
-                    var lakes = LakeService.Build();
                     var waters = WaterService.Build();
                     var rivers = RiverService.Build();
-                    var data = populated.Concat(localities).Concat(lakes).Concat(waters).Concat(rivers).ToSortedList();
+                    var data = populated.Concat(localities).Concat(waters).Concat(rivers).ToSortedList();
                     EntryHelper.Validate(data);
                     JsonFileClient.Write(Constants.ResultDataPath, data);
                     var wrappedJson = FileClient.ReadText(Constants.ResultDataPath).Replace("},{", "},\r\n{");
@@ -45,11 +44,6 @@ namespace Toponym.Tools
                     LocalityService.Build();
                     break;
 
-                case "lakes":
-                    ProjectionService.Build();
-                    LakeService.Build();
-                    break;
-
                 case "waters":
                     ProjectionService.Build();
                     WaterService.Build();
@@ -58,11 +52,6 @@ namespace Toponym.Tools
                 case "rivers":
                     ProjectionService.Build();
                     RiverService.Build();
-                    break;
-
-                case "ponds":
-                    ProjectionService.Build();
-                    PondService.Build();
                     break;
 
                 default:

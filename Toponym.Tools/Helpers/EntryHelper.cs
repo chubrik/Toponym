@@ -43,7 +43,6 @@ namespace Toponym.Tools.Helpers
         {
             var badTitleRu = data.Where(i => !TextHelper.IsValidTitleRu(i.TitleRu)).ToList();
             var badTitleBe = data.Where(i => !TextHelper.IsValidTitleBe(i.TitleBe)).ToList();
-            Debug.Assert(badTitleRu.Count == 0 || badTitleBe.Count == 0);
 
             if (badTitleRu.Count > 0 || badTitleBe.Count > 0)
                 throw new InvalidOperationException();

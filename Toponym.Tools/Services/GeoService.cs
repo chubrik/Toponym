@@ -32,6 +32,19 @@ namespace Toponym.Tools.Services
                 geo.SetTitleBe(titleBe);
             }
 
+            foreach (var relation in response.RootRelations.Values.Where(i => i.TitleBe() == null))
+            {
+                var label = relation.Members.FirstOrDefault(i => i.Role == "label");
+
+                if (label != null)
+                {
+                    var labelTitleBe = label.Geo.TitleBe();
+
+                    if (labelTitleBe != null)
+                        relation.SetTitleBe(labelTitleBe);
+                }
+            }
+
             GeoObject.TitleFormatter = geo =>
             {
                 var titleRu = geo.TitleRu();

@@ -22,10 +22,14 @@ namespace Toponym.Tools.Services
                 i => i.Tags.Contains("place", "locality") &&
                 GeoHelper.TitleRu(i) != null);
 
-            LogService.LogInfo("Filter & fix");
+            var geos = response.RootObjects().ToList();
+            var rejected = geos.Where(i => !Filter(i)).ToList();
+            HtmlHelper.Write("localities-rejected", rejected);
 
-            var filtered = response.RootObjects().Where(Filter).Select(Fix).ToList();
-            var data = filtered.Select(GetEntryData).OrderBy(i => i.TitleRu).ToList();
+            var proceeded = geos.Where(Filter).Select(Proceed).ToList();
+            //HtmlHelper.Write("localities", proceeded);
+
+            var data = proceeded.Select(GetEntryData).ToSortedList();
             JsonFileClient.Write(Constants.LocalitiesDataPath, data);
             LogService.EndSuccess("Build populated completed");
             return data;
@@ -33,6 +37,28 @@ namespace Toponym.Tools.Services
 
         private static bool Filter(GeoObject geo)
         {
+            if (geo.Type == OsmGeoType.Node)
+                switch (geo.Id)
+                {
+                    case 5737788153: // Фелиццяново
+                        return false;
+                    case 5737801570: // Остров Лещ / востраў Лешч //todo water
+                        return false;
+                    case 5737802406: // Тросцянец
+                        return false;
+                    case 7198437795: // ур. Єфремове - за границей
+                        return false;
+                    case 7230336501: // ур. Ду́рний - за границей
+                        return false;
+                }
+
+            if (geo.Type == OsmGeoType.Relation)
+                switch (geo.Id)
+                {
+                    case 7670569: // Рэдки Алёс
+                        return false;
+                }
+
             var normRu = geo.TitleRu().ToLower();
 
             if (Regex.IsMatch(normRu, @"\d"))
@@ -46,74 +72,70 @@ namespace Toponym.Tools.Services
                 normRu.Contains("лесничество") ||
                 normRu.Contains("сооружения") ||
                 normRu.Contains("санаторий") ||
-                normRu == "рыбалка" ||
-                normRu == "рэдки алёс" ||
-                normRu == "ст дорожник" ||
-                normRu.Contains("торф.") ||
-                normRu == "тросцянец" ||
-                normRu == "фелиццяново")
+                normRu.Contains("торф."))
                 return false;
 
             return true;
         }
 
-        private const string TitleNumPattern = @"^.+(?=[ -]\d(-е)?$)";
-
-        private static GeoObject Fix(GeoObject geo)
+        private static GeoObject Proceed(GeoObject geo)
         {
-            var titleRu = geo.TitleRu();
+            var titleRu = Regex.Replace(geo.TitleRu(),
+                @"^ур(очище |\.)", "", RegexOptions.IgnoreCase).Trim();
 
-            var match1 = Regex.Match(titleRu, @"^ур(очище|\.)(.+)$", RegexOptions.IgnoreCase);
-
-            if (match1.Success)
-                titleRu = match1.Groups[2].Value.Trim();
-
-            var matchRu = Regex.Match(titleRu, TitleNumPattern);
+            var matchRu = Regex.Match(titleRu, @"^(\w+) ([а-яё])(\w+)$");
 
             if (matchRu.Success)
-                titleRu = matchRu.Value;
-
-            if (titleRu == "Клины нежил.")
-                titleRu = "Клины";
-
-            if (titleRu == "Пухичин (нежил.)")
-                titleRu = "Пухичин";
-
-            var match2 = Regex.Match(titleRu, @"^(\w+) ([а-яё])(\w+)$");
-
-            if (match2.Success)
             {
-                var groups = match2.Groups;
+                var groups = matchRu.Groups;
                 titleRu = groups[1] + " " + groups[2].ToString().ToUpper() + groups[3];
             }
-
-            geo.SetTitleRu(titleRu);
-
-            // TitleBe
 
             var titleBe = geo.TitleBe();
 
             if (titleBe != null)
             {
-                var match3 = Regex.Match(titleBe, @"^(у|ў)рочыш.а (.+)$", RegexOptions.IgnoreCase);
+                titleBe = Regex.Replace(titleBe,
+                    @"^[уў]рочышча ", "", RegexOptions.IgnoreCase).Trim();
 
-                if (match3.Success)
-                    titleBe = match3.Groups[2].Value;
-
-                var matchBe = Regex.Match(titleBe, TitleNumPattern);
+                var matchBe = Regex.Match(titleBe, @"^(\w+) ([а-яёіў])(\w+)$");
 
                 if (matchBe.Success)
-                    titleBe = matchBe.Value;
-
-                if (titleBe == "Бярэ́зіна")
-                    titleBe = "Бярэзіна";
-
-                if (titleBe == "руч. Муравец")
-                    titleBe = "Муравец";
-
-                geo.SetTitleBe(titleBe);
+                {
+                    var groups = matchBe.Groups;
+                    titleBe = groups[1] + " " + groups[2].ToString().ToUpper() + groups[3];
+                }
             }
 
+            var id = geo.Id;
+
+            if (geo.Type == OsmGeoType.Node)
+            {
+                if (id == 243043205) // Березина / Бярэ́зіна
+                    titleBe = "Бярэзіна";
+
+                if (id == 243046675) // Клины нежил.
+                    titleRu = "Клины";
+
+                if (id == 243047300) // Муравец / руч. Муравец
+                    titleBe = "Муравец";
+
+                if (id == 3280099301) // Красная Горка (операция Багратион)
+                    titleRu = "Красная Горка";
+
+                if (id == 5209063019) // гора Яшукова
+                    titleRu = "Гора Яшукова";
+
+                if (id == 6408356104) // Хоцяновичи
+                    titleRu = "Хотяновичи";
+            }
+
+            if (!TextHelper.IsValidTitleRu(titleRu) ||
+                !TextHelper.IsValidTitleBe(titleBe))
+                throw new InvalidOperationException();
+
+            geo.SetTitleRu(titleRu);
+            geo.SetTitleBe(titleBe);
             return geo;
         }
 

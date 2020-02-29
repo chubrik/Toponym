@@ -25,26 +25,30 @@ namespace Toponym.Tools.Services
                       i.Tags.Contains("landuse", "residential")) &&
                      GeoHelper.TitleRu(i) != null);
 
-            LogService.LogInfo("Filter & fix");
+            var geos = response.RootObjects().ToList();
+            var rejectedByType = geos.Where(i => !FilterByType(i)).ToList();
+            HtmlHelper.Write("populated-rejected-by-type", rejectedByType);
 
-            var filteredByType = response.RootObjects().Where(FilterByType).OrderBy(i => i.TitleRu()).ToList();
-            var badNames = filteredByType.Where(i => !FilterByName(i)).ToList();
+            var filteredByType = geos.Where(FilterByType).ToList();
+            var rejectedByName = filteredByType.Where(i => !FilterByName(i)).ToList();
+            HtmlHelper.Write("populated-rejected-by-name", rejectedByName);
 
-            var filtered = filteredByType.Where(FilterByName).Select(Fix).ToList();
-            var nodes = filtered.Where(i => i.Type == OsmGeoType.Node).Select(i => (NodeObject)i).ToList();
-            var final = filtered.Where(i => i.Type != OsmGeoType.Node).ToList();
-            var areasLookup = final.ToLookup(i => i.TitleRu());
+            var proceeded = filteredByType.Where(FilterByName).Select(Proceed).ToList();
+            var nodes = proceeded.Where(i => i.Type == OsmGeoType.Node).Select(i => (NodeObject)i).ToList();
+            var result = proceeded.Where(i => i.Type != OsmGeoType.Node).ToList();
+            var areasByTitle = result.ToLookup(i => i.TitleRu());
 
             foreach (var node in nodes)
             {
                 var title = node.TitleRu();
-                var areas = areasLookup[title];
+                var areas = areasByTitle[title];
 
                 if (areas.All(i => !IsInside(i, node)))
-                    final.Add(node);
+                    result.Add(node);
             }
+            //HtmlHelper.Write("populated", result);
 
-            var data = final.Select(GetEntryData).ToList();
+            var data = result.Select(GetEntryData).ToSortedList();
             FixMinskCenter(data);
             JsonFileClient.Write(Constants.PopulatedDataPath, data);
             LogService.EndSuccess("Build populated completed");
@@ -70,23 +74,49 @@ namespace Toponym.Tools.Services
 
         private static bool FilterByName(GeoObject geo)
         {
+            if (geo.Type == OsmGeoType.Node)
+                switch (geo.Id)
+                {
+                    case 6408356140: // 1-е Олтушки //todo locality
+                        return false;
+                    case 6408356139: // 2-е Олтушки //todo locality
+                        return false;
+                    case 31570116: // Wołyńce
+                        return false;
+                    case 6408356104: // Хоцяновичи (есть locality)
+                        return false;
+                }
+
+            if (geo.Type == OsmGeoType.Way)
+                switch (geo.Id)
+                {
+                    case 682962051: // Дом охотника
+                        return false;
+                }
+
+            if (geo.Type == OsmGeoType.Relation)
+                switch (geo.Id)
+                {
+                    case 7660241: // 163 км
+                        return false;
+                    case 7659814: // Посёлок N4 / Пасёлак №4
+                        return false;
+                    case 7659815: // Посёлок №9 / Пасёлак №9
+                        return false;
+                    case 7502768: // РТС / РТС
+                        return false;
+                }
+
             var titleRu = geo.TitleRu();
+            var titleBe = geo.TitleBe();
 
             if (titleRu.Contains("Блок Пост") ||
                 titleRu.Contains("Военный") ||
                 titleRu.Contains("Годовщина") ||
                 titleRu.Contains("льнозавод") ||
                 titleRu.Contains("Университетский") ||
-                titleRu.Contains("урочище") || //todo locality
-                titleRu == "163 км" ||
-                titleRu == "Wołyńce" ||
-                titleRu == "Посёлок N4" ||
-                titleRu == "Посёлок №9" ||
-                titleRu == "РТС" ||
-                titleRu == "с.т Тюльпан")
+                titleRu.Contains("урочище")) //todo locality
                 return false;
-
-            var titleBe = geo.TitleBe();
 
             if (titleBe != null &&
                 titleBe.Contains("урочышча")) //todo locality
@@ -97,61 +127,49 @@ namespace Toponym.Tools.Services
 
         private const string TitleNumPattern = @"^.+(?=[ -]\d(-е)?$)";
 
-        private static GeoObject Fix(GeoObject geo)
+        private static GeoObject Proceed(GeoObject geo)
         {
-            if (geo is RelationObject relation)
+            var id = geo.Id;
+
+            if (geo.Type == OsmGeoType.Node)
             {
-                var label = relation.Members.FirstOrDefault(i => i.Role == "label");
+                if (id == 243043205) // Березина / Бярэ́зіна
+                    geo.SetTitleBe("Бярэзіна");
 
-                if (label != null)
-                {
-                    //Debug.Assert(label.Geo.TitleRu() == geo.TitleRu());
+                if (id == 243046675) // Клины нежил.
+                    geo.SetTitleRu("Клины");
 
-                    if (relation.TitleBe() == null)
-                        geo.SetTitleBe(label.Geo.TitleBe());
-                }
+                if (id == 243047300) // Муравец / руч. Муравец
+                    geo.SetTitleBe("Муравец");
             }
 
-            var titleRu = geo.TitleRu();
-            var titleBe = geo.TitleBe();
-
-            if (titleRu == "Заборье (ферма)")
-                geo.SetTitleRu("Заборье");
-
-            if (titleRu == "Клины нежил.")
-                geo.SetTitleRu("Клины");
-
-            if (titleRu == "Шиловичи (спиртзавод)")
+            if (geo.Type == OsmGeoType.Relation)
             {
-                geo.SetTitleRu("Шиловичи");
-                geo.SetTitleBe("Шылавічы");
+                if (id == 6823898) // Берёзовая Роща / Бярозавая Рошча (Коньскі Бор)
+                    geo.SetTitleBe("Бярозавая Рошча");
+
+                if (id == 7583154) // Блиунг / Бліунг
+                    geo.SetTitleBe("Бліўнг");
+
+                if (id == 7476148) // Заборье (ферма) / Забор’е
+                    geo.SetTitleRu("Заборье");
+
+                if (id == 6816956) // Залесье (бывшее имение) / Залессе
+                    geo.SetTitleRu("Залесье");
+
+                if (id == 7467253) // Каллауровичи / Калауравічы
+                    geo.SetTitleBe("Калавуравічы");
+
+                if (id == 6781070) // Реут / Рэут
+                    geo.SetTitleBe("Рэвут");
             }
 
-            if (titleBe == "Аульс")
-                geo.SetTitleBe("Авульс");
-
-            if (titleBe == "Бліунг")
-                geo.SetTitleBe("Бліўнг");
-
-            if (titleBe == "Бярозавая Рошча (Коньскі Бор)")
-                geo.SetTitleBe("Бярозавая Рошча");
-
-            if (titleBe == "Бярэ́зіна")
-                geo.SetTitleBe("Бярэзіна");
-
-            if (titleBe == "Калауравічы")
-                geo.SetTitleBe("Калавуравічы");
-
-            if (titleBe == "руч. Муравец")
-                geo.SetTitleBe("Муравец");
-
-            if (titleBe == "Рэут")
-                geo.SetTitleBe("Рэвут");
-
-            var matchRu = Regex.Match(titleRu, TitleNumPattern);
+            var matchRu = Regex.Match(geo.TitleRu(), TitleNumPattern);
 
             if (matchRu.Success)
                 geo.SetTitleRu(matchRu.Value);
+
+            var titleBe = geo.TitleBe();
 
             if (titleBe != null)
             {
@@ -163,8 +181,7 @@ namespace Toponym.Tools.Services
 
             if (!TextHelper.IsValidTitleRu(geo.TitleRu()) ||
                 !TextHelper.IsValidTitleBe(geo.TitleBe()))
-            {
-            }
+                throw new InvalidOperationException();
 
             return geo;
         }
