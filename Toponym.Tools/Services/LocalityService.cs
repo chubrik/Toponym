@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Toponym.Tools
 {
-    public class LocalityService
+    public static class LocalityService
     {
         public static List<EntryData> Build()
         {

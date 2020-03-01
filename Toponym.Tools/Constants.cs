@@ -2,7 +2,7 @@
 
 namespace Toponym.Tools
 {
-    public class Constants
+    public static class Constants
     {
         private const string RepositoryPath = "C:/Repositories/Toponym/";
         private static readonly string _projectPath = PathHelper.Combine(RepositoryPath, "Toponym.Tools");

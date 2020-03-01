@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Toponym.Site
 {
-    public class LangHelper
+    public static class LangHelper
     {
         public static Language GetByQueryParam(string queryParam)
         {

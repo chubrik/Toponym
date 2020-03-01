@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Toponym.Tools
 {
-    public class ProjectionService
+    public static class ProjectionService
     {
         public static ProjectionData Data { get; private set; } = new ProjectionData();
 

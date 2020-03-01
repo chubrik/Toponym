@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Toponym.Tools
 {
-    public class GeoService
+    public static class GeoService
     {
         public static RelationObject LoadRelation(string cacheName, long relationId, string sourcePath = null)
         {

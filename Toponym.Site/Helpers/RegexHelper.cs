@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Toponym.Site
 {
-    public class RegexHelper
+    public static class RegexHelper
     {
         private const string SoftLeft = "[^^ ]";
         private const string SoftRight = "[^$ ]";

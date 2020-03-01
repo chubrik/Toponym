@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Toponym.Tools
 {
-    public class BorderService
+    public static class BorderService
     {
         public static IReadOnlyList<IGeoPoint> Build()
         {
