@@ -1,4 +1,4 @@
-﻿namespace Toponym.Tools.Models
+﻿namespace Toponym.Tools
 {
     public class ProjectionData
     {

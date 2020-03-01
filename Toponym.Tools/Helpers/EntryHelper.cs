@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Toponym.Core.Models;
-using Toponym.Tools.Extensions;
 
-namespace Toponym.Tools.Helpers
+namespace Toponym.Tools
 {
     public static class EntryHelper
     {

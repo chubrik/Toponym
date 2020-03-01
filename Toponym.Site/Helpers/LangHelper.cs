@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Toponym.Site.Models;
 
-namespace Toponym.Site.Helpers
+namespace Toponym.Site
 {
     public class LangHelper
     {

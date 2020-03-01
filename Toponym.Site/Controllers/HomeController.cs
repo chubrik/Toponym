@@ -4,12 +4,8 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Toponym.Site.Extensions;
-using Toponym.Site.Helpers;
-using Toponym.Site.Models;
-using Toponym.Site.Services;
 
-namespace Toponym.Site.Controllers
+namespace Toponym.Site
 {
     public class HomeController : Controller
     {

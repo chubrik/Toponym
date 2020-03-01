@@ -2,9 +2,8 @@
 using OsmDataKit;
 using System.Collections.Generic;
 using System.Linq;
-using Toponym.Tools.Extensions;
 
-namespace Toponym.Tools.Helpers
+namespace Toponym.Tools
 {
     public static class HtmlHelper
     {

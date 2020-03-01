@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using Toponym.Core.Models;
 
-namespace Toponym.Site.Models
+namespace Toponym.Site
 {
     [JsonObject]
     public class EntryTransport

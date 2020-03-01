@@ -1,8 +1,7 @@
 ﻿using OsmDataKit;
 using System;
-using Toponym.Tools.Services;
 
-namespace Toponym.Tools.Helpers
+namespace Toponym.Tools
 {
     public static class GeoPointHelper
     {

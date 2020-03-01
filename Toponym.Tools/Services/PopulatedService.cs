@@ -5,11 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Toponym.Core.Models;
-using Toponym.Tools.Extensions;
-using Toponym.Tools.Helpers;
 
-namespace Toponym.Tools.Services
+namespace Toponym.Tools
 {
     public class PopulatedService
     {

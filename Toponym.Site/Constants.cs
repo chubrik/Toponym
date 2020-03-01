@@ -1,6 +1,4 @@
-﻿using Toponym.Site.Models;
-
-namespace Toponym.Site
+﻿namespace Toponym.Site
 {
     public class Constants
     {

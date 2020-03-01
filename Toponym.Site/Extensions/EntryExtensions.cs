@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Toponym.Site.Models;
 
-namespace Toponym.Site.Extensions
+namespace Toponym.Site
 {
     public static class EntryExtensions
     {

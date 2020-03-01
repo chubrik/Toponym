@@ -3,10 +3,8 @@ using OsmDataKit;
 using OsmSharp;
 using System;
 using System.Linq;
-using Toponym.Tools.Extensions;
-using Toponym.Tools.Helpers;
 
-namespace Toponym.Tools.Services
+namespace Toponym.Tools
 {
     public class GeoService
     {
