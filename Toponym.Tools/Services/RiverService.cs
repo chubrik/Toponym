@@ -27,35 +27,34 @@ namespace Toponym.Tools
                 i => i.Tags.Contains("waterway", "river") && GeoHelper.TitleRu(i) != null,
                 Constants.OsmOldSourcePath);
 
-            FixBrokenNeman(response);
             var rootRelations = response.RootRelations.Values;
 
-            var memberWays = rootRelations.SelectMany(
+            var allMemberWays = rootRelations.SelectMany(
                 relation =>
                 {
                     var members = relation.Members.Where(i => i.Role == "main_stream" || i.Role == "");
 
-                    var geos = members.Select(
+                    var memberWays = members.Select(
                         member =>
                         {
-                            var geo = member.Geo;
+                            var memberWay = member.Geo as WayObject;
 
-                            if (geo.Type != OsmGeoType.Way)
+                            if (memberWay.Type != OsmGeoType.Way)
                                 throw new InvalidOperationException();
 
-                            if (geo.TitleRu() == null)
+                            if (memberWay.TitleRu() == null)
                             {
-                                geo.SetTitleRu(relation.TitleRu());
-                                geo.SetTitleBe(relation.TitleBe());
+                                memberWay.SetTitleRu(relation.TitleRu());
+                                memberWay.SetTitleBe(relation.TitleBe());
                             }
 
-                            return geo as WayObject;
+                            return memberWay;
                         });
 
-                    return geos;
+                    return memberWays;
                 });
 
-            var ways = response.RootWays.Values.Concat(memberWays);
+            var ways = response.RootWays.Values.Concat(allMemberWays);
             var preFiltered = ways.Where(PreFilter).Select(PreFix);
             var rivers = GetMergedWays(preFiltered);
             var postFiltered = rivers.Where(PostFilter).Select(PostFix);
@@ -63,14 +62,6 @@ namespace Toponym.Tools
             JsonFileClient.Write(Constants.RiversDataPath, data);
             LogService.EndSuccess("Build rivers completed");
             return data;
-        }
-
-        private static void FixBrokenNeman(OsmObjectResponse response)
-        {
-            var neman = response.RootRelations.Values.Single(i => i.TitleRu() == "Неман");
-            var members = neman.Members.ToList();
-            members.Remove(members.First(i => i.Geo.TitleRu() == "Неманец"));
-            neman.ReplaceMembers(members);
         }
 
         private static bool PreFilter(WayObject way)
@@ -251,7 +242,8 @@ namespace Toponym.Tools
                 407198034, // Щара
                 164074534,
                 259131488,
-                50281450 // Янка
+                50281450, // Янка
+                // 496202898 // Прушиновский ручей
             };
 
         private static bool PostFilter(WayObject way)

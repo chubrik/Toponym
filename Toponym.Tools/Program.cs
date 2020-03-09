@@ -51,6 +51,10 @@ namespace Toponym.Tools
                     RiverService.Build();
                     break;
 
+                case "compare":
+                    CompareService.Build();
+                    break;
+
                 default:
                     LogService.LogError($"Unknown command \"{arg}\"");
                     break;
