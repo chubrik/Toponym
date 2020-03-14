@@ -32,7 +32,7 @@ namespace Toponym.Tools
             var allMemberWays = rootRelations.SelectMany(
                 relation =>
                 {
-                    var members = relation.Members.Where(i => i.Role == "main_stream" || i.Role == "");
+                    var members = relation.Members.Where(i => i.Role == null || i.Role == "main_stream");
 
                     var memberWays = members.Select(
                         member =>
