@@ -9,14 +9,14 @@ namespace Toponym.Tools
     public static class EntryHelper
     {
         public static EntryData GetData(
-            string titleRu, string titleBe, EntryType type, IGeoPoint geoPoint)
+            string titleRu, string titleBe, EntryType type, Location geoPoint)
         {
             var screenPoints = new List<ScreenPoint> { geoPoint.ToScreen() };
             return GetData(titleRu, titleBe, type, geoPoint, screenPoints);
         }
 
         public static EntryData GetData(
-            string titleRu, string titleBe, EntryType type, IGeoPoint geoPoint, IEnumerable<ScreenPoint> screenPoints)
+            string titleRu, string titleBe, EntryType type, Location geoPoint, IEnumerable<ScreenPoint> screenPoints)
         {
             Debug.Assert(titleRu != null);
 

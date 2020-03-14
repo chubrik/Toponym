@@ -240,7 +240,7 @@ namespace Toponym.Tools
             switch (geoType)
             {
                 case OsmGeoType.Node:
-                    return EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), entryType, (NodeObject)geo);
+                    return EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), entryType, ((NodeObject)geo).Location);
 
                 case OsmGeoType.Way:
                     return ((WayObject)geo).ToEntryDataAsPoint(entryType);
@@ -265,7 +265,7 @@ namespace Toponym.Tools
         private static void FixMinskCenter(List<EntryData> data)
         {
             var minsk = data.Single(i => i.TitleRu == "Минск");
-            var geoPoint = new GeoPoint(53.90234, 27.56188);
+            var geoPoint = new Location(53.90234, 27.56188);
             var fakeEntry = EntryHelper.GetData(minsk.TitleRu, minsk.TitleBe, minsk.Type, geoPoint);
             minsk.GeoPoint = fakeEntry.GeoPoint;
             minsk.ScreenPoints = fakeEntry.ScreenPoints;

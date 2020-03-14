@@ -7,7 +7,7 @@ namespace Toponym.Tools
     {
         public static double DegToRad(double deg) => deg / 180 * Math.PI;
 
-        public static void CalculateRaw(IGeoPoint geoPoint, out double rawX, out double rawY)
+        public static void CalculateRaw(Location geoPoint, out double rawX, out double rawY)
         {
             var deltaLat0 = ProjectionService.Data.Tan0 - (DegToRad(geoPoint.Latitude) - ProjectionService.Data.Lat0);
             var deltaLong0 = ProjectionService.Data.Sin0 * (DegToRad(geoPoint.Longitude) - ProjectionService.Data.Lng0);

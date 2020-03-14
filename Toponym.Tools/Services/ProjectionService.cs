@@ -22,7 +22,7 @@ namespace Toponym.Tools
             }
 
             var borderGeoPoints = BorderService.Build();
-            var centerGeoPoint = borderGeoPoints.CenterPoint();
+            var centerGeoPoint = borderGeoPoints.CenterLocation();
 
             Data.Lat0 = GeoPointHelper.DegToRad(centerGeoPoint.Latitude);
             Data.Lng0 = GeoPointHelper.DegToRad(centerGeoPoint.Longitude);

@@ -19,16 +19,31 @@ namespace Toponym.Tools
         public static EntryType EntryType(this GeoObject geo) =>
             (EntryType)Enum.Parse(typeof(EntryType), geo.Tags[TypeKey]);
 
-        public static void SetTitleRu(this GeoObject geo, string value) =>
+        public static void SetTitleRu(this GeoObject geo, string value)
+        {
+            if (geo.Tags == null)
+                geo.Tags = new Dictionary<string, string>();
+
             geo.Tags[TitleRuKey] = value;
+        }
 
-        public static void SetTitleBe(this GeoObject geo, string value) =>
+        public static void SetTitleBe(this GeoObject geo, string value)
+        {
+            if (geo.Tags == null)
+                geo.Tags = new Dictionary<string, string>();
+
             geo.Tags[TitleBeKey] = value;
+        }
 
-        public static void SetEntryType(this GeoObject geo, EntryType type) =>
+        public static void SetEntryType(this GeoObject geo, EntryType type)
+        {
+            if (geo.Tags == null)
+                geo.Tags = new Dictionary<string, string>();
+
             geo.Tags[TypeKey] = type.ToString();
+        }
 
         public static EntryData ToEntryDataAsPoint(this GeoObject geo, EntryType type) =>
-            EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), type, geo.CenterPoint());
+            EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), type, geo.CenterLocation());
     }
 }

@@ -143,7 +143,7 @@ namespace Toponym.Tools
             switch (geoType)
             {
                 case OsmGeoType.Node:
-                    return EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), EntryType.Locality, (NodeObject)geo);
+                    return EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), EntryType.Locality, ((NodeObject)geo).Location);
 
                 case OsmGeoType.Way:
                     return ((WayObject)geo).ToEntryDataAsPoint(EntryType.Locality);

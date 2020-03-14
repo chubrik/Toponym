@@ -43,7 +43,7 @@ namespace Toponym.Tools
                 }
             }
 
-            GeoObject.TitleFormatter = geo =>
+            GeoObject.StringFormatter = geo =>
             {
                 var titleRu = geo.TitleRu();
                 var titleBe = geo.TitleBe();

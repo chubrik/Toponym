@@ -34,7 +34,7 @@ namespace Toponym.Tools
 
         private static string TitleRuBase(IReadOnlyDictionary<string, string> tags)
         {
-            if (tags.Count == 0)
+            if (tags == null || tags.Count == 0)
                 return null;
 
             if (tags.TryGetValue("name:ru", out string title) && !string.IsNullOrEmpty(title))
@@ -62,7 +62,7 @@ namespace Toponym.Tools
             if (geo == null)
                 throw new ArgumentNullException(nameof(geo));
 
-            if (geo.Tags.TryGetValue("name:be", out string title) && !string.IsNullOrEmpty(title))
+            if (geo.Tags != null && geo.Tags.TryGetValue("name:be", out string title) && !string.IsNullOrEmpty(title))
                 if (!Regex.IsMatch(title, "[a-hj-zищъ]", RegexOptions.IgnoreCase)) // латинское i можно
                     return title.Replace('I', 'І').Replace('i', 'і').Replace('\'', '’'); // латинское i заменяем на кириллическое
 

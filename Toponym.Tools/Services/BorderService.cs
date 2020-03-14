@@ -10,20 +10,20 @@ namespace Toponym.Tools
 {
     public static class BorderService
     {
-        public static IReadOnlyList<IGeoPoint> Build()
+        public static IReadOnlyList<Location> Build()
         {
             LogService.BeginInfo("Load border");
-            List<IGeoPoint> geoPoints;
+            List<Location> geoPoints;
 
             if (FileClient.Exists(Constants.BorderDataPath))
             {
                 var readData = JsonFileClient.Read<List<double[]>>(Constants.BorderDataPath);
-                geoPoints = readData.Select(i => new GeoPoint(i[0], i[1]) as IGeoPoint).ToList();
+                geoPoints = readData.Select(i => new Location(i[0], i[1])).ToList();
                 LogService.EndInfo("Load border completed");
                 return geoPoints;
             }
 
-            geoPoints = new List<IGeoPoint>();
+            geoPoints = new List<Location>();
             var nodes = LoadNodes();
             var prevLatitude = 0d;
             var prevLongitude = 0d;
@@ -33,7 +33,7 @@ namespace Toponym.Tools
                 if (node.Latitude.Equals(prevLatitude) && node.Longitude.Equals(prevLongitude))
                     continue;
 
-                geoPoints.Add(node);
+                geoPoints.Add(node.Location);
                 prevLatitude = node.Latitude;
                 prevLongitude = node.Longitude;
             }
@@ -80,7 +80,7 @@ namespace Toponym.Tools
             return sortedNodes;
         }
 
-        public static void BuildScreen(IEnumerable<IGeoPoint> geoPoints)
+        public static void BuildScreen(IEnumerable<Location> geoPoints)
         {
             LogService.BeginInfo("Build border screen points");
             var screenPoints = new List<ScreenPoint>();
