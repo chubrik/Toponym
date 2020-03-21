@@ -17,7 +17,7 @@ namespace Toponym.Tools
             if (FileClient.Exists(Constants.ProjectionDataPath))
             {
                 Data = JsonFileClient.Read<ProjectionData>(Constants.ProjectionDataPath);
-                LogService.EndInfo("Build projection completed");
+                LogService.EndInfo("Build projection");
                 return;
             }
 
@@ -45,7 +45,7 @@ namespace Toponym.Tools
             Data.Ratio = (rawYs.Max() - Data.MinRawY) * Data.Coeff;
 
             JsonFileClient.Write(Constants.ProjectionDataPath, Data);
-            LogService.EndSuccess("Build projection completed");
+            LogService.EndSuccess("Build projection");
             BorderService.BuildScreen(borderGeoPoints);
         }
     }

@@ -28,7 +28,7 @@ namespace Toponym.Tools
 
             var data = proceeded.Select(GetEntryData).ToSortedList();
             JsonFileClient.Write(Constants.LocalitiesDataPath, data);
-            LogService.EndSuccess("Build populated completed");
+            LogService.EndSuccess("Build populated");
             return data;
         }
 

@@ -28,7 +28,7 @@ namespace Toponym.Tools
             BuildByType("waters", oldWaters, newWaters);
             BuildByType("rivers", oldRivers, newRivers);
 
-            LogService.EndSuccess("Build compare completed");
+            LogService.EndSuccess("Build compare");
         }
 
         private static void BuildByType(string type, List<EntryData> oldData, List<EntryData> newData)
@@ -67,7 +67,7 @@ namespace Toponym.Tools
                     added.Add(newEntry);
             }
 
-            LogService.EndSuccess("Build compare completed");
+            LogService.EndSuccess("Build compare");
             LogService.BeginInfo("Removed");
 
             foreach (var oldEntry in oldData)
@@ -88,15 +88,15 @@ namespace Toponym.Tools
                     removed.Add(oldEntry);
             }
 
-            LogService.EndSuccess("Removed completed");
+            LogService.EndSuccess("Removed");
 
             LogService.BeginInfo("Write html");
             HtmlHelper.Write($"{type}-added", added);
             HtmlHelper.Write($"{type}-removed", removed);
             HtmlHelper.Write($"{type}-changed", changed);
-            LogService.EndSuccess("Write html completed");
+            LogService.EndSuccess("Write html");
 
-            LogService.EndSuccess($"BuildByTyte '{type}' completed");
+            LogService.EndSuccess($"BuildByTyte '{type}'");
         }
     }
 }

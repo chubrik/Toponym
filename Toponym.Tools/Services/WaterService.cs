@@ -35,7 +35,7 @@ namespace Toponym.Tools
 
             var data = proceeded.Select(i => i.ToEntryDataAsPoint(i.EntryType())).ToSortedList();
             JsonFileClient.Write(Constants.WatersDataPath, data);
-            LogService.EndSuccess("Build waters completed");
+            LogService.EndSuccess("Build waters");
             return data;
         }
 

@@ -48,7 +48,7 @@ namespace Toponym.Tools
             var data = result.Select(GetEntryData).ToSortedList();
             FixMinskCenter(data);
             JsonFileClient.Write(Constants.PopulatedDataPath, data);
-            LogService.EndSuccess("Build populated completed");
+            LogService.EndSuccess("Build populated");
             return data;
         }
 
@@ -189,7 +189,7 @@ namespace Toponym.Tools
                 area is WayObject way
                     ? way.Nodes
                     : area is RelationObject relation
-                        ? relation.DeepNodes()
+                        ? relation.AllChildNodes()
                         : throw new InvalidOperationException();
 
             var top = areaNodes.Max(i => i.Latitude);

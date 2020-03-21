@@ -1,4 +1,5 @@
 using Kit;
+using OsmDataKit;
 using System.Linq;
 
 namespace Toponym.Tools
@@ -7,7 +8,8 @@ namespace Toponym.Tools
     {
         public static void Main(string[] args)
         {
-            Kit.Kit.Setup(baseDirectory: "../../..");
+            Kit.Kit.Setup();
+            OsmService.CacheDirectory = PathHelper.Combine(Kit.Kit.BaseDirectory, "$work/$osm-cache");
             var arg = args.Length > 0 ? args[0] : "master";
 
             switch (arg)
@@ -22,9 +24,13 @@ namespace Toponym.Tools
                     var data = populated.Concat(localities).Concat(waters).Concat(rivers).ToSortedList();
                     EntryHelper.Validate(data);
                     JsonFileClient.Write(Constants.ResultDataPath, data);
-                    var wrappedJson = FileClient.ReadText(Constants.ResultDataPath).Replace("},{", "},\r\n{");
-                    FileClient.Write(Constants.ResultDataPath, wrappedJson);
-                    LogService.EndSuccess("Build master completed");
+
+                    LogService.Log("Prettify data", () => {
+                        var wrappedJson = FileClient.ReadText(Constants.ResultDataPath).Replace("},{", "},\r\n{");
+                        FileClient.Write(Constants.ResultDataPath, wrappedJson);
+                    });
+
+                    LogService.EndSuccess("Build master");
                     break;
 
                 case "projection":
@@ -56,7 +62,7 @@ namespace Toponym.Tools
                     break;
 
                 default:
-                    LogService.LogError($"Unknown command \"{arg}\"");
+                    LogService.Error($"Unknown command \"{arg}\"");
                     break;
             }
         }

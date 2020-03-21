@@ -27,9 +27,7 @@ namespace Toponym.Tools
                 i => i.Tags.Contains("waterway", "river") && GeoHelper.TitleRu(i) != null,
                 Constants.OsmOldSourcePath);
 
-            var rootRelations = response.RootRelations.Values;
-
-            var allMemberWays = rootRelations.SelectMany(
+            var allMemberWays = response.RootRelations.SelectMany(
                 relation =>
                 {
                     var members = relation.Members.Where(i => i.Role == null || i.Role == "main_stream");
@@ -54,13 +52,13 @@ namespace Toponym.Tools
                     return memberWays;
                 });
 
-            var ways = response.RootWays.Values.Concat(allMemberWays);
+            var ways = response.RootWays.Concat(allMemberWays);
             var preFiltered = ways.Where(PreFilter).Select(PreFix);
             var rivers = GetMergedWays(preFiltered);
             var postFiltered = rivers.Where(PostFilter).Select(PostFix);
             var data = postFiltered.Select(i => i.ToEntryData(EntryType.River)).ToSortedList();
             JsonFileClient.Write(Constants.RiversDataPath, data);
-            LogService.EndSuccess("Build rivers completed");
+            LogService.EndSuccess("Build rivers");
             return data;
         }
 

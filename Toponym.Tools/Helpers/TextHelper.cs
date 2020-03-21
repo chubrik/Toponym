@@ -128,7 +128,7 @@ namespace Toponym.Tools
                 });
 
             if (!Regex.IsMatch(result.ToLower(), @"^[a-z ’-]+$"))
-                LogService.LogWarning($"Non-translited cyrillic title: {result}");
+                LogService.Warning($"Non-translited cyrillic title: {result}");
 
             return result;
         }

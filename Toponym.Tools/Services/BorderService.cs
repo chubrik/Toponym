@@ -19,7 +19,7 @@ namespace Toponym.Tools
             {
                 var readData = JsonFileClient.Read<List<double[]>>(Constants.BorderDataPath);
                 geoPoints = readData.Select(i => new Location(i[0], i[1])).ToList();
-                LogService.EndInfo("Load border completed");
+                LogService.EndInfo("Load border");
                 return geoPoints;
             }
 
@@ -40,7 +40,7 @@ namespace Toponym.Tools
 
             var saveData = geoPoints.Select(i => new[] { i.Latitude, i.Longitude }).ToList();
             JsonFileClient.Write(Constants.BorderDataPath, saveData);
-            LogService.EndSuccess("Load border completed");
+            LogService.EndSuccess("Load border");
             return geoPoints;
         }
 
@@ -76,7 +76,7 @@ namespace Toponym.Tools
                 thisWay = waysLeft.Single(i => i.Nodes.Contains(cursorNode));
             }
 
-            LogService.End("Sort nodes completed");
+            LogService.End("Sort nodes");
             return sortedNodes;
         }
 
@@ -111,7 +111,7 @@ namespace Toponym.Tools
             html += screenPoints.Select(i => $"{i.X.ToString(CultureInfo.InvariantCulture)},{i.Y.ToString(CultureInfo.InvariantCulture)}").Join(" ");
             html += "\" />\n    </svg>\n</div>\n";
             FileClient.Write(Constants.BorderScreenHtmlPath, html);
-            LogService.EndSuccess("Build border screen points completed");
+            LogService.EndSuccess("Build border screen points");
         }
     }
 }
