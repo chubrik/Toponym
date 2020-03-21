@@ -30,7 +30,7 @@
     "browser-sync": "^2.26.7",
     "fs-extra": "^8.1.0",
     "gulp": "^4.0.2",
-    "gulp-clean-css": "^4.2.0",
+    "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
     "gulp-less": "^4.0.1",
     "gulp-strip-css-comments": "^2.0.0",
@@ -43,7 +43,7 @@
     "tslint-eslint-rules": "~4.0.0",
     "tslint-microsoft-contrib": "~5.0.3",
     "tslint-misc-rules": "~3.0.0",
-    "typescript": "^3.8.2",
+    "typescript": "^3.8.3",
     "uglify-js": "^3.8.0"
   },
   "author": "Arkadi Chubrik <arkadi@chubrik.org> (http://www.chubrik.org/)",
