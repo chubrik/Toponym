@@ -29,8 +29,8 @@ namespace Toponym.Tools
 
             foreach (var entry in data.OrderBy(i => i.TitleRu))
             {
-                var lat = entry.GeoPoint[0];
-                var lng = entry.GeoPoint[1];
+                var lat = entry.Location[0];
+                var lng = entry.Location[1];
                 sb.Append($"<tr>");
                 sb.Append($"<td>{number++}.</td>");
                 sb.Append($"<td>{entry.TitleRu}</td>");
@@ -61,8 +61,8 @@ namespace Toponym.Tools
             {
                 var item1 = pair.Item1;
                 var item2 = pair.Item2;
-                var lat = item2.GeoPoint[0];
-                var lng = item2.GeoPoint[1];
+                var lat = item2.Location[0];
+                var lng = item2.Location[1];
                 sb.Append($"<tr>");
                 sb.Append($"<td>{number++}.</td>");
                 sb.Append($"<td>{item1.TitleRu}</td>");

@@ -39,7 +39,7 @@ namespace Toponym.Site
 
             Type = data.Type;
             Category = data.Type.ToCategory();
-            GeoPoint = new GeoPoint(data.GeoPoint[0], data.GeoPoint[1]);
+            GeoPoint = new GeoPoint(data.Location[0], data.Location[1]);
             ScreenPoints = data.ScreenPoints.Select(i => new ScreenPoint(i[0], i[1])).ToList();
         }
     }

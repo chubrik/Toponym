@@ -9,22 +9,22 @@ namespace Toponym.Tools
     public static class EntryHelper
     {
         public static EntryData GetData(
-            string titleRu, string titleBe, EntryType type, Location geoPoint)
+            string titleRu, string titleBe, EntryType type, Location location)
         {
-            var screenPoints = new List<ScreenPoint> { geoPoint.ToScreen() };
-            return GetData(titleRu, titleBe, type, geoPoint, screenPoints);
+            var screenPoints = new List<ScreenPoint> { location.ToScreen() };
+            return GetData(titleRu, titleBe, type, location, screenPoints);
         }
 
         public static EntryData GetData(
-            string titleRu, string titleBe, EntryType type, Location geoPoint, IEnumerable<ScreenPoint> screenPoints)
+            string titleRu, string titleBe, EntryType type, Location location, IEnumerable<ScreenPoint> screenPoints)
         {
             Debug.Assert(titleRu != null);
 
             if (titleRu == null)
                 throw new ArgumentNullException(nameof(titleRu));
 
-            var latitude = (float)Math.Round(geoPoint.Latitude, 4); // округление до ± 5,5 м
-            var longitude = (float)Math.Round(geoPoint.Longitude / 2, 4) * 2; // округление до ± 6,5 м
+            var latitude = (float)Math.Round(location.Latitude, 4); // округление до ± 5,5 м
+            var longitude = (float)Math.Round(location.Longitude / 2, 4) * 2; // округление до ± 6,5 м
 
             return new EntryData
             {
@@ -32,7 +32,7 @@ namespace Toponym.Tools
                 TitleBe = titleBe,
                 TitleEn = TextHelper.CyrillicToLatin(titleRu),
                 Type = type,
-                GeoPoint = new[] { latitude, longitude },
+                Location = new[] { latitude, longitude },
                 ScreenPoints = screenPoints.Select(i => new[] { i.X, i.Y }).ToList()
             };
         }

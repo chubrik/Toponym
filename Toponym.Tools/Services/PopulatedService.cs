@@ -265,9 +265,9 @@ namespace Toponym.Tools
         private static void FixMinskCenter(List<EntryData> data)
         {
             var minsk = data.Single(i => i.TitleRu == "Минск");
-            var geoPoint = new Location(53.90234, 27.56188);
-            var fakeEntry = EntryHelper.GetData(minsk.TitleRu, minsk.TitleBe, minsk.Type, geoPoint);
-            minsk.GeoPoint = fakeEntry.GeoPoint;
+            var location = new Location(53.90234, 27.56188);
+            var fakeEntry = EntryHelper.GetData(minsk.TitleRu, minsk.TitleBe, minsk.Type, location);
+            minsk.Location = fakeEntry.Location;
             minsk.ScreenPoints = fakeEntry.ScreenPoints;
         }
     }

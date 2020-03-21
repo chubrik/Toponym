@@ -9,7 +9,7 @@ namespace Toponym.Tools
     {
         public static EntryData ToEntryData(this WayObject way, EntryType type)
         {
-            var firstGeoPoint = way.Nodes.First().Location;
+            var firstLocation = way.Nodes.First().Location;
             var screenPoints = new List<ScreenPoint>();
             var prevX = 0f;
             var prevY = 0f;
@@ -27,7 +27,7 @@ namespace Toponym.Tools
             }
 
             screenPoints.Add(way.Nodes.Last().Location.ToScreen());
-            return EntryHelper.GetData(way.TitleRu(), way.TitleBe(), type, firstGeoPoint, screenPoints);
+            return EntryHelper.GetData(way.TitleRu(), way.TitleBe(), type, firstLocation, screenPoints);
         }
     }
 }
