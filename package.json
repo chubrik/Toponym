@@ -22,11 +22,11 @@
     "jquery": "^3.4.1"
   },
   "devDependencies": {
-    "@types/angular": "^1.6.57",
+    "@types/angular": "^1.7.0",
     "@types/angular-ui-bootstrap": "^0.13.47",
     "@types/angular-ui-router": "^1.1.40",
     "@types/bootstrap": "^3.4.0",
-    "@types/jquery": "^3.3.33",
+    "@types/jquery": "^3.3.34",
     "browser-sync": "^2.26.7",
     "fs-extra": "^8.1.0",
     "gulp": "^4.0.2",
@@ -44,7 +44,7 @@
     "tslint-microsoft-contrib": "~5.0.3",
     "tslint-misc-rules": "~3.0.0",
     "typescript": "^3.8.3",
-    "uglify-js": "^3.8.0"
+    "uglify-js": "^3.8.1"
   },
   "author": "Arkadi Chubrik <arkadi@chubrik.org> (http://www.chubrik.org/)",
   "license": "SEE LICENSE IN http://www.toponim.by/license",
