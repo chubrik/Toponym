@@ -39,12 +39,12 @@
     "normalize.css": "^8.0.1",
     "rollup": "^0.65.2",
     "rollup-plugin-node-resolve": "^3.4.0",
-    "tslint": "~5.2.0",
-    "tslint-eslint-rules": "~4.0.0",
-    "tslint-microsoft-contrib": "~5.0.3",
-    "tslint-misc-rules": "~3.0.0",
-    "typescript": "^3.8.3",
-    "uglify-js": "^3.9.2"
+    "tslint": "~6.1.2",
+    "tslint-eslint-rules": "~5.4.0",
+    "tslint-microsoft-contrib": "~6.2.0",
+    "tslint-misc-rules": "~3.5.1",
+    "typescript": "^3.9.2",
+    "uglify-js": "^3.9.3"
   },
   "author": "Arkadi Chubrik <arkadi@chubrik.org> (http://www.chubrik.org/)",
   "license": "SEE LICENSE IN http://www.toponim.by/license",
