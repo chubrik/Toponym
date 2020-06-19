@@ -10873,8 +10873,8 @@ return jQuery;
 
 
 /**
- * @license AngularJS v1.7.9
- * (c) 2010-2018 Google, Inc. http://angularjs.org
+ * @license AngularJS v1.8.0
+ * (c) 2010-2020 Google, Inc. http://angularjs.org
  * License: MIT
  */
 (function(window) {'use strict';
@@ -10911,7 +10911,7 @@ var minErrConfig = {
  *   non-positive or non-numeric value, removes the max depth limit.
  *   Default: 5
  *
- * * `urlErrorParamsEnabled`  **{Boolean}** - Specifies wether the generated error url will
+ * * `urlErrorParamsEnabled`  **{Boolean}** - Specifies whether the generated error url will
  *   contain the parameters of the thrown error. Disabling the parameters can be useful if the
  *   generated error url is very long.
  *
@@ -10961,7 +10961,7 @@ function isValidObjectMaxDepth(maxDepth) {
  * Since data will be parsed statically during a build step, some restrictions
  * are applied with respect to how minErr instances are created and called.
  * Instances should have names of the form namespaceMinErr for a minErr created
- * using minErr('namespace') . Error codes, namespaces and template strings
+ * using minErr('namespace'). Error codes, namespaces and template strings
  * should all be static strings, not variables or general expressions.
  *
  * @param {string} module The namespace to use for the new minErr instance.
@@ -10973,7 +10973,7 @@ function isValidObjectMaxDepth(maxDepth) {
 function minErr(module, ErrorConstructor) {
   ErrorConstructor = ErrorConstructor || Error;
 
-  var url = 'https://errors.angularjs.org/1.7.9/';
+  var url = 'https://errors.angularjs.org/1.8.0/';
   var regex = url.replace('.', '\\.') + '[\\s\\S]*';
   var errRegExp = new RegExp(regex, 'g');
 
@@ -11106,6 +11106,7 @@ function minErr(module, ErrorConstructor) {
   hasOwnProperty,
   createMap,
   stringify,
+  UNSAFE_restoreLegacyJqLiteXHTMLReplacement,
 
   NODE_TYPE_ELEMENT,
   NODE_TYPE_ATTRIBUTE,
@@ -11833,8 +11834,8 @@ function arrayRemove(array, value) {
  * - [`MediaStream`](https://developer.mozilla.org/docs/Web/API/MediaStream)
  * - [`Set`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Set)
  * - [`WeakMap`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/WeakMap)
- * - ['getter'](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get)/
- *   [`setter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/set)`
+ * - [`getter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get)/
+ *   [`setter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/set)
  *
  * @param {*} source The source that will be used to make a copy. Can be any type, including
  *     primitives, `null`, and `undefined`.
@@ -12963,6 +12964,26 @@ function bindJQuery() {
 }
 
 /**
+ * @ngdoc function
+ * @name angular.UNSAFE_restoreLegacyJqLiteXHTMLReplacement
+ * @module ng
+ * @kind function
+ *
+ * @description
+ * Restores the pre-1.8 behavior of jqLite that turns XHTML-like strings like
+ * `<div /><span />` to `<div></div><span></span>` instead of `<div><span></span></div>`.
+ * The new behavior is a security fix. Thus, if you need to call this function, please try to adjust
+ * your code for this change and remove your use of this function as soon as possible.
+
+ * Note that this only patches jqLite. If you use jQuery 3.5.0 or newer, please read the
+ * [jQuery 3.5 upgrade guide](https://jquery.com/upgrade-guide/3.5/) for more details
+ * about the workarounds.
+ */
+function UNSAFE_restoreLegacyJqLiteXHTMLReplacement() {
+  JQLite.legacyXHTMLReplacement = true;
+}
+
+/**
  * throw error if the argument is falsy.
  */
 function assertArg(arg, name, reason) {
@@ -13681,11 +13702,11 @@ function toDebugString(obj, maxDepth) {
 var version = {
   // These placeholder strings will be replaced by grunt's `build` task.
   // They need to be double- or single-quoted.
-  full: '1.7.9',
+  full: '1.8.0',
   major: 1,
-  minor: 7,
-  dot: 9,
-  codeName: 'pollution-eradication'
+  minor: 8,
+  dot: 0,
+  codeName: 'nested-vaccination'
 };
 
 
@@ -13718,6 +13739,7 @@ function publishExternalAPI(angular) {
     'callbacks': {$$counter: 0},
     'getTestability': getTestability,
     'reloadWithDebugInfo': reloadWithDebugInfo,
+    'UNSAFE_restoreLegacyJqLiteXHTMLReplacement': UNSAFE_restoreLegacyJqLiteXHTMLReplacement,
     '$$minErr': minErr,
     '$$csp': csp,
     '$$encodeUriSegment': encodeUriSegment,
@@ -13835,7 +13857,7 @@ function publishExternalAPI(angular) {
       });
     }
   ])
-  .info({ angularVersion: '1.7.9' });
+  .info({ angularVersion: '1.8.0' });
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -13928,6 +13950,16 @@ function publishExternalAPI(angular) {
  * - [`val()`](http://api.jquery.com/val/)
  * - [`wrap()`](http://api.jquery.com/wrap/)
  *
+ * jqLite also provides a method restoring pre-1.8 insecure treatment of XHTML-like tags.
+ * This legacy behavior turns input like `<div /><span />` to `<div></div><span></span>`
+ * instead of `<div><span></span></div>` like version 1.8 & newer do. To restore it, invoke:
+ * ```js
+ * angular.UNSAFE_restoreLegacyJqLiteXHTMLReplacement();
+ * ```
+ * Note that this only patches jqLite. If you use jQuery 3.5.0 or newer, please read the
+ * [jQuery 3.5 upgrade guide](https://jquery.com/upgrade-guide/3.5/) for more details
+ * about the workarounds.
+ *
  * ## jQuery/jqLite Extras
  * AngularJS also provides the following additional methods and events to both jQuery and jqLite:
  *
@@ -14007,20 +14039,36 @@ var HTML_REGEXP = /<|&#?\w+;/;
 var TAG_NAME_REGEXP = /<([\w:-]+)/;
 var XHTML_TAG_REGEXP = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:-]+)[^>]*)\/>/gi;
 
+// Table parts need to be wrapped with `<table>` or they're
+// stripped to their contents when put in a div.
+// XHTML parsers do not magically insert elements in the
+// same way that tag soup parsers do, so we cannot shorten
+// this by omitting <tbody> or other required elements.
 var wrapMap = {
-  'option': [1, '<select multiple="multiple">', '</select>'],
-
-  'thead': [1, '<table>', '</table>'],
-  'col': [2, '<table><colgroup>', '</colgroup></table>'],
-  'tr': [2, '<table><tbody>', '</tbody></table>'],
-  'td': [3, '<table><tbody><tr>', '</tr></tbody></table>'],
-  '_default': [0, '', '']
+  thead: ['table'],
+  col: ['colgroup', 'table'],
+  tr: ['tbody', 'table'],
+  td: ['tr', 'tbody', 'table']
 };
 
-wrapMap.optgroup = wrapMap.option;
 wrapMap.tbody = wrapMap.tfoot = wrapMap.colgroup = wrapMap.caption = wrapMap.thead;
 wrapMap.th = wrapMap.td;
 
+// Support: IE <10 only
+// IE 9 requires an option wrapper & it needs to have the whole table structure
+// set up in advance; assigning `"<td></td>"` to `tr.innerHTML` doesn't work, etc.
+var wrapMapIE9 = {
+  option: [1, '<select multiple="multiple">', '</select>'],
+  _default: [0, '', '']
+};
+
+for (var key in wrapMap) {
+  var wrapMapValueClosing = wrapMap[key];
+  var wrapMapValue = wrapMapValueClosing.slice().reverse();
+  wrapMapIE9[key] = [wrapMapValue.length, '<' + wrapMapValue.join('><') + '>', '</' + wrapMapValueClosing.join('></') + '>'];
+}
+
+wrapMapIE9.optgroup = wrapMapIE9.option;
 
 function jqLiteIsTextNode(html) {
   return !HTML_REGEXP.test(html);
@@ -14041,7 +14089,7 @@ function jqLiteHasData(node) {
 }
 
 function jqLiteBuildFragment(html, context) {
-  var tmp, tag, wrap,
+  var tmp, tag, wrap, finalHtml,
       fragment = context.createDocumentFragment(),
       nodes = [], i;
 
@@ -14052,13 +14100,30 @@ function jqLiteBuildFragment(html, context) {
     // Convert html into DOM nodes
     tmp = fragment.appendChild(context.createElement('div'));
     tag = (TAG_NAME_REGEXP.exec(html) || ['', ''])[1].toLowerCase();
-    wrap = wrapMap[tag] || wrapMap._default;
-    tmp.innerHTML = wrap[1] + html.replace(XHTML_TAG_REGEXP, '<$1></$2>') + wrap[2];
+    finalHtml = JQLite.legacyXHTMLReplacement ?
+      html.replace(XHTML_TAG_REGEXP, '<$1></$2>') :
+      html;
 
-    // Descend through wrappers to the right content
-    i = wrap[0];
-    while (i--) {
-      tmp = tmp.lastChild;
+    if (msie < 10) {
+      wrap = wrapMapIE9[tag] || wrapMapIE9._default;
+      tmp.innerHTML = wrap[1] + finalHtml + wrap[2];
+
+      // Descend through wrappers to the right content
+      i = wrap[0];
+      while (i--) {
+        tmp = tmp.firstChild;
+      }
+    } else {
+      wrap = wrapMap[tag] || [];
+
+      // Create wrappers & descend into them
+      i = wrap.length;
+      while (--i > -1) {
+        tmp.appendChild(window.document.createElement(wrap[i]));
+        tmp = tmp.firstChild;
+      }
+
+      tmp.innerHTML = finalHtml;
     }
 
     nodes = concat(nodes, tmp.childNodes);
@@ -19157,7 +19222,7 @@ function $TemplateCacheProvider() {
  *
  * When the original node and the replace template declare the same directive(s), they will be
  * {@link guide/compiler#double-compilation-and-how-to-avoid-it compiled twice} because the compiler
- * does not deduplicate them. In many cases, this is not noticable, but e.g. {@link ngModel} will
+ * does not deduplicate them. In many cases, this is not noticeable, but e.g. {@link ngModel} will
  * attach `$formatters` and `$parsers` twice.
  *
  * See issue [#2573](https://github.com/angular/angular.js/issues/2573).
@@ -44480,7 +44545,7 @@ var ngRefDirective = ['$parse', function($parse) {
  *     For example: `item in items | filter:x as results` will store the fragment of the repeated items as `results`, but only after
  *     the items have been processed through the filter.
  *
- *     Please note that `as [variable name] is not an operator but rather a part of ngRepeat
+ *     Please note that `as [variable name]` is not an operator but rather a part of ngRepeat
  *     micro-syntax so it can be used only after all filters (and not as operator, inside an expression).
  *
  *     For example: `item in items | filter : x | orderBy : order | limitTo : limit as results track by item.id` .
@@ -45289,11 +45354,11 @@ var ngHideDirective = ['$animate', function($animate) {
        var colorSpan = element(by.css('span'));
 
        it('should check ng-style', function() {
-         expect(colorSpan.getCssValue('color')).toBe('rgba(0, 0, 0, 1)');
+         expect(colorSpan.getCssValue('color')).toMatch(/rgba\(0, 0, 0, 1\)|rgb\(0, 0, 0\)/);
          element(by.css('input[value=\'set color\']')).click();
-         expect(colorSpan.getCssValue('color')).toBe('rgba(255, 0, 0, 1)');
+         expect(colorSpan.getCssValue('color')).toMatch(/rgba\(255, 0, 0, 1\)|rgb\(255, 0, 0\)/);
          element(by.css('input[value=clear]')).click();
-         expect(colorSpan.getCssValue('color')).toBe('rgba(0, 0, 0, 1)');
+         expect(colorSpan.getCssValue('color')).toMatch(/rgba\(0, 0, 0, 1\)|rgb\(0, 0, 0\)/);
        });
      </file>
    </example>
@@ -47302,7 +47367,7 @@ $provide.value("$locale", {
 
 })(window);
 
-!window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
+!window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend(window.angular.element('<style>').text('@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}'));
 
 /**
  * State-based routing for AngularJS 1.x
@@ -65939,382 +66004,373 @@ var Toponym = (function (exports) {
     }
     var allEntryCategories = 1 /* Populated */ | 2 /* Water */ | 4 /* Locality */;
     var MainController = /** @class */ (function () {
-        var MainController = /** @class */ (function () {
-            function MainController($scope, $timeout, $q, service, url) {
-                var _this = this;
-                this.$timeout = $timeout;
-                this.$q = $q;
-                this.service = service;
-                this.url = url;
-                this.loadDelay = 1000;
-                this.groups = [];
-                this.currentGroupIndex = 0;
-                this.entriesShowLimit = null;
-                this.init();
-                $scope.$on('navigate', function () {
-                    _this.onNavigate();
-                });
-                this.onNavigate();
-            }
-            MainController.prototype.init = function () {
-                var queries = this.url.getQueries();
-                if (!queries.length)
-                    queries.push({ value: '', category: allEntryCategories });
-                for (var _i = 0, queries_1 = queries; _i < queries_1.length; _i++) {
-                    var query = queries_1[_i];
-                    this.groups.push({
-                        value: query.value,
-                        category: query.category,
-                        status: 1 /* Success */
-                    });
-                }
-                this.$timeout(function () {
-                    $('input[type=text]')[0].focus();
-                });
-            };
-            MainController.prototype.onNavigate = function () {
-                var _this = this;
-                var _loop_1 = function (group) {
-                    //console.log(`onNavigate: ${group.value}, last: ${group.lastValue}`);
-                    if (group.value === group.lastValue && group.category === group.lastCategory)
-                        return "continue";
-                    if (!group.value) {
-                        group.status = 1 /* Success */;
-                        group.entries = null;
-                        group.lastValue = '';
-                        group.lastCategory = allEntryCategories;
-                        return "continue";
-                    }
-                    var value = group.value;
-                    var category = group.category;
-                    group.isLoading = group.isLoading || 0;
-                    group.isLoading++;
-                    this_1.service
-                        .getEntries(group.value, group.category)
-                        .then(function (response) {
-                        group.lastValue = value;
-                        group.lastCategory = category;
-                        group.status = response.status;
-                        group.entries = response.entries;
-                        group.matchCount = response.matchCount;
-                        _this.entriesShowLimit = 50;
-                        return _this.$timeout();
-                    })
-                        .catch(function () {
-                        group.status = 3 /* Failure */;
-                        group.entries = null;
-                    })
-                        .finally(function () {
-                        _this.entriesShowLimit = null;
-                        if (group.isLoading)
-                            group.isLoading--;
-                    });
-                };
-                var this_1 = this;
-                for (var _i = 0, _a = this.groups; _i < _a.length; _i++) {
-                    var group = _a[_i];
-                    _loop_1(group);
-                }
-            };
-            MainController.prototype.currentGroup = function () {
-                return this.groups[this.currentGroupIndex];
-            };
-            MainController.prototype.onAddGroup = function () {
-                var _this = this;
+        function MainController($scope, $timeout, $q, service, url) {
+            var _this = this;
+            this.$timeout = $timeout;
+            this.$q = $q;
+            this.service = service;
+            this.url = url;
+            this.loadDelay = 1000;
+            this.groups = [];
+            this.currentGroupIndex = 0;
+            this.entriesShowLimit = null;
+            this.init();
+            $scope.$on('navigate', function () {
+                _this.onNavigate();
+            });
+            this.onNavigate();
+        }
+        MainController.prototype.init = function () {
+            var queries = this.url.getQueries();
+            if (!queries.length)
+                queries.push({ value: '', category: allEntryCategories });
+            for (var _i = 0, queries_1 = queries; _i < queries_1.length; _i++) {
+                var query = queries_1[_i];
                 this.groups.push({
-                    value: '',
-                    category: this.groups[this.groups.length - 1].category,
+                    value: query.value,
+                    category: query.category,
                     status: 1 /* Success */
                 });
-                this.$timeout(function () {
-                    var index = _this.groups.length - 1;
-                    $('input[type=text]')[index].focus();
-                });
-            };
-            MainController.prototype.onDeleteGroup = function (index) {
-                checkArgument(index, 'index');
-                var focusIndex = index < this.groups.length - 1 ? index + 1 : index - 1;
-                $('input[type=text]')[focusIndex].focus();
-                this.groups.splice(index, 1);
-                this.url.go(this.groups);
-            };
-            MainController.prototype.onChangeGroupValue = function (group) {
-                var _this = this;
-                checkArgument(group, 'group');
-                //console.log(`onChangeGroupValue: ${group.value}, last: ${group.lastValue}`);
-                this.$timeout.cancel(this.timer);
+            }
+            this.$timeout(function () {
+                $('input[type=text]')[0].focus();
+            });
+        };
+        MainController.prototype.onNavigate = function () {
+            var _this = this;
+            var _loop_1 = function (group) {
+                //console.log(`onNavigate: ${group.value}, last: ${group.lastValue}`);
+                if (group.value === group.lastValue && group.category === group.lastCategory)
+                    return "continue";
                 if (!group.value) {
-                    this.url.go(this.groups);
-                    return;
+                    group.status = 1 /* Success */;
+                    group.entries = null;
+                    group.lastValue = '';
+                    group.lastCategory = allEntryCategories;
+                    return "continue";
                 }
-                this.timer =
-                    this.$timeout(function () {
-                        _this.url.go(_this.groups);
-                    }, this.loadDelay);
-            };
-            MainController.prototype.onSelectGroup = function (index) {
-                var _this = this;
-                checkArgument(index, 'index');
-                if (index === this.currentGroupIndex)
-                    return this.$q.when();
-                $(window).scrollTop(0);
-                var side = $('#side');
-                var transition = side.css('transition');
-                // ReSharper disable once RedundantUnits
-                side.css({ transition: '0s' })
-                    .removeClass("color" + (this.currentGroupIndex + 1))
-                    .addClass("color" + (index + 1));
-                this.currentGroupIndex = index;
-                this.entriesShowLimit = 50;
-                return this.$timeout()
-                    .then(function () {
-                    side.css({ transition: transition });
-                    _this.entriesShowLimit = null;
+                var value = group.value;
+                var category = group.category;
+                group.isLoading = group.isLoading || 0;
+                group.isLoading++;
+                this_1.service
+                    .getEntries(group.value, group.category)
+                    .then(function (response) {
+                    group.lastValue = value;
+                    group.lastCategory = category;
+                    group.status = response.status;
+                    group.entries = response.entries;
+                    group.matchCount = response.matchCount;
+                    _this.entriesShowLimit = 50;
                     return _this.$timeout();
+                })
+                    .catch(function () {
+                    group.status = 3 /* Failure */;
+                    group.entries = null;
+                })
+                    .finally(function () {
+                    _this.entriesShowLimit = null;
+                    if (group.isLoading)
+                        group.isLoading--;
                 });
             };
-            MainController.prototype.isSilentedGroup = function (index) {
-                checkArgument(index, 'index');
-                return this.groups[index] &&
-                    !this.groups[index].isIntensive &&
-                    this.groups.some(function (i) { return i.isIntensive; });
-            };
-            MainController.prototype.isOneAndEmpty = function (index) {
-                checkArgument(index, 'index');
-                return index === 0 && this.groups.length === 1 && !this.groups[0].value;
-            };
-            MainController.prototype.onClickMark = function (entry, groupIndex) {
-                var _this = this;
-                checkArgument(entry, 'entry');
-                checkArgument(groupIndex, 'groupIndex');
-                var windowHeight = $(window).height();
-                if (groupIndex === this.currentGroupIndex) {
+            var this_1 = this;
+            for (var _i = 0, _a = this.groups; _i < _a.length; _i++) {
+                var group = _a[_i];
+                _loop_1(group);
+            }
+        };
+        MainController.prototype.currentGroup = function () {
+            return this.groups[this.currentGroupIndex];
+        };
+        MainController.prototype.onAddGroup = function () {
+            var _this = this;
+            this.groups.push({
+                value: '',
+                category: this.groups[this.groups.length - 1].category,
+                status: 1 /* Success */
+            });
+            this.$timeout(function () {
+                var index = _this.groups.length - 1;
+                $('input[type=text]')[index].focus();
+            });
+        };
+        MainController.prototype.onDeleteGroup = function (index) {
+            checkArgument(index, 'index');
+            var focusIndex = index < this.groups.length - 1 ? index + 1 : index - 1;
+            $('input[type=text]')[focusIndex].focus();
+            this.groups.splice(index, 1);
+            this.url.go(this.groups);
+        };
+        MainController.prototype.onChangeGroupValue = function (group) {
+            var _this = this;
+            checkArgument(group, 'group');
+            //console.log(`onChangeGroupValue: ${group.value}, last: ${group.lastValue}`);
+            this.$timeout.cancel(this.timer);
+            if (!group.value) {
+                this.url.go(this.groups);
+                return;
+            }
+            this.timer =
+                this.$timeout(function () {
+                    _this.url.go(_this.groups);
+                }, this.loadDelay);
+        };
+        MainController.prototype.onSelectGroup = function (index) {
+            var _this = this;
+            checkArgument(index, 'index');
+            if (index === this.currentGroupIndex)
+                return this.$q.when();
+            $(window).scrollTop(0);
+            var side = $('#side');
+            var transition = side.css('transition');
+            // ReSharper disable once RedundantUnits
+            side.css({ transition: '0s' })
+                .removeClass("color" + (this.currentGroupIndex + 1))
+                .addClass("color" + (index + 1));
+            this.currentGroupIndex = index;
+            this.entriesShowLimit = 50;
+            return this.$timeout()
+                .then(function () {
+                side.css({ transition: transition });
+                _this.entriesShowLimit = null;
+                return _this.$timeout();
+            });
+        };
+        MainController.prototype.isSilentedGroup = function (index) {
+            checkArgument(index, 'index');
+            return this.groups[index] &&
+                !this.groups[index].isIntensive &&
+                this.groups.some(function (i) { return i.isIntensive; });
+        };
+        MainController.prototype.isOneAndEmpty = function (index) {
+            checkArgument(index, 'index');
+            return index === 0 && this.groups.length === 1 && !this.groups[0].value;
+        };
+        MainController.prototype.onClickMark = function (entry, groupIndex) {
+            var _this = this;
+            checkArgument(entry, 'entry');
+            checkArgument(groupIndex, 'groupIndex');
+            var windowHeight = $(window).height();
+            if (groupIndex === this.currentGroupIndex) {
+                var entryElement = $('#side .entry.highlight');
+                var entryElementOffset = entryElement.offset();
+                if (!entryElement.length)
+                    throw invalidOperation();
+                if (!entry._isExpanded)
+                    this.onToggleEntry(entry);
+                if (entryElementOffset != null && windowHeight != null)
+                    // "html" для FireFox
+                    $('html, body').animate({
+                        scrollTop: entryElementOffset.top - windowHeight / 2.5
+                    }, 500);
+            }
+            else {
+                this.onSelectGroup(groupIndex)
+                    .then(function () {
                     var entryElement = $('#side .entry.highlight');
                     var entryElementOffset = entryElement.offset();
                     if (!entryElement.length)
                         throw invalidOperation();
                     if (!entry._isExpanded)
-                        this.onToggleEntry(entry);
+                        _this.onToggleEntry(entry);
                     if (entryElementOffset != null && windowHeight != null)
                         // "html" для FireFox
-                        $('html, body').animate({
-                            scrollTop: entryElementOffset.top - windowHeight / 2.5
-                        }, 500);
-                }
-                else {
-                    this.onSelectGroup(groupIndex)
-                        .then(function () {
-                        var entryElement = $('#side .entry.highlight');
-                        var entryElementOffset = entryElement.offset();
-                        if (!entryElement.length)
-                            throw invalidOperation();
-                        if (!entry._isExpanded)
-                            _this.onToggleEntry(entry);
-                        if (entryElementOffset != null && windowHeight != null)
-                            // "html" для FireFox
-                            $('html, body')
-                                .scrollTop(entryElementOffset.top - windowHeight / 2.5);
-                    });
-                }
-            };
-            MainController.prototype.onToggleEntry = function (entry) {
-                checkArgument(entry, 'entry');
-                if (!entry._isExpanded) {
-                    if (this.expandedEntry)
-                        this.expandedEntry._isExpanded = false;
-                    this.expandedEntry = entry;
-                }
-                else
-                    this.expandedEntry = null;
-                entry._isExpanded = !entry._isExpanded;
-            };
-            MainController.prototype.shareFbUrl = function () {
-                return 'https://www.facebook.com/dialog/share?display=popup&app_id=' + exports.fbAppId +
-                    '&href=' + encodeURIComponent(this.canonicalUrl());
-            };
-            MainController.prototype.shareVkUrl = function () {
-                return 'https://vk.com/share.php?url=' + encodeURIComponent(this.canonicalUrl());
-            };
-            MainController.prototype.shareTwUrl = function () {
-                var firstQuery = this.groups[0].value;
-                var text = langText('Смотрите, что есть на карте Беларуси!', 'Глядзіце, што ёсць на карце Беларусі!', 'Look what is on the map of Belarus!');
-                if (firstQuery) {
-                    var count = this.groups[0].matchCount || 0;
-                    var found = langText(rusCase(count, ['топоним', 'топонима', 'топонимов']), rusCase(count, ['тапонім', 'тапоніма', 'тапонімаў']), count + (count === 1 ? ' toponym' : ' toponyms')) + (" \"" + firstQuery + "\"");
-                    var textRu = rusCase(count, ['Найден', 'Найдено', 'Найдено'], false /* includeNumber */) +
-                        (" " + found + " \u043D\u0430 \u043A\u0430\u0440\u0442\u0435 \u0411\u0435\u043B\u0430\u0440\u0443\u0441\u0438.");
-                    var textBe = rusCase(count, ['Знойдзены', 'Знойдзена', 'Знойдзена'], false /* includeNumber */) +
-                        (" " + found + " \u043D\u0430 \u043A\u0430\u0440\u0446\u0435 \u0411\u0435\u043B\u0430\u0440\u0443\u0441\u0456.");
-                    text = langText(textRu, textBe, "Found " + found + " on the map Belarus.");
-                }
-                var tags = langText('#топоним #топонимика #беларусь #белоруссия', '#топоним #топонимика #беларусь #белоруссия', '#toponym #toponymy #belarus #belorussia');
-                return 'https://twitter.com/intent/tweet?text=' +
-                    encodeURIComponent(text + '\n\n' + this.canonicalUrl() + '\n' + tags);
-            };
-            MainController.prototype.canonicalUrl = function () {
-                return 'https://' + exports.defaultHost + window.location.pathname + window.location.search;
-            };
-            MainController.prototype.onClickShareButton = function ($event, suffix) {
-                checkArgument($event, '$event');
-                checkArgument(suffix, 'suffix');
-                $event.preventDefault();
-                window.open($event.currentTarget.href, 'share_' + suffix, 'width=600, height=400');
-            };
-            MainController.prototype.onSetValue = function (value) {
-                checkArgument(value, 'value');
-                this.groups[this.currentGroupIndex].value = value;
-                this.url.go(this.groups);
-                $('input[type=text]')[this.currentGroupIndex].focus();
-            };
-            MainController.prototype.onReset = function () {
-                this.groups.splice(1);
-                this.groups[0].value = '';
-                this.groups[0].category = allEntryCategories;
-                this.url.go(this.groups);
-                $('input[type=text]')[0].focus();
-            };
-            MainController.prototype.isReseted = function () {
-                return this.groups.length === 1 &&
-                    !this.groups[0].value &&
-                    this.groups[0].category === allEntryCategories;
-            };
-            MainController.prototype.isQueryEmpty = function () {
-                var group = this.currentGroup();
-                return group && group.status === 1 /* Success */ && !group.entries;
-            };
-            MainController.prototype.isNoEntriesFound = function () {
-                var group = this.currentGroup();
-                return group &&
-                    group.status === 1 /* Success */ &&
-                    !!group.entries &&
-                    !group.entries.length;
-            };
-            MainController.prototype.isQuerySyntaxError = function () {
-                var group = this.currentGroup();
-                return group && group.status === 2 /* SyntaxError */;
-            };
-            MainController.prototype.isServerError = function () {
-                var group = this.currentGroup();
-                return group && group.status === 3 /* Failure */;
-            };
-            MainController.prototype.isCuttedList = function () {
-                var group = this.currentGroup();
-                return !!group.entries && group.entries.length < group.matchCount;
-            };
-            MainController.prototype.isShowPopulated = function () {
-                return Boolean(this.currentGroup().category & 1 /* Populated */);
-            };
-            MainController.prototype.isShowWater = function () {
-                return Boolean(this.currentGroup().category & 2 /* Water */);
-            };
-            MainController.prototype.isShowLocality = function () {
-                return Boolean(this.currentGroup().category & 4 /* Locality */);
-            };
-            MainController.prototype.onClickShowPopulated = function (event) {
-                this.onClickShowCategory(event, 1 /* Populated */);
-            };
-            MainController.prototype.onClickShowWater = function (event) {
-                this.onClickShowCategory(event, 2 /* Water */);
-            };
-            MainController.prototype.onClickShowLocality = function (event) {
-                this.onClickShowCategory(event, 4 /* Locality */);
-            };
-            MainController.prototype.onClickShowCategory = function (event, category) {
-                checkArgument(event, 'event');
-                var isChecked = event.currentTarget.checked;
-                var currentCategory = this.currentGroup().category;
-                var newCategory = isChecked ? currentCategory + category : currentCategory - category;
-                if (!newCategory)
-                    newCategory = allEntryCategories - category;
-                this.currentGroup().category = newCategory;
-                $(window).scrollTop(0);
-                this.url.go(this.groups);
-            };
-            return MainController;
-        }());
-        MainController.$inject = ['$scope', '$timeout', '$q', 'service', 'url'];
+                        $('html, body')
+                            .scrollTop(entryElementOffset.top - windowHeight / 2.5);
+                });
+            }
+        };
+        MainController.prototype.onToggleEntry = function (entry) {
+            checkArgument(entry, 'entry');
+            if (!entry._isExpanded) {
+                if (this.expandedEntry)
+                    this.expandedEntry._isExpanded = false;
+                this.expandedEntry = entry;
+            }
+            else
+                this.expandedEntry = null;
+            entry._isExpanded = !entry._isExpanded;
+        };
+        MainController.prototype.shareFbUrl = function () {
+            return 'https://www.facebook.com/dialog/share?display=popup&app_id=' + exports.fbAppId +
+                '&href=' + encodeURIComponent(this.canonicalUrl());
+        };
+        MainController.prototype.shareVkUrl = function () {
+            return 'https://vk.com/share.php?url=' + encodeURIComponent(this.canonicalUrl());
+        };
+        MainController.prototype.shareTwUrl = function () {
+            var firstQuery = this.groups[0].value;
+            var text = langText('Смотрите, что есть на карте Беларуси!', 'Глядзіце, што ёсць на карце Беларусі!', 'Look what is on the map of Belarus!');
+            if (firstQuery) {
+                var count = this.groups[0].matchCount || 0;
+                var found = langText(rusCase(count, ['топоним', 'топонима', 'топонимов']), rusCase(count, ['тапонім', 'тапоніма', 'тапонімаў']), count + (count === 1 ? ' toponym' : ' toponyms')) + (" \"" + firstQuery + "\"");
+                var textRu = rusCase(count, ['Найден', 'Найдено', 'Найдено'], false /* includeNumber */) +
+                    (" " + found + " \u043D\u0430 \u043A\u0430\u0440\u0442\u0435 \u0411\u0435\u043B\u0430\u0440\u0443\u0441\u0438.");
+                var textBe = rusCase(count, ['Знойдзены', 'Знойдзена', 'Знойдзена'], false /* includeNumber */) +
+                    (" " + found + " \u043D\u0430 \u043A\u0430\u0440\u0446\u0435 \u0411\u0435\u043B\u0430\u0440\u0443\u0441\u0456.");
+                text = langText(textRu, textBe, "Found " + found + " on the map Belarus.");
+            }
+            var tags = langText('#топоним #топонимика #беларусь #белоруссия', '#топоним #топонимика #беларусь #белоруссия', '#toponym #toponymy #belarus #belorussia');
+            return 'https://twitter.com/intent/tweet?text=' +
+                encodeURIComponent(text + '\n\n' + this.canonicalUrl() + '\n' + tags);
+        };
+        MainController.prototype.canonicalUrl = function () {
+            return 'https://' + exports.defaultHost + window.location.pathname + window.location.search;
+        };
+        MainController.prototype.onClickShareButton = function ($event, suffix) {
+            checkArgument($event, '$event');
+            checkArgument(suffix, 'suffix');
+            $event.preventDefault();
+            window.open($event.currentTarget.href, 'share_' + suffix, 'width=600, height=400');
+        };
+        MainController.prototype.onSetValue = function (value) {
+            checkArgument(value, 'value');
+            this.groups[this.currentGroupIndex].value = value;
+            this.url.go(this.groups);
+            $('input[type=text]')[this.currentGroupIndex].focus();
+        };
+        MainController.prototype.onReset = function () {
+            this.groups.splice(1);
+            this.groups[0].value = '';
+            this.groups[0].category = allEntryCategories;
+            this.url.go(this.groups);
+            $('input[type=text]')[0].focus();
+        };
+        MainController.prototype.isReseted = function () {
+            return this.groups.length === 1 &&
+                !this.groups[0].value &&
+                this.groups[0].category === allEntryCategories;
+        };
+        MainController.prototype.isQueryEmpty = function () {
+            var group = this.currentGroup();
+            return group && group.status === 1 /* Success */ && !group.entries;
+        };
+        MainController.prototype.isNoEntriesFound = function () {
+            var group = this.currentGroup();
+            return group &&
+                group.status === 1 /* Success */ &&
+                !!group.entries &&
+                !group.entries.length;
+        };
+        MainController.prototype.isQuerySyntaxError = function () {
+            var group = this.currentGroup();
+            return group && group.status === 2 /* SyntaxError */;
+        };
+        MainController.prototype.isServerError = function () {
+            var group = this.currentGroup();
+            return group && group.status === 3 /* Failure */;
+        };
+        MainController.prototype.isCuttedList = function () {
+            var group = this.currentGroup();
+            return !!group.entries && group.entries.length < group.matchCount;
+        };
+        MainController.prototype.isShowPopulated = function () {
+            return Boolean(this.currentGroup().category & 1 /* Populated */);
+        };
+        MainController.prototype.isShowWater = function () {
+            return Boolean(this.currentGroup().category & 2 /* Water */);
+        };
+        MainController.prototype.isShowLocality = function () {
+            return Boolean(this.currentGroup().category & 4 /* Locality */);
+        };
+        MainController.prototype.onClickShowPopulated = function (event) {
+            this.onClickShowCategory(event, 1 /* Populated */);
+        };
+        MainController.prototype.onClickShowWater = function (event) {
+            this.onClickShowCategory(event, 2 /* Water */);
+        };
+        MainController.prototype.onClickShowLocality = function (event) {
+            this.onClickShowCategory(event, 4 /* Locality */);
+        };
+        MainController.prototype.onClickShowCategory = function (event, category) {
+            checkArgument(event, 'event');
+            var isChecked = event.currentTarget.checked;
+            var currentCategory = this.currentGroup().category;
+            var newCategory = isChecked ? currentCategory + category : currentCategory - category;
+            if (!newCategory)
+                newCategory = allEntryCategories - category;
+            this.currentGroup().category = newCategory;
+            $(window).scrollTop(0);
+            this.url.go(this.groups);
+        };
         return MainController;
-    })();
+    }());
+    MainController.$inject = ['$scope', '$timeout', '$q', 'service', 'url'];
     var Service = /** @class */ (function () {
-        var Service = /** @class */ (function () {
-            function Service($http, $q) {
-                this.$http = $http;
-                this.$q = $q;
-            }
-            Service.prototype.getEntries = function (query, category) {
-                var _this = this;
-                checkArgument(query, 'query');
-                return this.$http
-                    .post('/xhr/entries', { query: query, category: category, language: exports.language })
-                    .then(function (callback) {
-                    var response = callback.data;
-                    if (!response || response.status === 3 /* Failure */)
-                        return _this.$q.reject();
-                    if (response.entries)
-                        for (var _i = 0, _a = response.entries; _i < _a.length; _i++) {
-                            var entry = _a[_i];
-                            _this.initLocal(entry);
-                        }
-                    return response;
-                });
-            };
-            Service.prototype.initLocal = function (entry) {
-                var type = entry.type;
-                if (type >= 10 /* Populated */ && type < 20 /* Water */)
-                    entry._categoryClass = 'populated';
-                else if (type >= 20 /* Water */ && type < 30 /* Locality */)
-                    entry._categoryClass = 'water';
-                else if (type >= 30 /* Locality */)
-                    entry._categoryClass = 'locality';
-            };
-            return Service;
-        }());
-        Service.$inject = ['$http', '$q'];
+        function Service($http, $q) {
+            this.$http = $http;
+            this.$q = $q;
+        }
+        Service.prototype.getEntries = function (query, category) {
+            var _this = this;
+            checkArgument(query, 'query');
+            return this.$http
+                .post('/xhr/entries', { query: query, category: category, language: exports.language })
+                .then(function (callback) {
+                var response = callback.data;
+                if (!response || response.status === 3 /* Failure */)
+                    return _this.$q.reject();
+                if (response.entries)
+                    for (var _i = 0, _a = response.entries; _i < _a.length; _i++) {
+                        var entry = _a[_i];
+                        _this.initLocal(entry);
+                    }
+                return response;
+            });
+        };
+        Service.prototype.initLocal = function (entry) {
+            var type = entry.type;
+            if (type >= 10 /* Populated */ && type < 20 /* Water */)
+                entry._categoryClass = 'populated';
+            else if (type >= 20 /* Water */ && type < 30 /* Locality */)
+                entry._categoryClass = 'water';
+            else if (type >= 30 /* Locality */)
+                entry._categoryClass = 'locality';
+        };
         return Service;
-    })();
+    }());
+    Service.$inject = ['$http', '$q'];
     var UrlHelper = /** @class */ (function () {
-        var UrlHelper = /** @class */ (function () {
-            function UrlHelper($state, $rootScope) {
-                this.$state = $state;
-                $rootScope.$on('$locationChangeSuccess', function () {
-                    $rootScope.$broadcast('navigate');
-                });
+        function UrlHelper($state, $rootScope) {
+            this.$state = $state;
+            $rootScope.$on('$locationChangeSuccess', function () {
+                $rootScope.$broadcast('navigate');
+            });
+        }
+        UrlHelper.prototype.getParams = function () {
+            return this.$state.params;
+        };
+        UrlHelper.prototype.getQueries = function () {
+            var params = this.getParams();
+            var result = [];
+            var found = false;
+            for (var i = 5; i > 0; i--) {
+                var value = params['q' + i];
+                if (!value && !found)
+                    continue;
+                found = true;
+                var category = +params['t' + i];
+                if (!category || category <= 0 || category > allEntryCategories)
+                    category = allEntryCategories;
+                result.unshift({ value: value || '', category: category });
             }
-            UrlHelper.prototype.getParams = function () {
-                return this.$state.params;
-            };
-            UrlHelper.prototype.getQueries = function () {
-                var params = this.getParams();
-                var result = [];
-                var found = false;
-                for (var i = 5; i > 0; i--) {
-                    var value = params['q' + i];
-                    if (!value && !found)
-                        continue;
-                    found = true;
-                    var category = +params['t' + i];
-                    if (!category || category <= 0 || category > allEntryCategories)
-                        category = allEntryCategories;
-                    result.unshift({ value: value || '', category: category });
-                }
-                return result;
-            };
-            UrlHelper.prototype.go = function (groups) {
-                checkArgument(groups, 'groups');
-                var params = {};
-                for (var i = 0; i < 5; i++) {
-                    var group = groups[i];
-                    var showCategoryOnUrl = group && group.category && group.category != allEntryCategories;
-                    params['q' + (i + 1)] = group ? group.value : null;
-                    params['t' + (i + 1)] = showCategoryOnUrl ? group.category : null;
-                }
-                this.$state.go('app.queries', params);
-            };
-            return UrlHelper;
-        }());
-        UrlHelper.$inject = ['$state', '$rootScope'];
+            return result;
+        };
+        UrlHelper.prototype.go = function (groups) {
+            checkArgument(groups, 'groups');
+            var params = {};
+            for (var i = 0; i < 5; i++) {
+                var group = groups[i];
+                var showCategoryOnUrl = group && group.category && group.category != allEntryCategories;
+                params['q' + (i + 1)] = group ? group.value : null;
+                params['t' + (i + 1)] = showCategoryOnUrl ? group.category : null;
+            }
+            this.$state.go('app.queries', params);
+        };
         return UrlHelper;
-    })();
+    }());
+    UrlHelper.$inject = ['$state', '$rootScope'];
     function startup(options) {
         exports.defaultHost = options.defaultHost;
         exports.language = options.language;
