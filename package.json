@@ -27,7 +27,7 @@
     "@types/angular-ui-router": "^1.1.40",
     "@types/bootstrap": "^3.4.0",
     "@types/jquery": "^3.3.38",
-    "browser-sync": "^2.26.7",
+    "browser-sync": "^2.26.12",
     "fs-extra": "^9.0.1",
     "gulp": "^4.0.2",
     "gulp-clean-css": "^4.3.0",
