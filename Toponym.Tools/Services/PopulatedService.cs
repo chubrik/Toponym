@@ -10,47 +10,45 @@ namespace Toponym.Tools
 {
     public static class PopulatedService
     {
-        public static List<EntryData> Build()
-        {
-            LogService.BeginInfo("Build populated");
-
-            var response = GeoService.Load(
-                "populated",
-                i => ((i.Tags.ContainsKey("place") && !i.Tags.Contains("place", "locality")) ||
-                      i.Tags.ContainsKey("old_place") ||
-                      i.Tags.ContainsKey("abandoned:place") ||
-                      i.Tags.Contains("landuse", "residential")) &&
-                     GeoHelper.TitleRu(i) != null);
-
-            var geos = response.RootObjects().ToList();
-            var rejectedByType = geos.Where(i => !FilterByType(i)).ToList();
-            HtmlHelper.Write("populated-rejected-by-type", rejectedByType);
-
-            var filteredByType = geos.Where(FilterByType).ToList();
-            var rejectedByName = filteredByType.Where(i => !FilterByName(i)).ToList();
-            HtmlHelper.Write("populated-rejected-by-name", rejectedByName);
-
-            var proceeded = filteredByType.Where(FilterByName).Select(Proceed).ToList();
-            var nodes = proceeded.Where(i => i.Type == OsmGeoType.Node).Select(i => (NodeObject)i).ToList();
-            var result = proceeded.Where(i => i.Type != OsmGeoType.Node).ToList();
-            var areasByTitle = result.ToLookup(i => i.TitleRu());
-
-            foreach (var node in nodes)
+        public static List<EntryData> Build() =>
+            LogService.InfoSuccess("Build populated", () =>
             {
-                var title = node.TitleRu();
-                var areas = areasByTitle[title];
+                var response = GeoService.Load(
+                    "populated",
+                    i => ((i.Tags.ContainsKey("place") && !i.Tags.Contains("place", "locality")) ||
+                          i.Tags.ContainsKey("old_place") ||
+                          i.Tags.ContainsKey("abandoned:place") ||
+                          i.Tags.Contains("landuse", "residential")) &&
+                         GeoHelper.TitleRu(i) != null);
 
-                if (areas.All(i => !IsInside(i, node)))
-                    result.Add(node);
-            }
-            //HtmlHelper.Write("populated", result);
+                var geos = response.RootObjects().ToList();
+                var rejectedByType = geos.Where(i => !FilterByType(i)).ToList();
+                HtmlHelper.Write("populated-rejected-by-type", rejectedByType);
 
-            var data = result.Select(GetEntryData).ToSortedList();
-            FixMinskCenter(data);
-            JsonFileClient.Write(Constants.PopulatedDataPath, data);
-            LogService.EndSuccess("Build populated");
-            return data;
-        }
+                var filteredByType = geos.Where(FilterByType).ToList();
+                var rejectedByName = filteredByType.Where(i => !FilterByName(i)).ToList();
+                HtmlHelper.Write("populated-rejected-by-name", rejectedByName);
+
+                var proceeded = filteredByType.Where(FilterByName).Select(Proceed).ToList();
+                var nodes = proceeded.Where(i => i.Type == OsmGeoType.Node).Select(i => (NodeObject)i).ToList();
+                var result = proceeded.Where(i => i.Type != OsmGeoType.Node).ToList();
+                var areasByTitle = result.ToLookup(i => i.TitleRu());
+
+                foreach (var node in nodes)
+                {
+                    var title = node.TitleRu();
+                    var areas = areasByTitle[title];
+
+                    if (areas.All(i => !IsInside(i, node)))
+                        result.Add(node);
+                }
+                //HtmlHelper.Write("populated", result);
+
+                var data = result.Select(GetEntryData).ToSortedList();
+                FixMinskCenter(data);
+                FileClient.WriteObject(Constants.PopulatedDataPath, data);
+                return data;
+            });
 
         private static bool FilterByType(GeoObject geo)
         {

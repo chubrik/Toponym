@@ -10,34 +10,32 @@ namespace Toponym.Tools
 {
     public static class WaterService
     {
-        public static List<EntryData> Build()
-        {
-            LogService.BeginInfo("Build waters");
+        public static List<EntryData> Build() =>
+            LogService.InfoSuccess("Build waters", () =>
+            {
+                var response = GeoService.Load(
+                    "waters",
+                    i => i.Tags.Contains("natural", "water") &&
+                         !i.Tags.Contains("water", "river") &&
+                         !i.Tags.Contains("waterway", "river") &&
+                         !i.Tags.Contains("water", "riverbank") &&
+                         !i.Tags.Contains("waterway", "riverbank") &&
+                         !i.Tags.Contains("waterway", "stream") &&
+                         GeoHelper.TitleRu(i) != null);
 
-            var response = GeoService.Load(
-                "waters",
-                i => i.Tags.Contains("natural", "water") &&
-                     !i.Tags.Contains("water", "river") &&
-                     !i.Tags.Contains("waterway", "river") &&
-                     !i.Tags.Contains("water", "riverbank") &&
-                     !i.Tags.Contains("waterway", "riverbank") &&
-                     !i.Tags.Contains("waterway", "stream") &&
-                     GeoHelper.TitleRu(i) != null);
+                var geos = response.RootObjects().Where(i => i.Type != OsmGeoType.Node).ToList();
+                var rejected = geos.Where(i => !Filter(i)).ToList();
+                HtmlHelper.Write("waters-rejected", rejected);
 
-            var geos = response.RootObjects().Where(i => i.Type != OsmGeoType.Node).ToList();
-            var rejected = geos.Where(i => !Filter(i)).ToList();
-            HtmlHelper.Write("waters-rejected", rejected);
+                var proceeded = geos.Where(Filter).Select(Proceed).ToList();
+                HtmlHelper.Write("waters", proceeded.Where(i => i.EntryType() == EntryType.Water));
+                HtmlHelper.Write("lakes", proceeded.Where(i => i.EntryType() == EntryType.Lake));
+                HtmlHelper.Write("ponds", proceeded.Where(i => i.EntryType() == EntryType.Pond));
 
-            var proceeded = geos.Where(Filter).Select(Proceed).ToList();
-            HtmlHelper.Write("waters", proceeded.Where(i => i.EntryType() == EntryType.Water));
-            HtmlHelper.Write("lakes", proceeded.Where(i => i.EntryType() == EntryType.Lake));
-            HtmlHelper.Write("ponds", proceeded.Where(i => i.EntryType() == EntryType.Pond));
-
-            var data = proceeded.Select(i => i.ToEntryDataAsPoint(i.EntryType())).ToSortedList();
-            JsonFileClient.Write(Constants.WatersDataPath, data);
-            LogService.EndSuccess("Build waters");
-            return data;
-        }
+                var data = proceeded.Select(i => i.ToEntryDataAsPoint(i.EntryType())).ToSortedList();
+                FileClient.WriteObject(Constants.WatersDataPath, data);
+                return data;
+            });
 
         #region Filter
 

@@ -6,8 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Kit.Json" Version="1.7.1" />
-    <PackageReference Include="OsmDataKit" Version="3.0.2" />
+    <PackageReference Include="OsmDataKit" Version="3.0.3" />
   </ItemGroup>
 
   <ItemGroup>

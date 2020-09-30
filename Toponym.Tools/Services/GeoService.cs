@@ -20,38 +20,38 @@ namespace Toponym.Tools
             var response = OsmService.LoadCompleteObjects(
                 sourcePath ?? Constants.OsmNewSourcePath, cacheName, predicate);
 
-            LogService.Begin("Set titles");
-
-            foreach (var geo in response.AllObjects())
+            return LogService.Log("Set titles", () =>
             {
-                var titleRu = GeoHelper.TitleRu(geo);
-                var titleBe = GeoHelper.TitleBe(geo);
-                geo.SetTitleRu(titleRu);
-                geo.SetTitleBe(titleBe);
-            }
-
-            foreach (var relation in response.RootRelations.Where(i => i.TitleBe() == null))
-            {
-                var label = relation.Members.FirstOrDefault(i => i.Role == "label");
-
-                if (label != null)
+                foreach (var geo in response.AllObjects())
                 {
-                    var labelTitleBe = label.Geo.TitleBe();
-
-                    if (labelTitleBe != null)
-                        relation.SetTitleBe(labelTitleBe);
+                    var titleRu = GeoHelper.TitleRu(geo);
+                    var titleBe = GeoHelper.TitleBe(geo);
+                    geo.SetTitleRu(titleRu);
+                    geo.SetTitleBe(titleBe);
                 }
-            }
 
-            GeoObject.StringFormatter = geo =>
-            {
-                var titleRu = geo.TitleRu();
-                var titleBe = geo.TitleBe();
-                return titleBe != null ? titleRu + " / " + titleBe : titleRu;
-            };
+                foreach (var relation in response.RootRelations.Where(i => i.TitleBe() == null))
+                {
+                    var label = relation.Members.FirstOrDefault(i => i.Role == "label");
 
-            LogService.End("Set titles");
-            return response;
+                    if (label != null)
+                    {
+                        var labelTitleBe = label.Geo.TitleBe();
+
+                        if (labelTitleBe != null)
+                            relation.SetTitleBe(labelTitleBe);
+                    }
+                }
+
+                GeoObject.StringFormatter = geo =>
+                {
+                    var titleRu = geo.TitleRu();
+                    var titleBe = geo.TitleBe();
+                    return titleBe != null ? titleRu + " / " + titleBe : titleRu;
+                };
+
+                return response;
+            });
         }
     }
 }

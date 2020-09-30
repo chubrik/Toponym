@@ -10,27 +10,25 @@ namespace Toponym.Tools
 {
     public static class LocalityService
     {
-        public static List<EntryData> Build()
-        {
-            LogService.BeginInfo("Build localities");
+        public static List<EntryData> Build() =>
+            LogService.InfoSuccess("Build localities", () =>
+            {
+                var response = GeoService.Load(
+                    "localities",
+                    i => i.Tags.Contains("place", "locality") &&
+                    GeoHelper.TitleRu(i) != null);
 
-            var response = GeoService.Load(
-                "localities",
-                i => i.Tags.Contains("place", "locality") &&
-                GeoHelper.TitleRu(i) != null);
+                var geos = response.RootObjects().ToList();
+                var rejected = geos.Where(i => !Filter(i)).ToList();
+                HtmlHelper.Write("localities-rejected", rejected);
 
-            var geos = response.RootObjects().ToList();
-            var rejected = geos.Where(i => !Filter(i)).ToList();
-            HtmlHelper.Write("localities-rejected", rejected);
+                var proceeded = geos.Where(Filter).Select(Proceed).ToList();
+                //HtmlHelper.Write("localities", proceeded);
 
-            var proceeded = geos.Where(Filter).Select(Proceed).ToList();
-            //HtmlHelper.Write("localities", proceeded);
-
-            var data = proceeded.Select(GetEntryData).ToSortedList();
-            JsonFileClient.Write(Constants.LocalitiesDataPath, data);
-            LogService.EndSuccess("Build populated");
-            return data;
-        }
+                var data = proceeded.Select(GetEntryData).ToSortedList();
+                FileClient.WriteObject(Constants.LocalitiesDataPath, data);
+                return data;
+            });
 
         private static bool Filter(GeoObject geo)
         {

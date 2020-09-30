@@ -18,7 +18,7 @@ namespace Toponym.Tools
                         $"target=\"_blank\">{geo.TitleRu()}</a><br>\n";
 
             html += "<div>";
-            FileClient.Write($"{title}.html", html);
+            FileClient.WriteText($"{title}.html", html);
         }
 
         public static void Write(string title, IEnumerable<EntryData> data)
@@ -48,7 +48,7 @@ namespace Toponym.Tools
 
             sb.AppendLine("</table>");
             var html = sb.ToString();
-            FileClient.Write($"{title}.html", html);
+            FileClient.WriteText($"{title}.html", html);
         }
 
         public static void Write(string title, IEnumerable<(EntryData, EntryData)> data)
@@ -83,7 +83,7 @@ namespace Toponym.Tools
 
             sb.AppendLine("</table>");
             var html = sb.ToString();
-            FileClient.Write($"{title}.html", html);
+            FileClient.WriteText($"{title}.html", html);
         }
     }
 }
