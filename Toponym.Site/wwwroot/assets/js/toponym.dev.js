@@ -1,5 +1,5 @@
 /*!
- * jQuery JavaScript Library v3.4.1
+ * jQuery JavaScript Library v3.5.1
  * https://jquery.com/
  *
  * Includes Sizzle.js
@@ -9,7 +9,7 @@
  * Released under the MIT license
  * https://jquery.org/license
  *
- * Date: 2019-05-01T21:04Z
+ * Date: 2020-05-04T22:49Z
  */
 ( function( global, factory ) {
 
@@ -47,13 +47,16 @@
 
 var arr = [];
 
-var document = window.document;
-
 var getProto = Object.getPrototypeOf;
 
 var slice = arr.slice;
 
-var concat = arr.concat;
+var flat = arr.flat ? function( array ) {
+	return arr.flat.call( array );
+} : function( array ) {
+	return arr.concat.apply( [], array );
+};
+
 
 var push = arr.push;
 
@@ -85,6 +88,8 @@ var isWindow = function isWindow( obj ) {
 		return obj != null && obj === obj.window;
 	};
 
+
+var document = window.document;
 
 
 
@@ -142,7 +147,7 @@ function toType( obj ) {
 
 
 var
-	version = "3.4.1",
+	version = "3.5.1",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -150,11 +155,7 @@ var
 		// The jQuery object is actually just the init constructor 'enhanced'
 		// Need init if jQuery is called (just allow error to be thrown if not included)
 		return new jQuery.fn.init( selector, context );
-	},
-
-	// Support: Android <=4.0 only
-	// Make sure we trim BOM and NBSP
-	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+	};
 
 jQuery.fn = jQuery.prototype = {
 
@@ -218,6 +219,18 @@ jQuery.fn = jQuery.prototype = {
 
 	last: function() {
 		return this.eq( -1 );
+	},
+
+	even: function() {
+		return this.pushStack( jQuery.grep( this, function( _elem, i ) {
+			return ( i + 1 ) % 2;
+		} ) );
+	},
+
+	odd: function() {
+		return this.pushStack( jQuery.grep( this, function( _elem, i ) {
+			return i % 2;
+		} ) );
 	},
 
 	eq: function( i ) {
@@ -353,9 +366,10 @@ jQuery.extend( {
 		return true;
 	},
 
-	// Evaluates a script in a global context
-	globalEval: function( code, options ) {
-		DOMEval( code, { nonce: options && options.nonce } );
+	// Evaluates a script in a provided context; falls back to the global one
+	// if not specified.
+	globalEval: function( code, options, doc ) {
+		DOMEval( code, { nonce: options && options.nonce }, doc );
 	},
 
 	each: function( obj, callback ) {
@@ -377,13 +391,6 @@ jQuery.extend( {
 		}
 
 		return obj;
-	},
-
-	// Support: Android <=4.0 only
-	trim: function( text ) {
-		return text == null ?
-			"" :
-			( text + "" ).replace( rtrim, "" );
 	},
 
 	// results is for internal usage only
@@ -472,7 +479,7 @@ jQuery.extend( {
 		}
 
 		// Flatten any nested arrays
-		return concat.apply( [], ret );
+		return flat( ret );
 	},
 
 	// A global GUID counter for objects
@@ -489,7 +496,7 @@ if ( typeof Symbol === "function" ) {
 
 // Populate the class2type map
 jQuery.each( "Boolean Number String Function Array Date RegExp Object Error Symbol".split( " " ),
-function( i, name ) {
+function( _i, name ) {
 	class2type[ "[object " + name + "]" ] = name.toLowerCase();
 } );
 
@@ -511,17 +518,16 @@ function isArrayLike( obj ) {
 }
 var Sizzle =
 /*!
- * Sizzle CSS Selector Engine v2.3.4
+ * Sizzle CSS Selector Engine v2.3.5
  * https://sizzlejs.com/
  *
  * Copyright JS Foundation and other contributors
  * Released under the MIT license
  * https://js.foundation/
  *
- * Date: 2019-04-08
+ * Date: 2020-03-14
  */
-(function( window ) {
-
+( function( window ) {
 var i,
 	support,
 	Expr,
@@ -561,59 +567,70 @@ var i,
 	},
 
 	// Instance methods
-	hasOwn = ({}).hasOwnProperty,
+	hasOwn = ( {} ).hasOwnProperty,
 	arr = [],
 	pop = arr.pop,
-	push_native = arr.push,
+	pushNative = arr.push,
 	push = arr.push,
 	slice = arr.slice,
+
 	// Use a stripped-down indexOf as it's faster than native
 	// https://jsperf.com/thor-indexof-vs-for/5
 	indexOf = function( list, elem ) {
 		var i = 0,
 			len = list.length;
 		for ( ; i < len; i++ ) {
-			if ( list[i] === elem ) {
+			if ( list[ i ] === elem ) {
 				return i;
 			}
 		}
 		return -1;
 	},
 
-	booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|loop|multiple|open|readonly|required|scoped",
+	booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|" +
+		"ismap|loop|multiple|open|readonly|required|scoped",
 
 	// Regular expressions
 
 	// http://www.w3.org/TR/css3-selectors/#whitespace
 	whitespace = "[\\x20\\t\\r\\n\\f]",
 
-	// http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
-	identifier = "(?:\\\\.|[\\w-]|[^\0-\\xa0])+",
+	// https://www.w3.org/TR/css-syntax-3/#ident-token-diagram
+	identifier = "(?:\\\\[\\da-fA-F]{1,6}" + whitespace +
+		"?|\\\\[^\\r\\n\\f]|[\\w-]|[^\0-\\x7f])+",
 
 	// Attribute selectors: http://www.w3.org/TR/selectors/#attribute-selectors
 	attributes = "\\[" + whitespace + "*(" + identifier + ")(?:" + whitespace +
+
 		// Operator (capture 2)
 		"*([*^$|!~]?=)" + whitespace +
-		// "Attribute values must be CSS identifiers [capture 5] or strings [capture 3 or capture 4]"
-		"*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|(" + identifier + "))|)" + whitespace +
-		"*\\]",
+
+		// "Attribute values must be CSS identifiers [capture 5]
+		// or strings [capture 3 or capture 4]"
+		"*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|(" + identifier + "))|)" +
+		whitespace + "*\\]",
 
 	pseudos = ":(" + identifier + ")(?:\\((" +
+
 		// To reduce the number of selectors needing tokenize in the preFilter, prefer arguments:
 		// 1. quoted (capture 3; capture 4 or capture 5)
 		"('((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\")|" +
+
 		// 2. simple (capture 6)
 		"((?:\\\\.|[^\\\\()[\\]]|" + attributes + ")*)|" +
+
 		// 3. anything else (capture 2)
 		".*" +
 		")\\)|)",
 
 	// Leading and non-escaped trailing whitespace, capturing some non-whitespace characters preceding the latter
 	rwhitespace = new RegExp( whitespace + "+", "g" ),
-	rtrim = new RegExp( "^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$", "g" ),
+	rtrim = new RegExp( "^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" +
+		whitespace + "+$", "g" ),
 
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
-	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*" ),
+	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace +
+		"*" ),
 	rdescend = new RegExp( whitespace + "|>" ),
 
 	rpseudo = new RegExp( pseudos ),
@@ -625,14 +642,16 @@ var i,
 		"TAG": new RegExp( "^(" + identifier + "|[*])" ),
 		"ATTR": new RegExp( "^" + attributes ),
 		"PSEUDO": new RegExp( "^" + pseudos ),
-		"CHILD": new RegExp( "^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\(" + whitespace +
-			"*(even|odd|(([+-]|)(\\d*)n|)" + whitespace + "*(?:([+-]|)" + whitespace +
-			"*(\\d+)|))" + whitespace + "*\\)|)", "i" ),
+		"CHILD": new RegExp( "^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\(" +
+			whitespace + "*(even|odd|(([+-]|)(\\d*)n|)" + whitespace + "*(?:([+-]|)" +
+			whitespace + "*(\\d+)|))" + whitespace + "*\\)|)", "i" ),
 		"bool": new RegExp( "^(?:" + booleans + ")$", "i" ),
+
 		// For use in libraries implementing .is()
 		// We use this for POS matching in `select`
-		"needsContext": new RegExp( "^" + whitespace + "*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\(" +
-			whitespace + "*((?:-\\d)?\\d*)" + whitespace + "*\\)|)(?=[^-]|$)", "i" )
+		"needsContext": new RegExp( "^" + whitespace +
+			"*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\(" + whitespace +
+			"*((?:-\\d)?\\d*)" + whitespace + "*\\)|)(?=[^-]|$)", "i" )
 	},
 
 	rhtml = /HTML$/i,
@@ -648,18 +667,21 @@ var i,
 
 	// CSS escapes
 	// http://www.w3.org/TR/CSS21/syndata.html#escaped-characters
-	runescape = new RegExp( "\\\\([\\da-f]{1,6}" + whitespace + "?|(" + whitespace + ")|.)", "ig" ),
-	funescape = function( _, escaped, escapedWhitespace ) {
-		var high = "0x" + escaped - 0x10000;
-		// NaN means non-codepoint
-		// Support: Firefox<24
-		// Workaround erroneous numeric interpretation of +"0x"
-		return high !== high || escapedWhitespace ?
-			escaped :
+	runescape = new RegExp( "\\\\[\\da-fA-F]{1,6}" + whitespace + "?|\\\\([^\\r\\n\\f])", "g" ),
+	funescape = function( escape, nonHex ) {
+		var high = "0x" + escape.slice( 1 ) - 0x10000;
+
+		return nonHex ?
+
+			// Strip the backslash prefix from a non-hex escape sequence
+			nonHex :
+
+			// Replace a hexadecimal escape sequence with the encoded Unicode code point
+			// Support: IE <=11+
+			// For values outside the Basic Multilingual Plane (BMP), manually construct a
+			// surrogate pair
 			high < 0 ?
-				// BMP codepoint
 				String.fromCharCode( high + 0x10000 ) :
-				// Supplemental Plane codepoint (surrogate pair)
 				String.fromCharCode( high >> 10 | 0xD800, high & 0x3FF | 0xDC00 );
 	},
 
@@ -675,7 +697,8 @@ var i,
 			}
 
 			// Control characters and (dependent upon position) numbers get escaped as code points
-			return ch.slice( 0, -1 ) + "\\" + ch.charCodeAt( ch.length - 1 ).toString( 16 ) + " ";
+			return ch.slice( 0, -1 ) + "\\" +
+				ch.charCodeAt( ch.length - 1 ).toString( 16 ) + " ";
 		}
 
 		// Other potentially-special ASCII characters get backslash-escaped
@@ -700,18 +723,20 @@ var i,
 // Optimize for push.apply( _, NodeList )
 try {
 	push.apply(
-		(arr = slice.call( preferredDoc.childNodes )),
+		( arr = slice.call( preferredDoc.childNodes ) ),
 		preferredDoc.childNodes
 	);
+
 	// Support: Android<4.0
 	// Detect silently failing push.apply
+	// eslint-disable-next-line no-unused-expressions
 	arr[ preferredDoc.childNodes.length ].nodeType;
 } catch ( e ) {
 	push = { apply: arr.length ?
 
 		// Leverage slice if possible
 		function( target, els ) {
-			push_native.apply( target, slice.call(els) );
+			pushNative.apply( target, slice.call( els ) );
 		} :
 
 		// Support: IE<9
@@ -719,8 +744,9 @@ try {
 		function( target, els ) {
 			var j = target.length,
 				i = 0;
+
 			// Can't trust NodeList.length
-			while ( (target[j++] = els[i++]) ) {}
+			while ( ( target[ j++ ] = els[ i++ ] ) ) {}
 			target.length = j - 1;
 		}
 	};
@@ -744,24 +770,21 @@ function Sizzle( selector, context, results, seed ) {
 
 	// Try to shortcut find operations (as opposed to filters) in HTML documents
 	if ( !seed ) {
-
-		if ( ( context ? context.ownerDocument || context : preferredDoc ) !== document ) {
-			setDocument( context );
-		}
+		setDocument( context );
 		context = context || document;
 
 		if ( documentIsHTML ) {
 
 			// If the selector is sufficiently simple, try using a "get*By*" DOM method
 			// (excepting DocumentFragment context, where the methods don't exist)
-			if ( nodeType !== 11 && (match = rquickExpr.exec( selector )) ) {
+			if ( nodeType !== 11 && ( match = rquickExpr.exec( selector ) ) ) {
 
 				// ID selector
-				if ( (m = match[1]) ) {
+				if ( ( m = match[ 1 ] ) ) {
 
 					// Document context
 					if ( nodeType === 9 ) {
-						if ( (elem = context.getElementById( m )) ) {
+						if ( ( elem = context.getElementById( m ) ) ) {
 
 							// Support: IE, Opera, Webkit
 							// TODO: identify versions
@@ -780,7 +803,7 @@ function Sizzle( selector, context, results, seed ) {
 						// Support: IE, Opera, Webkit
 						// TODO: identify versions
 						// getElementById can match elements by name instead of ID
-						if ( newContext && (elem = newContext.getElementById( m )) &&
+						if ( newContext && ( elem = newContext.getElementById( m ) ) &&
 							contains( context, elem ) &&
 							elem.id === m ) {
 
@@ -790,12 +813,12 @@ function Sizzle( selector, context, results, seed ) {
 					}
 
 				// Type selector
-				} else if ( match[2] ) {
+				} else if ( match[ 2 ] ) {
 					push.apply( results, context.getElementsByTagName( selector ) );
 					return results;
 
 				// Class selector
-				} else if ( (m = match[3]) && support.getElementsByClassName &&
+				} else if ( ( m = match[ 3 ] ) && support.getElementsByClassName &&
 					context.getElementsByClassName ) {
 
 					push.apply( results, context.getElementsByClassName( m ) );
@@ -806,11 +829,11 @@ function Sizzle( selector, context, results, seed ) {
 			// Take advantage of querySelectorAll
 			if ( support.qsa &&
 				!nonnativeSelectorCache[ selector + " " ] &&
-				(!rbuggyQSA || !rbuggyQSA.test( selector )) &&
+				( !rbuggyQSA || !rbuggyQSA.test( selector ) ) &&
 
 				// Support: IE 8 only
 				// Exclude object elements
-				(nodeType !== 1 || context.nodeName.toLowerCase() !== "object") ) {
+				( nodeType !== 1 || context.nodeName.toLowerCase() !== "object" ) ) {
 
 				newSelector = selector;
 				newContext = context;
@@ -819,27 +842,36 @@ function Sizzle( selector, context, results, seed ) {
 				// descendant combinators, which is not what we want.
 				// In such cases, we work around the behavior by prefixing every selector in the
 				// list with an ID selector referencing the scope context.
+				// The technique has to be used as well when a leading combinator is used
+				// as such selectors are not recognized by querySelectorAll.
 				// Thanks to Andrew Dupont for this technique.
-				if ( nodeType === 1 && rdescend.test( selector ) ) {
+				if ( nodeType === 1 &&
+					( rdescend.test( selector ) || rcombinators.test( selector ) ) ) {
 
-					// Capture the context ID, setting it first if necessary
-					if ( (nid = context.getAttribute( "id" )) ) {
-						nid = nid.replace( rcssescape, fcssescape );
-					} else {
-						context.setAttribute( "id", (nid = expando) );
+					// Expand context for sibling selectors
+					newContext = rsibling.test( selector ) && testContext( context.parentNode ) ||
+						context;
+
+					// We can use :scope instead of the ID hack if the browser
+					// supports it & if we're not changing the context.
+					if ( newContext !== context || !support.scope ) {
+
+						// Capture the context ID, setting it first if necessary
+						if ( ( nid = context.getAttribute( "id" ) ) ) {
+							nid = nid.replace( rcssescape, fcssescape );
+						} else {
+							context.setAttribute( "id", ( nid = expando ) );
+						}
 					}
 
 					// Prefix every selector in the list
 					groups = tokenize( selector );
 					i = groups.length;
 					while ( i-- ) {
-						groups[i] = "#" + nid + " " + toSelector( groups[i] );
+						groups[ i ] = ( nid ? "#" + nid : ":scope" ) + " " +
+							toSelector( groups[ i ] );
 					}
 					newSelector = groups.join( "," );
-
-					// Expand context for sibling selectors
-					newContext = rsibling.test( selector ) && testContext( context.parentNode ) ||
-						context;
 				}
 
 				try {
@@ -872,12 +904,14 @@ function createCache() {
 	var keys = [];
 
 	function cache( key, value ) {
+
 		// Use (key + " ") to avoid collision with native prototype properties (see Issue #157)
 		if ( keys.push( key + " " ) > Expr.cacheLength ) {
+
 			// Only keep the most recent entries
 			delete cache[ keys.shift() ];
 		}
-		return (cache[ key + " " ] = value);
+		return ( cache[ key + " " ] = value );
 	}
 	return cache;
 }
@@ -896,17 +930,19 @@ function markFunction( fn ) {
  * @param {Function} fn Passed the created element and returns a boolean result
  */
 function assert( fn ) {
-	var el = document.createElement("fieldset");
+	var el = document.createElement( "fieldset" );
 
 	try {
 		return !!fn( el );
-	} catch (e) {
+	} catch ( e ) {
 		return false;
 	} finally {
+
 		// Remove from its parent by default
 		if ( el.parentNode ) {
 			el.parentNode.removeChild( el );
 		}
+
 		// release memory in IE
 		el = null;
 	}
@@ -918,11 +954,11 @@ function assert( fn ) {
  * @param {Function} handler The method that will be applied
  */
 function addHandle( attrs, handler ) {
-	var arr = attrs.split("|"),
+	var arr = attrs.split( "|" ),
 		i = arr.length;
 
 	while ( i-- ) {
-		Expr.attrHandle[ arr[i] ] = handler;
+		Expr.attrHandle[ arr[ i ] ] = handler;
 	}
 }
 
@@ -944,7 +980,7 @@ function siblingCheck( a, b ) {
 
 	// Check if b follows a
 	if ( cur ) {
-		while ( (cur = cur.nextSibling) ) {
+		while ( ( cur = cur.nextSibling ) ) {
 			if ( cur === b ) {
 				return -1;
 			}
@@ -972,7 +1008,7 @@ function createInputPseudo( type ) {
 function createButtonPseudo( type ) {
 	return function( elem ) {
 		var name = elem.nodeName.toLowerCase();
-		return (name === "input" || name === "button") && elem.type === type;
+		return ( name === "input" || name === "button" ) && elem.type === type;
 	};
 }
 
@@ -1015,7 +1051,7 @@ function createDisabledPseudo( disabled ) {
 					// Where there is no isDisabled, check manually
 					/* jshint -W018 */
 					elem.isDisabled !== !disabled &&
-						inDisabledFieldset( elem ) === disabled;
+					inDisabledFieldset( elem ) === disabled;
 			}
 
 			return elem.disabled === disabled;
@@ -1037,21 +1073,21 @@ function createDisabledPseudo( disabled ) {
  * @param {Function} fn
  */
 function createPositionalPseudo( fn ) {
-	return markFunction(function( argument ) {
+	return markFunction( function( argument ) {
 		argument = +argument;
-		return markFunction(function( seed, matches ) {
+		return markFunction( function( seed, matches ) {
 			var j,
 				matchIndexes = fn( [], seed.length, argument ),
 				i = matchIndexes.length;
 
 			// Match elements found at the specified indexes
 			while ( i-- ) {
-				if ( seed[ (j = matchIndexes[i]) ] ) {
-					seed[j] = !(matches[j] = seed[j]);
+				if ( seed[ ( j = matchIndexes[ i ] ) ] ) {
+					seed[ j ] = !( matches[ j ] = seed[ j ] );
 				}
 			}
-		});
-	});
+		} );
+	} );
 }
 
 /**
@@ -1073,7 +1109,7 @@ support = Sizzle.support = {};
  */
 isXML = Sizzle.isXML = function( elem ) {
 	var namespace = elem.namespaceURI,
-		docElem = (elem.ownerDocument || elem).documentElement;
+		docElem = ( elem.ownerDocument || elem ).documentElement;
 
 	// Support: IE <=8
 	// Assume HTML when documentElement doesn't yet exist, such as inside loading iframes
@@ -1091,7 +1127,11 @@ setDocument = Sizzle.setDocument = function( node ) {
 		doc = node ? node.ownerDocument || node : preferredDoc;
 
 	// Return early if doc is invalid or already selected
-	if ( doc === document || doc.nodeType !== 9 || !doc.documentElement ) {
+	// Support: IE 11+, Edge 17 - 18+
+	// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+	// two documents; shallow comparisons work.
+	// eslint-disable-next-line eqeqeq
+	if ( doc == document || doc.nodeType !== 9 || !doc.documentElement ) {
 		return document;
 	}
 
@@ -1100,10 +1140,14 @@ setDocument = Sizzle.setDocument = function( node ) {
 	docElem = document.documentElement;
 	documentIsHTML = !isXML( document );
 
-	// Support: IE 9-11, Edge
+	// Support: IE 9 - 11+, Edge 12 - 18+
 	// Accessing iframe documents after unload throws "permission denied" errors (jQuery #13936)
-	if ( preferredDoc !== document &&
-		(subWindow = document.defaultView) && subWindow.top !== subWindow ) {
+	// Support: IE 11+, Edge 17 - 18+
+	// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+	// two documents; shallow comparisons work.
+	// eslint-disable-next-line eqeqeq
+	if ( preferredDoc != document &&
+		( subWindow = document.defaultView ) && subWindow.top !== subWindow ) {
 
 		// Support: IE 11, Edge
 		if ( subWindow.addEventListener ) {
@@ -1115,25 +1159,36 @@ setDocument = Sizzle.setDocument = function( node ) {
 		}
 	}
 
+	// Support: IE 8 - 11+, Edge 12 - 18+, Chrome <=16 - 25 only, Firefox <=3.6 - 31 only,
+	// Safari 4 - 5 only, Opera <=11.6 - 12.x only
+	// IE/Edge & older browsers don't support the :scope pseudo-class.
+	// Support: Safari 6.0 only
+	// Safari 6.0 supports :scope but it's an alias of :root there.
+	support.scope = assert( function( el ) {
+		docElem.appendChild( el ).appendChild( document.createElement( "div" ) );
+		return typeof el.querySelectorAll !== "undefined" &&
+			!el.querySelectorAll( ":scope fieldset div" ).length;
+	} );
+
 	/* Attributes
 	---------------------------------------------------------------------- */
 
 	// Support: IE<8
 	// Verify that getAttribute really returns attributes and not properties
 	// (excepting IE8 booleans)
-	support.attributes = assert(function( el ) {
+	support.attributes = assert( function( el ) {
 		el.className = "i";
-		return !el.getAttribute("className");
-	});
+		return !el.getAttribute( "className" );
+	} );
 
 	/* getElement(s)By*
 	---------------------------------------------------------------------- */
 
 	// Check if getElementsByTagName("*") returns only elements
-	support.getElementsByTagName = assert(function( el ) {
-		el.appendChild( document.createComment("") );
-		return !el.getElementsByTagName("*").length;
-	});
+	support.getElementsByTagName = assert( function( el ) {
+		el.appendChild( document.createComment( "" ) );
+		return !el.getElementsByTagName( "*" ).length;
+	} );
 
 	// Support: IE<9
 	support.getElementsByClassName = rnative.test( document.getElementsByClassName );
@@ -1142,38 +1197,38 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// Check if getElementById returns elements by name
 	// The broken getElementById methods don't pick up programmatically-set names,
 	// so use a roundabout getElementsByName test
-	support.getById = assert(function( el ) {
+	support.getById = assert( function( el ) {
 		docElem.appendChild( el ).id = expando;
 		return !document.getElementsByName || !document.getElementsByName( expando ).length;
-	});
+	} );
 
 	// ID filter and find
 	if ( support.getById ) {
-		Expr.filter["ID"] = function( id ) {
+		Expr.filter[ "ID" ] = function( id ) {
 			var attrId = id.replace( runescape, funescape );
 			return function( elem ) {
-				return elem.getAttribute("id") === attrId;
+				return elem.getAttribute( "id" ) === attrId;
 			};
 		};
-		Expr.find["ID"] = function( id, context ) {
+		Expr.find[ "ID" ] = function( id, context ) {
 			if ( typeof context.getElementById !== "undefined" && documentIsHTML ) {
 				var elem = context.getElementById( id );
 				return elem ? [ elem ] : [];
 			}
 		};
 	} else {
-		Expr.filter["ID"] =  function( id ) {
+		Expr.filter[ "ID" ] =  function( id ) {
 			var attrId = id.replace( runescape, funescape );
 			return function( elem ) {
 				var node = typeof elem.getAttributeNode !== "undefined" &&
-					elem.getAttributeNode("id");
+					elem.getAttributeNode( "id" );
 				return node && node.value === attrId;
 			};
 		};
 
 		// Support: IE 6 - 7 only
 		// getElementById is not reliable as a find shortcut
-		Expr.find["ID"] = function( id, context ) {
+		Expr.find[ "ID" ] = function( id, context ) {
 			if ( typeof context.getElementById !== "undefined" && documentIsHTML ) {
 				var node, i, elems,
 					elem = context.getElementById( id );
@@ -1181,7 +1236,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 				if ( elem ) {
 
 					// Verify the id attribute
-					node = elem.getAttributeNode("id");
+					node = elem.getAttributeNode( "id" );
 					if ( node && node.value === id ) {
 						return [ elem ];
 					}
@@ -1189,8 +1244,8 @@ setDocument = Sizzle.setDocument = function( node ) {
 					// Fall back on getElementsByName
 					elems = context.getElementsByName( id );
 					i = 0;
-					while ( (elem = elems[i++]) ) {
-						node = elem.getAttributeNode("id");
+					while ( ( elem = elems[ i++ ] ) ) {
+						node = elem.getAttributeNode( "id" );
 						if ( node && node.value === id ) {
 							return [ elem ];
 						}
@@ -1203,7 +1258,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	}
 
 	// Tag
-	Expr.find["TAG"] = support.getElementsByTagName ?
+	Expr.find[ "TAG" ] = support.getElementsByTagName ?
 		function( tag, context ) {
 			if ( typeof context.getElementsByTagName !== "undefined" ) {
 				return context.getElementsByTagName( tag );
@@ -1218,12 +1273,13 @@ setDocument = Sizzle.setDocument = function( node ) {
 			var elem,
 				tmp = [],
 				i = 0,
+
 				// By happy coincidence, a (broken) gEBTN appears on DocumentFragment nodes too
 				results = context.getElementsByTagName( tag );
 
 			// Filter out possible comments
 			if ( tag === "*" ) {
-				while ( (elem = results[i++]) ) {
+				while ( ( elem = results[ i++ ] ) ) {
 					if ( elem.nodeType === 1 ) {
 						tmp.push( elem );
 					}
@@ -1235,7 +1291,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 		};
 
 	// Class
-	Expr.find["CLASS"] = support.getElementsByClassName && function( className, context ) {
+	Expr.find[ "CLASS" ] = support.getElementsByClassName && function( className, context ) {
 		if ( typeof context.getElementsByClassName !== "undefined" && documentIsHTML ) {
 			return context.getElementsByClassName( className );
 		}
@@ -1256,10 +1312,14 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// See https://bugs.jquery.com/ticket/13378
 	rbuggyQSA = [];
 
-	if ( (support.qsa = rnative.test( document.querySelectorAll )) ) {
+	if ( ( support.qsa = rnative.test( document.querySelectorAll ) ) ) {
+
 		// Build QSA regex
 		// Regex strategy adopted from Diego Perini
-		assert(function( el ) {
+		assert( function( el ) {
+
+			var input;
+
 			// Select is set to empty string on purpose
 			// This is to test IE's treatment of not explicitly
 			// setting a boolean content attribute,
@@ -1273,78 +1333,98 @@ setDocument = Sizzle.setDocument = function( node ) {
 			// Nothing should be selected when empty strings follow ^= or $= or *=
 			// The test attribute must be unknown in Opera but "safe" for WinRT
 			// https://msdn.microsoft.com/en-us/library/ie/hh465388.aspx#attribute_section
-			if ( el.querySelectorAll("[msallowcapture^='']").length ) {
+			if ( el.querySelectorAll( "[msallowcapture^='']" ).length ) {
 				rbuggyQSA.push( "[*^$]=" + whitespace + "*(?:''|\"\")" );
 			}
 
 			// Support: IE8
 			// Boolean attributes and "value" are not treated correctly
-			if ( !el.querySelectorAll("[selected]").length ) {
+			if ( !el.querySelectorAll( "[selected]" ).length ) {
 				rbuggyQSA.push( "\\[" + whitespace + "*(?:value|" + booleans + ")" );
 			}
 
 			// Support: Chrome<29, Android<4.4, Safari<7.0+, iOS<7.0+, PhantomJS<1.9.8+
 			if ( !el.querySelectorAll( "[id~=" + expando + "-]" ).length ) {
-				rbuggyQSA.push("~=");
+				rbuggyQSA.push( "~=" );
+			}
+
+			// Support: IE 11+, Edge 15 - 18+
+			// IE 11/Edge don't find elements on a `[name='']` query in some cases.
+			// Adding a temporary attribute to the document before the selection works
+			// around the issue.
+			// Interestingly, IE 10 & older don't seem to have the issue.
+			input = document.createElement( "input" );
+			input.setAttribute( "name", "" );
+			el.appendChild( input );
+			if ( !el.querySelectorAll( "[name='']" ).length ) {
+				rbuggyQSA.push( "\\[" + whitespace + "*name" + whitespace + "*=" +
+					whitespace + "*(?:''|\"\")" );
 			}
 
 			// Webkit/Opera - :checked should return selected option elements
 			// http://www.w3.org/TR/2011/REC-css3-selectors-20110929/#checked
 			// IE8 throws error here and will not see later tests
-			if ( !el.querySelectorAll(":checked").length ) {
-				rbuggyQSA.push(":checked");
+			if ( !el.querySelectorAll( ":checked" ).length ) {
+				rbuggyQSA.push( ":checked" );
 			}
 
 			// Support: Safari 8+, iOS 8+
 			// https://bugs.webkit.org/show_bug.cgi?id=136851
 			// In-page `selector#id sibling-combinator selector` fails
 			if ( !el.querySelectorAll( "a#" + expando + "+*" ).length ) {
-				rbuggyQSA.push(".#.+[+~]");
+				rbuggyQSA.push( ".#.+[+~]" );
 			}
-		});
 
-		assert(function( el ) {
+			// Support: Firefox <=3.6 - 5 only
+			// Old Firefox doesn't throw on a badly-escaped identifier.
+			el.querySelectorAll( "\\\f" );
+			rbuggyQSA.push( "[\\r\\n\\f]" );
+		} );
+
+		assert( function( el ) {
 			el.innerHTML = "<a href='' disabled='disabled'></a>" +
 				"<select disabled='disabled'><option/></select>";
 
 			// Support: Windows 8 Native Apps
 			// The type and name attributes are restricted during .innerHTML assignment
-			var input = document.createElement("input");
+			var input = document.createElement( "input" );
 			input.setAttribute( "type", "hidden" );
 			el.appendChild( input ).setAttribute( "name", "D" );
 
 			// Support: IE8
 			// Enforce case-sensitivity of name attribute
-			if ( el.querySelectorAll("[name=d]").length ) {
+			if ( el.querySelectorAll( "[name=d]" ).length ) {
 				rbuggyQSA.push( "name" + whitespace + "*[*^$|!~]?=" );
 			}
 
 			// FF 3.5 - :enabled/:disabled and hidden elements (hidden elements are still enabled)
 			// IE8 throws error here and will not see later tests
-			if ( el.querySelectorAll(":enabled").length !== 2 ) {
+			if ( el.querySelectorAll( ":enabled" ).length !== 2 ) {
 				rbuggyQSA.push( ":enabled", ":disabled" );
 			}
 
 			// Support: IE9-11+
 			// IE's :disabled selector does not pick up the children of disabled fieldsets
 			docElem.appendChild( el ).disabled = true;
-			if ( el.querySelectorAll(":disabled").length !== 2 ) {
+			if ( el.querySelectorAll( ":disabled" ).length !== 2 ) {
 				rbuggyQSA.push( ":enabled", ":disabled" );
 			}
 
+			// Support: Opera 10 - 11 only
 			// Opera 10-11 does not throw on post-comma invalid pseudos
-			el.querySelectorAll("*,:x");
-			rbuggyQSA.push(",.*:");
-		});
+			el.querySelectorAll( "*,:x" );
+			rbuggyQSA.push( ",.*:" );
+		} );
 	}
 
-	if ( (support.matchesSelector = rnative.test( (matches = docElem.matches ||
+	if ( ( support.matchesSelector = rnative.test( ( matches = docElem.matches ||
 		docElem.webkitMatchesSelector ||
 		docElem.mozMatchesSelector ||
 		docElem.oMatchesSelector ||
-		docElem.msMatchesSelector) )) ) {
+		docElem.msMatchesSelector ) ) ) ) {
 
-		assert(function( el ) {
+		assert( function( el ) {
+
 			// Check to see if it's possible to do matchesSelector
 			// on a disconnected node (IE 9)
 			support.disconnectedMatch = matches.call( el, "*" );
@@ -1353,11 +1433,11 @@ setDocument = Sizzle.setDocument = function( node ) {
 			// Gecko does not error, returns false instead
 			matches.call( el, "[s!='']:x" );
 			rbuggyMatches.push( "!=", pseudos );
-		});
+		} );
 	}
 
-	rbuggyQSA = rbuggyQSA.length && new RegExp( rbuggyQSA.join("|") );
-	rbuggyMatches = rbuggyMatches.length && new RegExp( rbuggyMatches.join("|") );
+	rbuggyQSA = rbuggyQSA.length && new RegExp( rbuggyQSA.join( "|" ) );
+	rbuggyMatches = rbuggyMatches.length && new RegExp( rbuggyMatches.join( "|" ) );
 
 	/* Contains
 	---------------------------------------------------------------------- */
@@ -1374,11 +1454,11 @@ setDocument = Sizzle.setDocument = function( node ) {
 				adown.contains ?
 					adown.contains( bup ) :
 					a.compareDocumentPosition && a.compareDocumentPosition( bup ) & 16
-			));
+			) );
 		} :
 		function( a, b ) {
 			if ( b ) {
-				while ( (b = b.parentNode) ) {
+				while ( ( b = b.parentNode ) ) {
 					if ( b === a ) {
 						return true;
 					}
@@ -1407,7 +1487,11 @@ setDocument = Sizzle.setDocument = function( node ) {
 		}
 
 		// Calculate position if both inputs belong to the same document
-		compare = ( a.ownerDocument || a ) === ( b.ownerDocument || b ) ?
+		// Support: IE 11+, Edge 17 - 18+
+		// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+		// two documents; shallow comparisons work.
+		// eslint-disable-next-line eqeqeq
+		compare = ( a.ownerDocument || a ) == ( b.ownerDocument || b ) ?
 			a.compareDocumentPosition( b ) :
 
 			// Otherwise we know they are disconnected
@@ -1415,13 +1499,24 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 		// Disconnected nodes
 		if ( compare & 1 ||
-			(!support.sortDetached && b.compareDocumentPosition( a ) === compare) ) {
+			( !support.sortDetached && b.compareDocumentPosition( a ) === compare ) ) {
 
 			// Choose the first element that is related to our preferred document
-			if ( a === document || a.ownerDocument === preferredDoc && contains(preferredDoc, a) ) {
+			// Support: IE 11+, Edge 17 - 18+
+			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+			// two documents; shallow comparisons work.
+			// eslint-disable-next-line eqeqeq
+			if ( a == document || a.ownerDocument == preferredDoc &&
+				contains( preferredDoc, a ) ) {
 				return -1;
 			}
-			if ( b === document || b.ownerDocument === preferredDoc && contains(preferredDoc, b) ) {
+
+			// Support: IE 11+, Edge 17 - 18+
+			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+			// two documents; shallow comparisons work.
+			// eslint-disable-next-line eqeqeq
+			if ( b == document || b.ownerDocument == preferredDoc &&
+				contains( preferredDoc, b ) ) {
 				return 1;
 			}
 
@@ -1434,6 +1529,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 		return compare & 4 ? -1 : 1;
 	} :
 	function( a, b ) {
+
 		// Exit early if the nodes are identical
 		if ( a === b ) {
 			hasDuplicate = true;
@@ -1449,8 +1545,14 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 		// Parentless nodes are either documents or disconnected
 		if ( !aup || !bup ) {
-			return a === document ? -1 :
-				b === document ? 1 :
+
+			// Support: IE 11+, Edge 17 - 18+
+			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+			// two documents; shallow comparisons work.
+			/* eslint-disable eqeqeq */
+			return a == document ? -1 :
+				b == document ? 1 :
+				/* eslint-enable eqeqeq */
 				aup ? -1 :
 				bup ? 1 :
 				sortInput ?
@@ -1464,26 +1566,32 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 		// Otherwise we need full lists of their ancestors for comparison
 		cur = a;
-		while ( (cur = cur.parentNode) ) {
+		while ( ( cur = cur.parentNode ) ) {
 			ap.unshift( cur );
 		}
 		cur = b;
-		while ( (cur = cur.parentNode) ) {
+		while ( ( cur = cur.parentNode ) ) {
 			bp.unshift( cur );
 		}
 
 		// Walk down the tree looking for a discrepancy
-		while ( ap[i] === bp[i] ) {
+		while ( ap[ i ] === bp[ i ] ) {
 			i++;
 		}
 
 		return i ?
+
 			// Do a sibling check if the nodes have a common ancestor
-			siblingCheck( ap[i], bp[i] ) :
+			siblingCheck( ap[ i ], bp[ i ] ) :
 
 			// Otherwise nodes in our document sort first
-			ap[i] === preferredDoc ? -1 :
-			bp[i] === preferredDoc ? 1 :
+			// Support: IE 11+, Edge 17 - 18+
+			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+			// two documents; shallow comparisons work.
+			/* eslint-disable eqeqeq */
+			ap[ i ] == preferredDoc ? -1 :
+			bp[ i ] == preferredDoc ? 1 :
+			/* eslint-enable eqeqeq */
 			0;
 	};
 
@@ -1495,10 +1603,7 @@ Sizzle.matches = function( expr, elements ) {
 };
 
 Sizzle.matchesSelector = function( elem, expr ) {
-	// Set document vars if needed
-	if ( ( elem.ownerDocument || elem ) !== document ) {
-		setDocument( elem );
-	}
+	setDocument( elem );
 
 	if ( support.matchesSelector && documentIsHTML &&
 		!nonnativeSelectorCache[ expr + " " ] &&
@@ -1510,12 +1615,13 @@ Sizzle.matchesSelector = function( elem, expr ) {
 
 			// IE 9's matchesSelector returns false on disconnected nodes
 			if ( ret || support.disconnectedMatch ||
-					// As well, disconnected nodes are said to be in a document
-					// fragment in IE 9
-					elem.document && elem.document.nodeType !== 11 ) {
+
+				// As well, disconnected nodes are said to be in a document
+				// fragment in IE 9
+				elem.document && elem.document.nodeType !== 11 ) {
 				return ret;
 			}
-		} catch (e) {
+		} catch ( e ) {
 			nonnativeSelectorCache( expr, true );
 		}
 	}
@@ -1524,20 +1630,31 @@ Sizzle.matchesSelector = function( elem, expr ) {
 };
 
 Sizzle.contains = function( context, elem ) {
+
 	// Set document vars if needed
-	if ( ( context.ownerDocument || context ) !== document ) {
+	// Support: IE 11+, Edge 17 - 18+
+	// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+	// two documents; shallow comparisons work.
+	// eslint-disable-next-line eqeqeq
+	if ( ( context.ownerDocument || context ) != document ) {
 		setDocument( context );
 	}
 	return contains( context, elem );
 };
 
 Sizzle.attr = function( elem, name ) {
+
 	// Set document vars if needed
-	if ( ( elem.ownerDocument || elem ) !== document ) {
+	// Support: IE 11+, Edge 17 - 18+
+	// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+	// two documents; shallow comparisons work.
+	// eslint-disable-next-line eqeqeq
+	if ( ( elem.ownerDocument || elem ) != document ) {
 		setDocument( elem );
 	}
 
 	var fn = Expr.attrHandle[ name.toLowerCase() ],
+
 		// Don't get fooled by Object.prototype properties (jQuery #13807)
 		val = fn && hasOwn.call( Expr.attrHandle, name.toLowerCase() ) ?
 			fn( elem, name, !documentIsHTML ) :
@@ -1547,13 +1664,13 @@ Sizzle.attr = function( elem, name ) {
 		val :
 		support.attributes || !documentIsHTML ?
 			elem.getAttribute( name ) :
-			(val = elem.getAttributeNode(name)) && val.specified ?
+			( val = elem.getAttributeNode( name ) ) && val.specified ?
 				val.value :
 				null;
 };
 
 Sizzle.escape = function( sel ) {
-	return (sel + "").replace( rcssescape, fcssescape );
+	return ( sel + "" ).replace( rcssescape, fcssescape );
 };
 
 Sizzle.error = function( msg ) {
@@ -1576,7 +1693,7 @@ Sizzle.uniqueSort = function( results ) {
 	results.sort( sortOrder );
 
 	if ( hasDuplicate ) {
-		while ( (elem = results[i++]) ) {
+		while ( ( elem = results[ i++ ] ) ) {
 			if ( elem === results[ i ] ) {
 				j = duplicates.push( i );
 			}
@@ -1604,17 +1721,21 @@ getText = Sizzle.getText = function( elem ) {
 		nodeType = elem.nodeType;
 
 	if ( !nodeType ) {
+
 		// If no nodeType, this is expected to be an array
-		while ( (node = elem[i++]) ) {
+		while ( ( node = elem[ i++ ] ) ) {
+
 			// Do not traverse comment nodes
 			ret += getText( node );
 		}
 	} else if ( nodeType === 1 || nodeType === 9 || nodeType === 11 ) {
+
 		// Use textContent for elements
 		// innerText usage removed for consistency of new lines (jQuery #11153)
 		if ( typeof elem.textContent === "string" ) {
 			return elem.textContent;
 		} else {
+
 			// Traverse its children
 			for ( elem = elem.firstChild; elem; elem = elem.nextSibling ) {
 				ret += getText( elem );
@@ -1623,6 +1744,7 @@ getText = Sizzle.getText = function( elem ) {
 	} else if ( nodeType === 3 || nodeType === 4 ) {
 		return elem.nodeValue;
 	}
+
 	// Do not include comment or processing instruction nodes
 
 	return ret;
@@ -1650,19 +1772,21 @@ Expr = Sizzle.selectors = {
 
 	preFilter: {
 		"ATTR": function( match ) {
-			match[1] = match[1].replace( runescape, funescape );
+			match[ 1 ] = match[ 1 ].replace( runescape, funescape );
 
 			// Move the given value to match[3] whether quoted or unquoted
-			match[3] = ( match[3] || match[4] || match[5] || "" ).replace( runescape, funescape );
+			match[ 3 ] = ( match[ 3 ] || match[ 4 ] ||
+				match[ 5 ] || "" ).replace( runescape, funescape );
 
-			if ( match[2] === "~=" ) {
-				match[3] = " " + match[3] + " ";
+			if ( match[ 2 ] === "~=" ) {
+				match[ 3 ] = " " + match[ 3 ] + " ";
 			}
 
 			return match.slice( 0, 4 );
 		},
 
 		"CHILD": function( match ) {
+
 			/* matches from matchExpr["CHILD"]
 				1 type (only|nth|...)
 				2 what (child|of-type)
@@ -1673,22 +1797,25 @@ Expr = Sizzle.selectors = {
 				7 sign of y-component
 				8 y of y-component
 			*/
-			match[1] = match[1].toLowerCase();
+			match[ 1 ] = match[ 1 ].toLowerCase();
 
-			if ( match[1].slice( 0, 3 ) === "nth" ) {
+			if ( match[ 1 ].slice( 0, 3 ) === "nth" ) {
+
 				// nth-* requires argument
-				if ( !match[3] ) {
-					Sizzle.error( match[0] );
+				if ( !match[ 3 ] ) {
+					Sizzle.error( match[ 0 ] );
 				}
 
 				// numeric x and y parameters for Expr.filter.CHILD
 				// remember that false/true cast respectively to 0/1
-				match[4] = +( match[4] ? match[5] + (match[6] || 1) : 2 * ( match[3] === "even" || match[3] === "odd" ) );
-				match[5] = +( ( match[7] + match[8] ) || match[3] === "odd" );
+				match[ 4 ] = +( match[ 4 ] ?
+					match[ 5 ] + ( match[ 6 ] || 1 ) :
+					2 * ( match[ 3 ] === "even" || match[ 3 ] === "odd" ) );
+				match[ 5 ] = +( ( match[ 7 ] + match[ 8 ] ) || match[ 3 ] === "odd" );
 
-			// other types prohibit arguments
-			} else if ( match[3] ) {
-				Sizzle.error( match[0] );
+				// other types prohibit arguments
+			} else if ( match[ 3 ] ) {
+				Sizzle.error( match[ 0 ] );
 			}
 
 			return match;
@@ -1696,26 +1823,28 @@ Expr = Sizzle.selectors = {
 
 		"PSEUDO": function( match ) {
 			var excess,
-				unquoted = !match[6] && match[2];
+				unquoted = !match[ 6 ] && match[ 2 ];
 
-			if ( matchExpr["CHILD"].test( match[0] ) ) {
+			if ( matchExpr[ "CHILD" ].test( match[ 0 ] ) ) {
 				return null;
 			}
 
 			// Accept quoted arguments as-is
-			if ( match[3] ) {
-				match[2] = match[4] || match[5] || "";
+			if ( match[ 3 ] ) {
+				match[ 2 ] = match[ 4 ] || match[ 5 ] || "";
 
 			// Strip excess characters from unquoted arguments
 			} else if ( unquoted && rpseudo.test( unquoted ) &&
+
 				// Get excess from tokenize (recursively)
-				(excess = tokenize( unquoted, true )) &&
+				( excess = tokenize( unquoted, true ) ) &&
+
 				// advance to the next closing parenthesis
-				(excess = unquoted.indexOf( ")", unquoted.length - excess ) - unquoted.length) ) {
+				( excess = unquoted.indexOf( ")", unquoted.length - excess ) - unquoted.length ) ) {
 
 				// excess is a negative index
-				match[0] = match[0].slice( 0, excess );
-				match[2] = unquoted.slice( 0, excess );
+				match[ 0 ] = match[ 0 ].slice( 0, excess );
+				match[ 2 ] = unquoted.slice( 0, excess );
 			}
 
 			// Return only captures needed by the pseudo filter method (type and argument)
@@ -1728,7 +1857,9 @@ Expr = Sizzle.selectors = {
 		"TAG": function( nodeNameSelector ) {
 			var nodeName = nodeNameSelector.replace( runescape, funescape ).toLowerCase();
 			return nodeNameSelector === "*" ?
-				function() { return true; } :
+				function() {
+					return true;
+				} :
 				function( elem ) {
 					return elem.nodeName && elem.nodeName.toLowerCase() === nodeName;
 				};
@@ -1738,10 +1869,16 @@ Expr = Sizzle.selectors = {
 			var pattern = classCache[ className + " " ];
 
 			return pattern ||
-				(pattern = new RegExp( "(^|" + whitespace + ")" + className + "(" + whitespace + "|$)" )) &&
-				classCache( className, function( elem ) {
-					return pattern.test( typeof elem.className === "string" && elem.className || typeof elem.getAttribute !== "undefined" && elem.getAttribute("class") || "" );
-				});
+				( pattern = new RegExp( "(^|" + whitespace +
+					")" + className + "(" + whitespace + "|$)" ) ) && classCache(
+						className, function( elem ) {
+							return pattern.test(
+								typeof elem.className === "string" && elem.className ||
+								typeof elem.getAttribute !== "undefined" &&
+									elem.getAttribute( "class" ) ||
+								""
+							);
+				} );
 		},
 
 		"ATTR": function( name, operator, check ) {
@@ -1757,6 +1894,8 @@ Expr = Sizzle.selectors = {
 
 				result += "";
 
+				/* eslint-disable max-len */
+
 				return operator === "=" ? result === check :
 					operator === "!=" ? result !== check :
 					operator === "^=" ? check && result.indexOf( check ) === 0 :
@@ -1765,10 +1904,12 @@ Expr = Sizzle.selectors = {
 					operator === "~=" ? ( " " + result.replace( rwhitespace, " " ) + " " ).indexOf( check ) > -1 :
 					operator === "|=" ? result === check || result.slice( 0, check.length + 1 ) === check + "-" :
 					false;
+				/* eslint-enable max-len */
+
 			};
 		},
 
-		"CHILD": function( type, what, argument, first, last ) {
+		"CHILD": function( type, what, _argument, first, last ) {
 			var simple = type.slice( 0, 3 ) !== "nth",
 				forward = type.slice( -4 ) !== "last",
 				ofType = what === "of-type";
@@ -1780,7 +1921,7 @@ Expr = Sizzle.selectors = {
 					return !!elem.parentNode;
 				} :
 
-				function( elem, context, xml ) {
+				function( elem, _context, xml ) {
 					var cache, uniqueCache, outerCache, node, nodeIndex, start,
 						dir = simple !== forward ? "nextSibling" : "previousSibling",
 						parent = elem.parentNode,
@@ -1794,7 +1935,7 @@ Expr = Sizzle.selectors = {
 						if ( simple ) {
 							while ( dir ) {
 								node = elem;
-								while ( (node = node[ dir ]) ) {
+								while ( ( node = node[ dir ] ) ) {
 									if ( ofType ?
 										node.nodeName.toLowerCase() === name :
 										node.nodeType === 1 ) {
@@ -1802,6 +1943,7 @@ Expr = Sizzle.selectors = {
 										return false;
 									}
 								}
+
 								// Reverse direction for :only-* (if we haven't yet done so)
 								start = dir = type === "only" && !start && "nextSibling";
 							}
@@ -1817,22 +1959,22 @@ Expr = Sizzle.selectors = {
 
 							// ...in a gzip-friendly way
 							node = parent;
-							outerCache = node[ expando ] || (node[ expando ] = {});
+							outerCache = node[ expando ] || ( node[ expando ] = {} );
 
 							// Support: IE <9 only
 							// Defend against cloned attroperties (jQuery gh-1709)
 							uniqueCache = outerCache[ node.uniqueID ] ||
-								(outerCache[ node.uniqueID ] = {});
+								( outerCache[ node.uniqueID ] = {} );
 
 							cache = uniqueCache[ type ] || [];
 							nodeIndex = cache[ 0 ] === dirruns && cache[ 1 ];
 							diff = nodeIndex && cache[ 2 ];
 							node = nodeIndex && parent.childNodes[ nodeIndex ];
 
-							while ( (node = ++nodeIndex && node && node[ dir ] ||
+							while ( ( node = ++nodeIndex && node && node[ dir ] ||
 
 								// Fallback to seeking `elem` from the start
-								(diff = nodeIndex = 0) || start.pop()) ) {
+								( diff = nodeIndex = 0 ) || start.pop() ) ) {
 
 								// When found, cache indexes on `parent` and break
 								if ( node.nodeType === 1 && ++diff && node === elem ) {
@@ -1842,16 +1984,18 @@ Expr = Sizzle.selectors = {
 							}
 
 						} else {
+
 							// Use previously-cached element index if available
 							if ( useCache ) {
+
 								// ...in a gzip-friendly way
 								node = elem;
-								outerCache = node[ expando ] || (node[ expando ] = {});
+								outerCache = node[ expando ] || ( node[ expando ] = {} );
 
 								// Support: IE <9 only
 								// Defend against cloned attroperties (jQuery gh-1709)
 								uniqueCache = outerCache[ node.uniqueID ] ||
-									(outerCache[ node.uniqueID ] = {});
+									( outerCache[ node.uniqueID ] = {} );
 
 								cache = uniqueCache[ type ] || [];
 								nodeIndex = cache[ 0 ] === dirruns && cache[ 1 ];
@@ -1861,9 +2005,10 @@ Expr = Sizzle.selectors = {
 							// xml :nth-child(...)
 							// or :nth-last-child(...) or :nth(-last)?-of-type(...)
 							if ( diff === false ) {
+
 								// Use the same loop as above to seek `elem` from the start
-								while ( (node = ++nodeIndex && node && node[ dir ] ||
-									(diff = nodeIndex = 0) || start.pop()) ) {
+								while ( ( node = ++nodeIndex && node && node[ dir ] ||
+									( diff = nodeIndex = 0 ) || start.pop() ) ) {
 
 									if ( ( ofType ?
 										node.nodeName.toLowerCase() === name :
@@ -1872,12 +2017,13 @@ Expr = Sizzle.selectors = {
 
 										// Cache the index of each encountered element
 										if ( useCache ) {
-											outerCache = node[ expando ] || (node[ expando ] = {});
+											outerCache = node[ expando ] ||
+												( node[ expando ] = {} );
 
 											// Support: IE <9 only
 											// Defend against cloned attroperties (jQuery gh-1709)
 											uniqueCache = outerCache[ node.uniqueID ] ||
-												(outerCache[ node.uniqueID ] = {});
+												( outerCache[ node.uniqueID ] = {} );
 
 											uniqueCache[ type ] = [ dirruns, diff ];
 										}
@@ -1898,6 +2044,7 @@ Expr = Sizzle.selectors = {
 		},
 
 		"PSEUDO": function( pseudo, argument ) {
+
 			// pseudo-class names are case-insensitive
 			// http://www.w3.org/TR/selectors/#pseudo-classes
 			// Prioritize by case sensitivity in case custom pseudos are added with uppercase letters
@@ -1917,15 +2064,15 @@ Expr = Sizzle.selectors = {
 			if ( fn.length > 1 ) {
 				args = [ pseudo, pseudo, "", argument ];
 				return Expr.setFilters.hasOwnProperty( pseudo.toLowerCase() ) ?
-					markFunction(function( seed, matches ) {
+					markFunction( function( seed, matches ) {
 						var idx,
 							matched = fn( seed, argument ),
 							i = matched.length;
 						while ( i-- ) {
-							idx = indexOf( seed, matched[i] );
-							seed[ idx ] = !( matches[ idx ] = matched[i] );
+							idx = indexOf( seed, matched[ i ] );
+							seed[ idx ] = !( matches[ idx ] = matched[ i ] );
 						}
-					}) :
+					} ) :
 					function( elem ) {
 						return fn( elem, 0, args );
 					};
@@ -1936,8 +2083,10 @@ Expr = Sizzle.selectors = {
 	},
 
 	pseudos: {
+
 		// Potentially complex pseudos
-		"not": markFunction(function( selector ) {
+		"not": markFunction( function( selector ) {
+
 			// Trim the selector passed to compile
 			// to avoid treating leading and trailing
 			// spaces as combinators
@@ -1946,39 +2095,40 @@ Expr = Sizzle.selectors = {
 				matcher = compile( selector.replace( rtrim, "$1" ) );
 
 			return matcher[ expando ] ?
-				markFunction(function( seed, matches, context, xml ) {
+				markFunction( function( seed, matches, _context, xml ) {
 					var elem,
 						unmatched = matcher( seed, null, xml, [] ),
 						i = seed.length;
 
 					// Match elements unmatched by `matcher`
 					while ( i-- ) {
-						if ( (elem = unmatched[i]) ) {
-							seed[i] = !(matches[i] = elem);
+						if ( ( elem = unmatched[ i ] ) ) {
+							seed[ i ] = !( matches[ i ] = elem );
 						}
 					}
-				}) :
-				function( elem, context, xml ) {
-					input[0] = elem;
+				} ) :
+				function( elem, _context, xml ) {
+					input[ 0 ] = elem;
 					matcher( input, null, xml, results );
+
 					// Don't keep the element (issue #299)
-					input[0] = null;
+					input[ 0 ] = null;
 					return !results.pop();
 				};
-		}),
+		} ),
 
-		"has": markFunction(function( selector ) {
+		"has": markFunction( function( selector ) {
 			return function( elem ) {
 				return Sizzle( selector, elem ).length > 0;
 			};
-		}),
+		} ),
 
-		"contains": markFunction(function( text ) {
+		"contains": markFunction( function( text ) {
 			text = text.replace( runescape, funescape );
 			return function( elem ) {
 				return ( elem.textContent || getText( elem ) ).indexOf( text ) > -1;
 			};
-		}),
+		} ),
 
 		// "Whether an element is represented by a :lang() selector
 		// is based solely on the element's language value
@@ -1988,25 +2138,26 @@ Expr = Sizzle.selectors = {
 		// The identifier C does not have to be a valid language name."
 		// http://www.w3.org/TR/selectors/#lang-pseudo
 		"lang": markFunction( function( lang ) {
+
 			// lang value must be a valid identifier
-			if ( !ridentifier.test(lang || "") ) {
+			if ( !ridentifier.test( lang || "" ) ) {
 				Sizzle.error( "unsupported lang: " + lang );
 			}
 			lang = lang.replace( runescape, funescape ).toLowerCase();
 			return function( elem ) {
 				var elemLang;
 				do {
-					if ( (elemLang = documentIsHTML ?
+					if ( ( elemLang = documentIsHTML ?
 						elem.lang :
-						elem.getAttribute("xml:lang") || elem.getAttribute("lang")) ) {
+						elem.getAttribute( "xml:lang" ) || elem.getAttribute( "lang" ) ) ) {
 
 						elemLang = elemLang.toLowerCase();
 						return elemLang === lang || elemLang.indexOf( lang + "-" ) === 0;
 					}
-				} while ( (elem = elem.parentNode) && elem.nodeType === 1 );
+				} while ( ( elem = elem.parentNode ) && elem.nodeType === 1 );
 				return false;
 			};
-		}),
+		} ),
 
 		// Miscellaneous
 		"target": function( elem ) {
@@ -2019,7 +2170,9 @@ Expr = Sizzle.selectors = {
 		},
 
 		"focus": function( elem ) {
-			return elem === document.activeElement && (!document.hasFocus || document.hasFocus()) && !!(elem.type || elem.href || ~elem.tabIndex);
+			return elem === document.activeElement &&
+				( !document.hasFocus || document.hasFocus() ) &&
+				!!( elem.type || elem.href || ~elem.tabIndex );
 		},
 
 		// Boolean properties
@@ -2027,16 +2180,20 @@ Expr = Sizzle.selectors = {
 		"disabled": createDisabledPseudo( true ),
 
 		"checked": function( elem ) {
+
 			// In CSS3, :checked should return both checked and selected elements
 			// http://www.w3.org/TR/2011/REC-css3-selectors-20110929/#checked
 			var nodeName = elem.nodeName.toLowerCase();
-			return (nodeName === "input" && !!elem.checked) || (nodeName === "option" && !!elem.selected);
+			return ( nodeName === "input" && !!elem.checked ) ||
+				( nodeName === "option" && !!elem.selected );
 		},
 
 		"selected": function( elem ) {
+
 			// Accessing this property makes selected-by-default
 			// options in Safari work properly
 			if ( elem.parentNode ) {
+				// eslint-disable-next-line no-unused-expressions
 				elem.parentNode.selectedIndex;
 			}
 
@@ -2045,6 +2202,7 @@ Expr = Sizzle.selectors = {
 
 		// Contents
 		"empty": function( elem ) {
+
 			// http://www.w3.org/TR/selectors/#empty-pseudo
 			// :empty is negated by element (1) or content nodes (text: 3; cdata: 4; entity ref: 5),
 			//   but not by others (comment: 8; processing instruction: 7; etc.)
@@ -2058,7 +2216,7 @@ Expr = Sizzle.selectors = {
 		},
 
 		"parent": function( elem ) {
-			return !Expr.pseudos["empty"]( elem );
+			return !Expr.pseudos[ "empty" ]( elem );
 		},
 
 		// Element/input types
@@ -2082,39 +2240,40 @@ Expr = Sizzle.selectors = {
 
 				// Support: IE<8
 				// New HTML5 attribute values (e.g., "search") appear with elem.type === "text"
-				( (attr = elem.getAttribute("type")) == null || attr.toLowerCase() === "text" );
+				( ( attr = elem.getAttribute( "type" ) ) == null ||
+					attr.toLowerCase() === "text" );
 		},
 
 		// Position-in-collection
-		"first": createPositionalPseudo(function() {
+		"first": createPositionalPseudo( function() {
 			return [ 0 ];
-		}),
+		} ),
 
-		"last": createPositionalPseudo(function( matchIndexes, length ) {
+		"last": createPositionalPseudo( function( _matchIndexes, length ) {
 			return [ length - 1 ];
-		}),
+		} ),
 
-		"eq": createPositionalPseudo(function( matchIndexes, length, argument ) {
+		"eq": createPositionalPseudo( function( _matchIndexes, length, argument ) {
 			return [ argument < 0 ? argument + length : argument ];
-		}),
+		} ),
 
-		"even": createPositionalPseudo(function( matchIndexes, length ) {
+		"even": createPositionalPseudo( function( matchIndexes, length ) {
 			var i = 0;
 			for ( ; i < length; i += 2 ) {
 				matchIndexes.push( i );
 			}
 			return matchIndexes;
-		}),
+		} ),
 
-		"odd": createPositionalPseudo(function( matchIndexes, length ) {
+		"odd": createPositionalPseudo( function( matchIndexes, length ) {
 			var i = 1;
 			for ( ; i < length; i += 2 ) {
 				matchIndexes.push( i );
 			}
 			return matchIndexes;
-		}),
+		} ),
 
-		"lt": createPositionalPseudo(function( matchIndexes, length, argument ) {
+		"lt": createPositionalPseudo( function( matchIndexes, length, argument ) {
 			var i = argument < 0 ?
 				argument + length :
 				argument > length ?
@@ -2124,19 +2283,19 @@ Expr = Sizzle.selectors = {
 				matchIndexes.push( i );
 			}
 			return matchIndexes;
-		}),
+		} ),
 
-		"gt": createPositionalPseudo(function( matchIndexes, length, argument ) {
+		"gt": createPositionalPseudo( function( matchIndexes, length, argument ) {
 			var i = argument < 0 ? argument + length : argument;
 			for ( ; ++i < length; ) {
 				matchIndexes.push( i );
 			}
 			return matchIndexes;
-		})
+		} )
 	}
 };
 
-Expr.pseudos["nth"] = Expr.pseudos["eq"];
+Expr.pseudos[ "nth" ] = Expr.pseudos[ "eq" ];
 
 // Add button/input type pseudos
 for ( i in { radio: true, checkbox: true, file: true, password: true, image: true } ) {
@@ -2167,37 +2326,39 @@ tokenize = Sizzle.tokenize = function( selector, parseOnly ) {
 	while ( soFar ) {
 
 		// Comma and first run
-		if ( !matched || (match = rcomma.exec( soFar )) ) {
+		if ( !matched || ( match = rcomma.exec( soFar ) ) ) {
 			if ( match ) {
+
 				// Don't consume trailing commas as valid
-				soFar = soFar.slice( match[0].length ) || soFar;
+				soFar = soFar.slice( match[ 0 ].length ) || soFar;
 			}
-			groups.push( (tokens = []) );
+			groups.push( ( tokens = [] ) );
 		}
 
 		matched = false;
 
 		// Combinators
-		if ( (match = rcombinators.exec( soFar )) ) {
+		if ( ( match = rcombinators.exec( soFar ) ) ) {
 			matched = match.shift();
-			tokens.push({
+			tokens.push( {
 				value: matched,
+
 				// Cast descendant combinators to space
-				type: match[0].replace( rtrim, " " )
-			});
+				type: match[ 0 ].replace( rtrim, " " )
+			} );
 			soFar = soFar.slice( matched.length );
 		}
 
 		// Filters
 		for ( type in Expr.filter ) {
-			if ( (match = matchExpr[ type ].exec( soFar )) && (!preFilters[ type ] ||
-				(match = preFilters[ type ]( match ))) ) {
+			if ( ( match = matchExpr[ type ].exec( soFar ) ) && ( !preFilters[ type ] ||
+				( match = preFilters[ type ]( match ) ) ) ) {
 				matched = match.shift();
-				tokens.push({
+				tokens.push( {
 					value: matched,
 					type: type,
 					matches: match
-				});
+				} );
 				soFar = soFar.slice( matched.length );
 			}
 		}
@@ -2214,6 +2375,7 @@ tokenize = Sizzle.tokenize = function( selector, parseOnly ) {
 		soFar.length :
 		soFar ?
 			Sizzle.error( selector ) :
+
 			// Cache the tokens
 			tokenCache( selector, groups ).slice( 0 );
 };
@@ -2223,7 +2385,7 @@ function toSelector( tokens ) {
 		len = tokens.length,
 		selector = "";
 	for ( ; i < len; i++ ) {
-		selector += tokens[i].value;
+		selector += tokens[ i ].value;
 	}
 	return selector;
 }
@@ -2236,9 +2398,10 @@ function addCombinator( matcher, combinator, base ) {
 		doneName = done++;
 
 	return combinator.first ?
+
 		// Check against closest ancestor/preceding element
 		function( elem, context, xml ) {
-			while ( (elem = elem[ dir ]) ) {
+			while ( ( elem = elem[ dir ] ) ) {
 				if ( elem.nodeType === 1 || checkNonElements ) {
 					return matcher( elem, context, xml );
 				}
@@ -2253,7 +2416,7 @@ function addCombinator( matcher, combinator, base ) {
 
 			// We can't set arbitrary data on XML nodes, so they don't benefit from combinator caching
 			if ( xml ) {
-				while ( (elem = elem[ dir ]) ) {
+				while ( ( elem = elem[ dir ] ) ) {
 					if ( elem.nodeType === 1 || checkNonElements ) {
 						if ( matcher( elem, context, xml ) ) {
 							return true;
@@ -2261,27 +2424,29 @@ function addCombinator( matcher, combinator, base ) {
 					}
 				}
 			} else {
-				while ( (elem = elem[ dir ]) ) {
+				while ( ( elem = elem[ dir ] ) ) {
 					if ( elem.nodeType === 1 || checkNonElements ) {
-						outerCache = elem[ expando ] || (elem[ expando ] = {});
+						outerCache = elem[ expando ] || ( elem[ expando ] = {} );
 
 						// Support: IE <9 only
 						// Defend against cloned attroperties (jQuery gh-1709)
-						uniqueCache = outerCache[ elem.uniqueID ] || (outerCache[ elem.uniqueID ] = {});
+						uniqueCache = outerCache[ elem.uniqueID ] ||
+							( outerCache[ elem.uniqueID ] = {} );
 
 						if ( skip && skip === elem.nodeName.toLowerCase() ) {
 							elem = elem[ dir ] || elem;
-						} else if ( (oldCache = uniqueCache[ key ]) &&
+						} else if ( ( oldCache = uniqueCache[ key ] ) &&
 							oldCache[ 0 ] === dirruns && oldCache[ 1 ] === doneName ) {
 
 							// Assign to newCache so results back-propagate to previous elements
-							return (newCache[ 2 ] = oldCache[ 2 ]);
+							return ( newCache[ 2 ] = oldCache[ 2 ] );
 						} else {
+
 							// Reuse newcache so results back-propagate to previous elements
 							uniqueCache[ key ] = newCache;
 
 							// A match means we're done; a fail means we have to keep checking
-							if ( (newCache[ 2 ] = matcher( elem, context, xml )) ) {
+							if ( ( newCache[ 2 ] = matcher( elem, context, xml ) ) ) {
 								return true;
 							}
 						}
@@ -2297,20 +2462,20 @@ function elementMatcher( matchers ) {
 		function( elem, context, xml ) {
 			var i = matchers.length;
 			while ( i-- ) {
-				if ( !matchers[i]( elem, context, xml ) ) {
+				if ( !matchers[ i ]( elem, context, xml ) ) {
 					return false;
 				}
 			}
 			return true;
 		} :
-		matchers[0];
+		matchers[ 0 ];
 }
 
 function multipleContexts( selector, contexts, results ) {
 	var i = 0,
 		len = contexts.length;
 	for ( ; i < len; i++ ) {
-		Sizzle( selector, contexts[i], results );
+		Sizzle( selector, contexts[ i ], results );
 	}
 	return results;
 }
@@ -2323,7 +2488,7 @@ function condense( unmatched, map, filter, context, xml ) {
 		mapped = map != null;
 
 	for ( ; i < len; i++ ) {
-		if ( (elem = unmatched[i]) ) {
+		if ( ( elem = unmatched[ i ] ) ) {
 			if ( !filter || filter( elem, context, xml ) ) {
 				newUnmatched.push( elem );
 				if ( mapped ) {
@@ -2343,14 +2508,18 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 	if ( postFinder && !postFinder[ expando ] ) {
 		postFinder = setMatcher( postFinder, postSelector );
 	}
-	return markFunction(function( seed, results, context, xml ) {
+	return markFunction( function( seed, results, context, xml ) {
 		var temp, i, elem,
 			preMap = [],
 			postMap = [],
 			preexisting = results.length,
 
 			// Get initial elements from seed or context
-			elems = seed || multipleContexts( selector || "*", context.nodeType ? [ context ] : context, [] ),
+			elems = seed || multipleContexts(
+				selector || "*",
+				context.nodeType ? [ context ] : context,
+				[]
+			),
 
 			// Prefilter to get matcher input, preserving a map for seed-results synchronization
 			matcherIn = preFilter && ( seed || !selector ) ?
@@ -2358,6 +2527,7 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 				elems,
 
 			matcherOut = matcher ?
+
 				// If we have a postFinder, or filtered seed, or non-seed postFilter or preexisting results,
 				postFinder || ( seed ? preFilter : preexisting || postFilter ) ?
 
@@ -2381,8 +2551,8 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 			// Un-match failing elements by moving them back to matcherIn
 			i = temp.length;
 			while ( i-- ) {
-				if ( (elem = temp[i]) ) {
-					matcherOut[ postMap[i] ] = !(matcherIn[ postMap[i] ] = elem);
+				if ( ( elem = temp[ i ] ) ) {
+					matcherOut[ postMap[ i ] ] = !( matcherIn[ postMap[ i ] ] = elem );
 				}
 			}
 		}
@@ -2390,25 +2560,27 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 		if ( seed ) {
 			if ( postFinder || preFilter ) {
 				if ( postFinder ) {
+
 					// Get the final matcherOut by condensing this intermediate into postFinder contexts
 					temp = [];
 					i = matcherOut.length;
 					while ( i-- ) {
-						if ( (elem = matcherOut[i]) ) {
+						if ( ( elem = matcherOut[ i ] ) ) {
+
 							// Restore matcherIn since elem is not yet a final match
-							temp.push( (matcherIn[i] = elem) );
+							temp.push( ( matcherIn[ i ] = elem ) );
 						}
 					}
-					postFinder( null, (matcherOut = []), temp, xml );
+					postFinder( null, ( matcherOut = [] ), temp, xml );
 				}
 
 				// Move matched elements from seed to results to keep them synchronized
 				i = matcherOut.length;
 				while ( i-- ) {
-					if ( (elem = matcherOut[i]) &&
-						(temp = postFinder ? indexOf( seed, elem ) : preMap[i]) > -1 ) {
+					if ( ( elem = matcherOut[ i ] ) &&
+						( temp = postFinder ? indexOf( seed, elem ) : preMap[ i ] ) > -1 ) {
 
-						seed[temp] = !(results[temp] = elem);
+						seed[ temp ] = !( results[ temp ] = elem );
 					}
 				}
 			}
@@ -2426,14 +2598,14 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 				push.apply( results, matcherOut );
 			}
 		}
-	});
+	} );
 }
 
 function matcherFromTokens( tokens ) {
 	var checkContext, matcher, j,
 		len = tokens.length,
-		leadingRelative = Expr.relative[ tokens[0].type ],
-		implicitRelative = leadingRelative || Expr.relative[" "],
+		leadingRelative = Expr.relative[ tokens[ 0 ].type ],
+		implicitRelative = leadingRelative || Expr.relative[ " " ],
 		i = leadingRelative ? 1 : 0,
 
 		// The foundational matcher ensures that elements are reachable from top-level context(s)
@@ -2445,38 +2617,43 @@ function matcherFromTokens( tokens ) {
 		}, implicitRelative, true ),
 		matchers = [ function( elem, context, xml ) {
 			var ret = ( !leadingRelative && ( xml || context !== outermostContext ) ) || (
-				(checkContext = context).nodeType ?
+				( checkContext = context ).nodeType ?
 					matchContext( elem, context, xml ) :
 					matchAnyContext( elem, context, xml ) );
+
 			// Avoid hanging onto element (issue #299)
 			checkContext = null;
 			return ret;
 		} ];
 
 	for ( ; i < len; i++ ) {
-		if ( (matcher = Expr.relative[ tokens[i].type ]) ) {
-			matchers = [ addCombinator(elementMatcher( matchers ), matcher) ];
+		if ( ( matcher = Expr.relative[ tokens[ i ].type ] ) ) {
+			matchers = [ addCombinator( elementMatcher( matchers ), matcher ) ];
 		} else {
-			matcher = Expr.filter[ tokens[i].type ].apply( null, tokens[i].matches );
+			matcher = Expr.filter[ tokens[ i ].type ].apply( null, tokens[ i ].matches );
 
 			// Return special upon seeing a positional matcher
 			if ( matcher[ expando ] ) {
+
 				// Find the next relative operator (if any) for proper handling
 				j = ++i;
 				for ( ; j < len; j++ ) {
-					if ( Expr.relative[ tokens[j].type ] ) {
+					if ( Expr.relative[ tokens[ j ].type ] ) {
 						break;
 					}
 				}
 				return setMatcher(
 					i > 1 && elementMatcher( matchers ),
 					i > 1 && toSelector(
-						// If the preceding token was a descendant combinator, insert an implicit any-element `*`
-						tokens.slice( 0, i - 1 ).concat({ value: tokens[ i - 2 ].type === " " ? "*" : "" })
+
+					// If the preceding token was a descendant combinator, insert an implicit any-element `*`
+					tokens
+						.slice( 0, i - 1 )
+						.concat( { value: tokens[ i - 2 ].type === " " ? "*" : "" } )
 					).replace( rtrim, "$1" ),
 					matcher,
 					i < j && matcherFromTokens( tokens.slice( i, j ) ),
-					j < len && matcherFromTokens( (tokens = tokens.slice( j )) ),
+					j < len && matcherFromTokens( ( tokens = tokens.slice( j ) ) ),
 					j < len && toSelector( tokens )
 				);
 			}
@@ -2497,28 +2674,40 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 				unmatched = seed && [],
 				setMatched = [],
 				contextBackup = outermostContext,
+
 				// We must always have either seed elements or outermost context
-				elems = seed || byElement && Expr.find["TAG"]( "*", outermost ),
+				elems = seed || byElement && Expr.find[ "TAG" ]( "*", outermost ),
+
 				// Use integer dirruns iff this is the outermost matcher
-				dirrunsUnique = (dirruns += contextBackup == null ? 1 : Math.random() || 0.1),
+				dirrunsUnique = ( dirruns += contextBackup == null ? 1 : Math.random() || 0.1 ),
 				len = elems.length;
 
 			if ( outermost ) {
-				outermostContext = context === document || context || outermost;
+
+				// Support: IE 11+, Edge 17 - 18+
+				// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+				// two documents; shallow comparisons work.
+				// eslint-disable-next-line eqeqeq
+				outermostContext = context == document || context || outermost;
 			}
 
 			// Add elements passing elementMatchers directly to results
 			// Support: IE<9, Safari
 			// Tolerate NodeList properties (IE: "length"; Safari: <number>) matching elements by id
-			for ( ; i !== len && (elem = elems[i]) != null; i++ ) {
+			for ( ; i !== len && ( elem = elems[ i ] ) != null; i++ ) {
 				if ( byElement && elem ) {
 					j = 0;
-					if ( !context && elem.ownerDocument !== document ) {
+
+					// Support: IE 11+, Edge 17 - 18+
+					// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+					// two documents; shallow comparisons work.
+					// eslint-disable-next-line eqeqeq
+					if ( !context && elem.ownerDocument != document ) {
 						setDocument( elem );
 						xml = !documentIsHTML;
 					}
-					while ( (matcher = elementMatchers[j++]) ) {
-						if ( matcher( elem, context || document, xml) ) {
+					while ( ( matcher = elementMatchers[ j++ ] ) ) {
+						if ( matcher( elem, context || document, xml ) ) {
 							results.push( elem );
 							break;
 						}
@@ -2530,8 +2719,9 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 
 				// Track unmatched elements for set filters
 				if ( bySet ) {
+
 					// They will have gone through all possible matchers
-					if ( (elem = !matcher && elem) ) {
+					if ( ( elem = !matcher && elem ) ) {
 						matchedCount--;
 					}
 
@@ -2555,16 +2745,17 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 			// numerically zero.
 			if ( bySet && i !== matchedCount ) {
 				j = 0;
-				while ( (matcher = setMatchers[j++]) ) {
+				while ( ( matcher = setMatchers[ j++ ] ) ) {
 					matcher( unmatched, setMatched, context, xml );
 				}
 
 				if ( seed ) {
+
 					// Reintegrate element matches to eliminate the need for sorting
 					if ( matchedCount > 0 ) {
 						while ( i-- ) {
-							if ( !(unmatched[i] || setMatched[i]) ) {
-								setMatched[i] = pop.call( results );
+							if ( !( unmatched[ i ] || setMatched[ i ] ) ) {
+								setMatched[ i ] = pop.call( results );
 							}
 						}
 					}
@@ -2605,13 +2796,14 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
 		cached = compilerCache[ selector + " " ];
 
 	if ( !cached ) {
+
 		// Generate a function of recursive functions that can be used to check each element
 		if ( !match ) {
 			match = tokenize( selector );
 		}
 		i = match.length;
 		while ( i-- ) {
-			cached = matcherFromTokens( match[i] );
+			cached = matcherFromTokens( match[ i ] );
 			if ( cached[ expando ] ) {
 				setMatchers.push( cached );
 			} else {
@@ -2620,7 +2812,10 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
 		}
 
 		// Cache the compiled function
-		cached = compilerCache( selector, matcherFromGroupMatchers( elementMatchers, setMatchers ) );
+		cached = compilerCache(
+			selector,
+			matcherFromGroupMatchers( elementMatchers, setMatchers )
+		);
 
 		// Save selector and tokenization
 		cached.selector = selector;
@@ -2640,7 +2835,7 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
 select = Sizzle.select = function( selector, context, results, seed ) {
 	var i, tokens, token, type, find,
 		compiled = typeof selector === "function" && selector,
-		match = !seed && tokenize( (selector = compiled.selector || selector) );
+		match = !seed && tokenize( ( selector = compiled.selector || selector ) );
 
 	results = results || [];
 
@@ -2649,11 +2844,12 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 	if ( match.length === 1 ) {
 
 		// Reduce context if the leading compound selector is an ID
-		tokens = match[0] = match[0].slice( 0 );
-		if ( tokens.length > 2 && (token = tokens[0]).type === "ID" &&
-				context.nodeType === 9 && documentIsHTML && Expr.relative[ tokens[1].type ] ) {
+		tokens = match[ 0 ] = match[ 0 ].slice( 0 );
+		if ( tokens.length > 2 && ( token = tokens[ 0 ] ).type === "ID" &&
+			context.nodeType === 9 && documentIsHTML && Expr.relative[ tokens[ 1 ].type ] ) {
 
-			context = ( Expr.find["ID"]( token.matches[0].replace(runescape, funescape), context ) || [] )[0];
+			context = ( Expr.find[ "ID" ]( token.matches[ 0 ]
+				.replace( runescape, funescape ), context ) || [] )[ 0 ];
 			if ( !context ) {
 				return results;
 
@@ -2666,20 +2862,22 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 		}
 
 		// Fetch a seed set for right-to-left matching
-		i = matchExpr["needsContext"].test( selector ) ? 0 : tokens.length;
+		i = matchExpr[ "needsContext" ].test( selector ) ? 0 : tokens.length;
 		while ( i-- ) {
-			token = tokens[i];
+			token = tokens[ i ];
 
 			// Abort if we hit a combinator
-			if ( Expr.relative[ (type = token.type) ] ) {
+			if ( Expr.relative[ ( type = token.type ) ] ) {
 				break;
 			}
-			if ( (find = Expr.find[ type ]) ) {
+			if ( ( find = Expr.find[ type ] ) ) {
+
 				// Search, expanding context for leading sibling combinators
-				if ( (seed = find(
-					token.matches[0].replace( runescape, funescape ),
-					rsibling.test( tokens[0].type ) && testContext( context.parentNode ) || context
-				)) ) {
+				if ( ( seed = find(
+					token.matches[ 0 ].replace( runescape, funescape ),
+					rsibling.test( tokens[ 0 ].type ) && testContext( context.parentNode ) ||
+						context
+				) ) ) {
 
 					// If seed is empty or no tokens remain, we can return early
 					tokens.splice( i, 1 );
@@ -2710,7 +2908,7 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 // One-time assignments
 
 // Sort stability
-support.sortStable = expando.split("").sort( sortOrder ).join("") === expando;
+support.sortStable = expando.split( "" ).sort( sortOrder ).join( "" ) === expando;
 
 // Support: Chrome 14-35+
 // Always assume duplicates if they aren't passed to the comparison function
@@ -2721,58 +2919,59 @@ setDocument();
 
 // Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
 // Detached nodes confoundingly follow *each other*
-support.sortDetached = assert(function( el ) {
+support.sortDetached = assert( function( el ) {
+
 	// Should return 1, but returns 4 (following)
-	return el.compareDocumentPosition( document.createElement("fieldset") ) & 1;
-});
+	return el.compareDocumentPosition( document.createElement( "fieldset" ) ) & 1;
+} );
 
 // Support: IE<8
 // Prevent attribute/property "interpolation"
 // https://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
-if ( !assert(function( el ) {
+if ( !assert( function( el ) {
 	el.innerHTML = "<a href='#'></a>";
-	return el.firstChild.getAttribute("href") === "#" ;
-}) ) {
+	return el.firstChild.getAttribute( "href" ) === "#";
+} ) ) {
 	addHandle( "type|href|height|width", function( elem, name, isXML ) {
 		if ( !isXML ) {
 			return elem.getAttribute( name, name.toLowerCase() === "type" ? 1 : 2 );
 		}
-	});
+	} );
 }
 
 // Support: IE<9
 // Use defaultValue in place of getAttribute("value")
-if ( !support.attributes || !assert(function( el ) {
+if ( !support.attributes || !assert( function( el ) {
 	el.innerHTML = "<input/>";
 	el.firstChild.setAttribute( "value", "" );
 	return el.firstChild.getAttribute( "value" ) === "";
-}) ) {
-	addHandle( "value", function( elem, name, isXML ) {
+} ) ) {
+	addHandle( "value", function( elem, _name, isXML ) {
 		if ( !isXML && elem.nodeName.toLowerCase() === "input" ) {
 			return elem.defaultValue;
 		}
-	});
+	} );
 }
 
 // Support: IE<9
 // Use getAttributeNode to fetch booleans when getAttribute lies
-if ( !assert(function( el ) {
-	return el.getAttribute("disabled") == null;
-}) ) {
+if ( !assert( function( el ) {
+	return el.getAttribute( "disabled" ) == null;
+} ) ) {
 	addHandle( booleans, function( elem, name, isXML ) {
 		var val;
 		if ( !isXML ) {
 			return elem[ name ] === true ? name.toLowerCase() :
-					(val = elem.getAttributeNode( name )) && val.specified ?
+				( val = elem.getAttributeNode( name ) ) && val.specified ?
 					val.value :
-				null;
+					null;
 		}
-	});
+	} );
 }
 
 return Sizzle;
 
-})( window );
+} )( window );
 
 
 
@@ -3141,7 +3340,7 @@ jQuery.each( {
 	parents: function( elem ) {
 		return dir( elem, "parentNode" );
 	},
-	parentsUntil: function( elem, i, until ) {
+	parentsUntil: function( elem, _i, until ) {
 		return dir( elem, "parentNode", until );
 	},
 	next: function( elem ) {
@@ -3156,10 +3355,10 @@ jQuery.each( {
 	prevAll: function( elem ) {
 		return dir( elem, "previousSibling" );
 	},
-	nextUntil: function( elem, i, until ) {
+	nextUntil: function( elem, _i, until ) {
 		return dir( elem, "nextSibling", until );
 	},
-	prevUntil: function( elem, i, until ) {
+	prevUntil: function( elem, _i, until ) {
 		return dir( elem, "previousSibling", until );
 	},
 	siblings: function( elem ) {
@@ -3169,7 +3368,13 @@ jQuery.each( {
 		return siblings( elem.firstChild );
 	},
 	contents: function( elem ) {
-		if ( typeof elem.contentDocument !== "undefined" ) {
+		if ( elem.contentDocument != null &&
+
+			// Support: IE 11+
+			// <object> elements with no `data` attribute has an object
+			// `contentDocument` with a `null` prototype.
+			getProto( elem.contentDocument ) ) {
+
 			return elem.contentDocument;
 		}
 
@@ -3512,7 +3717,7 @@ jQuery.extend( {
 					var fns = arguments;
 
 					return jQuery.Deferred( function( newDefer ) {
-						jQuery.each( tuples, function( i, tuple ) {
+						jQuery.each( tuples, function( _i, tuple ) {
 
 							// Map tuples (progress, done, fail) to arguments (done, fail, progress)
 							var fn = isFunction( fns[ tuple[ 4 ] ] ) && fns[ tuple[ 4 ] ];
@@ -3965,7 +4170,7 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 			// ...except when executing function values
 			} else {
 				bulk = fn;
-				fn = function( elem, key, value ) {
+				fn = function( elem, _key, value ) {
 					return bulk.call( jQuery( elem ), value );
 				};
 			}
@@ -4000,7 +4205,7 @@ var rmsPrefix = /^-ms-/,
 	rdashAlpha = /-([a-z])/g;
 
 // Used by camelCase as callback to replace()
-function fcamelCase( all, letter ) {
+function fcamelCase( _all, letter ) {
 	return letter.toUpperCase();
 }
 
@@ -4528,27 +4733,6 @@ var isHiddenWithinTree = function( elem, el ) {
 			jQuery.css( elem, "display" ) === "none";
 	};
 
-var swap = function( elem, options, callback, args ) {
-	var ret, name,
-		old = {};
-
-	// Remember the old values, and insert the new ones
-	for ( name in options ) {
-		old[ name ] = elem.style[ name ];
-		elem.style[ name ] = options[ name ];
-	}
-
-	ret = callback.apply( elem, args || [] );
-
-	// Revert the old values
-	for ( name in options ) {
-		elem.style[ name ] = old[ name ];
-	}
-
-	return ret;
-};
-
-
 
 
 function adjustCSS( elem, prop, valueParts, tween ) {
@@ -4719,11 +4903,40 @@ var rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i );
 
 
 
-// We have to close these tags to support XHTML (#13200)
-var wrapMap = {
+( function() {
+	var fragment = document.createDocumentFragment(),
+		div = fragment.appendChild( document.createElement( "div" ) ),
+		input = document.createElement( "input" );
+
+	// Support: Android 4.0 - 4.3 only
+	// Check state lost if the name is set (#11217)
+	// Support: Windows Web Apps (WWA)
+	// `name` and `type` must use .setAttribute for WWA (#14901)
+	input.setAttribute( "type", "radio" );
+	input.setAttribute( "checked", "checked" );
+	input.setAttribute( "name", "t" );
+
+	div.appendChild( input );
+
+	// Support: Android <=4.1 only
+	// Older WebKit doesn't clone checked state correctly in fragments
+	support.checkClone = div.cloneNode( true ).cloneNode( true ).lastChild.checked;
+
+	// Support: IE <=11 only
+	// Make sure textarea (and checkbox) defaultValue is properly cloned
+	div.innerHTML = "<textarea>x</textarea>";
+	support.noCloneChecked = !!div.cloneNode( true ).lastChild.defaultValue;
 
 	// Support: IE <=9 only
-	option: [ 1, "<select multiple='multiple'>", "</select>" ],
+	// IE <=9 replaces <option> tags with their contents when inserted outside of
+	// the select element.
+	div.innerHTML = "<option></option>";
+	support.option = !!div.lastChild;
+} )();
+
+
+// We have to close these tags to support XHTML (#13200)
+var wrapMap = {
 
 	// XHTML parsers do not magically insert elements in the
 	// same way that tag soup parsers do. So we cannot shorten
@@ -4736,11 +4949,13 @@ var wrapMap = {
 	_default: [ 0, "", "" ]
 };
 
-// Support: IE <=9 only
-wrapMap.optgroup = wrapMap.option;
-
 wrapMap.tbody = wrapMap.tfoot = wrapMap.colgroup = wrapMap.caption = wrapMap.thead;
 wrapMap.th = wrapMap.td;
+
+// Support: IE <=9 only
+if ( !support.option ) {
+	wrapMap.optgroup = wrapMap.option = [ 1, "<select multiple='multiple'>", "</select>" ];
+}
 
 
 function getAll( context, tag ) {
@@ -4874,32 +5089,6 @@ function buildFragment( elems, context, scripts, selection, ignored ) {
 }
 
 
-( function() {
-	var fragment = document.createDocumentFragment(),
-		div = fragment.appendChild( document.createElement( "div" ) ),
-		input = document.createElement( "input" );
-
-	// Support: Android 4.0 - 4.3 only
-	// Check state lost if the name is set (#11217)
-	// Support: Windows Web Apps (WWA)
-	// `name` and `type` must use .setAttribute for WWA (#14901)
-	input.setAttribute( "type", "radio" );
-	input.setAttribute( "checked", "checked" );
-	input.setAttribute( "name", "t" );
-
-	div.appendChild( input );
-
-	// Support: Android <=4.1 only
-	// Older WebKit doesn't clone checked state correctly in fragments
-	support.checkClone = div.cloneNode( true ).cloneNode( true ).lastChild.checked;
-
-	// Support: IE <=11 only
-	// Make sure textarea (and checkbox) defaultValue is properly cloned
-	div.innerHTML = "<textarea>x</textarea>";
-	support.noCloneChecked = !!div.cloneNode( true ).lastChild.defaultValue;
-} )();
-
-
 var
 	rkeyEvent = /^key/,
 	rmouseEvent = /^(?:mouse|pointer|contextmenu|drag|drop)|click/,
@@ -5008,8 +5197,8 @@ jQuery.event = {
 			special, handlers, type, namespaces, origType,
 			elemData = dataPriv.get( elem );
 
-		// Don't attach events to noData or text/comment nodes (but allow plain objects)
-		if ( !elemData ) {
+		// Only attach events to objects that accept data
+		if ( !acceptData( elem ) ) {
 			return;
 		}
 
@@ -5033,7 +5222,7 @@ jQuery.event = {
 
 		// Init the element's event structure and main handler, if this is the first
 		if ( !( events = elemData.events ) ) {
-			events = elemData.events = {};
+			events = elemData.events = Object.create( null );
 		}
 		if ( !( eventHandle = elemData.handle ) ) {
 			eventHandle = elemData.handle = function( e ) {
@@ -5191,12 +5380,15 @@ jQuery.event = {
 
 	dispatch: function( nativeEvent ) {
 
-		// Make a writable jQuery.Event from the native event object
-		var event = jQuery.event.fix( nativeEvent );
-
 		var i, j, ret, matched, handleObj, handlerQueue,
 			args = new Array( arguments.length ),
-			handlers = ( dataPriv.get( this, "events" ) || {} )[ event.type ] || [],
+
+			// Make a writable jQuery.Event from the native event object
+			event = jQuery.event.fix( nativeEvent ),
+
+			handlers = (
+					dataPriv.get( this, "events" ) || Object.create( null )
+				)[ event.type ] || [],
 			special = jQuery.event.special[ event.type ] || {};
 
 		// Use the fix-ed jQuery.Event rather than the (read-only) native event
@@ -5771,13 +5963,6 @@ jQuery.fn.extend( {
 
 var
 
-	/* eslint-disable max-len */
-
-	// See https://github.com/eslint/eslint/issues/3229
-	rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([a-z][^\/\0>\x20\t\r\n\f]*)[^>]*)\/>/gi,
-
-	/* eslint-enable */
-
 	// Support: IE <=10 - 11, Edge 12 - 13 only
 	// In IE/Edge using regex groups here causes severe slowdowns.
 	// See https://connect.microsoft.com/IE/feedback/details/1736512/
@@ -5814,7 +5999,7 @@ function restoreScript( elem ) {
 }
 
 function cloneCopyEvent( src, dest ) {
-	var i, l, type, pdataOld, pdataCur, udataOld, udataCur, events;
+	var i, l, type, pdataOld, udataOld, udataCur, events;
 
 	if ( dest.nodeType !== 1 ) {
 		return;
@@ -5822,13 +6007,11 @@ function cloneCopyEvent( src, dest ) {
 
 	// 1. Copy private data: events, handlers, etc.
 	if ( dataPriv.hasData( src ) ) {
-		pdataOld = dataPriv.access( src );
-		pdataCur = dataPriv.set( dest, pdataOld );
+		pdataOld = dataPriv.get( src );
 		events = pdataOld.events;
 
 		if ( events ) {
-			delete pdataCur.handle;
-			pdataCur.events = {};
+			dataPriv.remove( dest, "handle events" );
 
 			for ( type in events ) {
 				for ( i = 0, l = events[ type ].length; i < l; i++ ) {
@@ -5864,7 +6047,7 @@ function fixInput( src, dest ) {
 function domManip( collection, args, callback, ignored ) {
 
 	// Flatten any nested arrays
-	args = concat.apply( [], args );
+	args = flat( args );
 
 	var fragment, first, scripts, hasScripts, node, doc,
 		i = 0,
@@ -5939,7 +6122,7 @@ function domManip( collection, args, callback, ignored ) {
 							if ( jQuery._evalUrl && !node.noModule ) {
 								jQuery._evalUrl( node.src, {
 									nonce: node.nonce || node.getAttribute( "nonce" )
-								} );
+								}, doc );
 							}
 						} else {
 							DOMEval( node.textContent.replace( rcleanScript, "" ), node, doc );
@@ -5976,7 +6159,7 @@ function remove( elem, selector, keepData ) {
 
 jQuery.extend( {
 	htmlPrefilter: function( html ) {
-		return html.replace( rxhtmlTag, "<$1></$2>" );
+		return html;
 	},
 
 	clone: function( elem, dataAndEvents, deepDataAndEvents ) {
@@ -6238,6 +6421,27 @@ var getStyles = function( elem ) {
 		return view.getComputedStyle( elem );
 	};
 
+var swap = function( elem, options, callback ) {
+	var ret, name,
+		old = {};
+
+	// Remember the old values, and insert the new ones
+	for ( name in options ) {
+		old[ name ] = elem.style[ name ];
+		elem.style[ name ] = options[ name ];
+	}
+
+	ret = callback.call( elem );
+
+	// Revert the old values
+	for ( name in options ) {
+		elem.style[ name ] = old[ name ];
+	}
+
+	return ret;
+};
+
+
 var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 
 
@@ -6295,7 +6499,7 @@ var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 	}
 
 	var pixelPositionVal, boxSizingReliableVal, scrollboxSizeVal, pixelBoxStylesVal,
-		reliableMarginLeftVal,
+		reliableTrDimensionsVal, reliableMarginLeftVal,
 		container = document.createElement( "div" ),
 		div = document.createElement( "div" );
 
@@ -6330,6 +6534,35 @@ var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 		scrollboxSize: function() {
 			computeStyleTests();
 			return scrollboxSizeVal;
+		},
+
+		// Support: IE 9 - 11+, Edge 15 - 18+
+		// IE/Edge misreport `getComputedStyle` of table rows with width/height
+		// set in CSS while `offset*` properties report correct values.
+		// Behavior in IE 9 is more subtle than in newer versions & it passes
+		// some versions of this test; make sure not to make it pass there!
+		reliableTrDimensions: function() {
+			var table, tr, trChild, trStyle;
+			if ( reliableTrDimensionsVal == null ) {
+				table = document.createElement( "table" );
+				tr = document.createElement( "tr" );
+				trChild = document.createElement( "div" );
+
+				table.style.cssText = "position:absolute;left:-11111px";
+				tr.style.height = "1px";
+				trChild.style.height = "9px";
+
+				documentElement
+					.appendChild( table )
+					.appendChild( tr )
+					.appendChild( trChild );
+
+				trStyle = window.getComputedStyle( tr );
+				reliableTrDimensionsVal = parseInt( trStyle.height ) > 3;
+
+				documentElement.removeChild( table );
+			}
+			return reliableTrDimensionsVal;
 		}
 	} );
 } )();
@@ -6454,7 +6687,7 @@ var
 		fontWeight: "400"
 	};
 
-function setPositiveNumber( elem, value, subtract ) {
+function setPositiveNumber( _elem, value, subtract ) {
 
 	// Any relative (+/-) values have already been
 	// normalized at this point
@@ -6559,17 +6792,26 @@ function getWidthOrHeight( elem, dimension, extra ) {
 	}
 
 
-	// Fall back to offsetWidth/offsetHeight when value is "auto"
-	// This happens for inline elements with no explicit setting (gh-3571)
-	// Support: Android <=4.1 - 4.3 only
-	// Also use offsetWidth/offsetHeight for misreported inline dimensions (gh-3602)
-	// Support: IE 9-11 only
-	// Also use offsetWidth/offsetHeight for when box sizing is unreliable
-	// We use getClientRects() to check for hidden/disconnected.
-	// In those cases, the computed value can be trusted to be border-box
+	// Support: IE 9 - 11 only
+	// Use offsetWidth/offsetHeight for when box sizing is unreliable.
+	// In those cases, the computed value can be trusted to be border-box.
 	if ( ( !support.boxSizingReliable() && isBorderBox ||
+
+		// Support: IE 10 - 11+, Edge 15 - 18+
+		// IE/Edge misreport `getComputedStyle` of table rows with width/height
+		// set in CSS while `offset*` properties report correct values.
+		// Interestingly, in some cases IE 9 doesn't suffer from this issue.
+		!support.reliableTrDimensions() && nodeName( elem, "tr" ) ||
+
+		// Fall back to offsetWidth/offsetHeight when value is "auto"
+		// This happens for inline elements with no explicit setting (gh-3571)
 		val === "auto" ||
+
+		// Support: Android <=4.1 - 4.3 only
+		// Also use offsetWidth/offsetHeight for misreported inline dimensions (gh-3602)
 		!parseFloat( val ) && jQuery.css( elem, "display", false, styles ) === "inline" ) &&
+
+		// Make sure the element is visible & connected
 		elem.getClientRects().length ) {
 
 		isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
@@ -6764,7 +7006,7 @@ jQuery.extend( {
 	}
 } );
 
-jQuery.each( [ "height", "width" ], function( i, dimension ) {
+jQuery.each( [ "height", "width" ], function( _i, dimension ) {
 	jQuery.cssHooks[ dimension ] = {
 		get: function( elem, computed, extra ) {
 			if ( computed ) {
@@ -7537,7 +7779,7 @@ jQuery.fn.extend( {
 			clearQueue = type;
 			type = undefined;
 		}
-		if ( clearQueue && type !== false ) {
+		if ( clearQueue ) {
 			this.queue( type || "fx", [] );
 		}
 
@@ -7620,7 +7862,7 @@ jQuery.fn.extend( {
 	}
 } );
 
-jQuery.each( [ "toggle", "show", "hide" ], function( i, name ) {
+jQuery.each( [ "toggle", "show", "hide" ], function( _i, name ) {
 	var cssFn = jQuery.fn[ name ];
 	jQuery.fn[ name ] = function( speed, easing, callback ) {
 		return speed == null || typeof speed === "boolean" ?
@@ -7841,7 +8083,7 @@ boolHook = {
 	}
 };
 
-jQuery.each( jQuery.expr.match.bool.source.match( /\w+/g ), function( i, name ) {
+jQuery.each( jQuery.expr.match.bool.source.match( /\w+/g ), function( _i, name ) {
 	var getter = attrHandle[ name ] || jQuery.find.attr;
 
 	attrHandle[ name ] = function( elem, name, isXML ) {
@@ -8465,7 +8707,9 @@ jQuery.extend( jQuery.event, {
 				special.bindType || type;
 
 			// jQuery handler
-			handle = ( dataPriv.get( cur, "events" ) || {} )[ event.type ] &&
+			handle = (
+					dataPriv.get( cur, "events" ) || Object.create( null )
+				)[ event.type ] &&
 				dataPriv.get( cur, "handle" );
 			if ( handle ) {
 				handle.apply( cur, data );
@@ -8576,7 +8820,10 @@ if ( !support.focusin ) {
 
 		jQuery.event.special[ fix ] = {
 			setup: function() {
-				var doc = this.ownerDocument || this,
+
+				// Handle: regular nodes (via `this.ownerDocument`), window
+				// (via `this.document`) & document (via `this`).
+				var doc = this.ownerDocument || this.document || this,
 					attaches = dataPriv.access( doc, fix );
 
 				if ( !attaches ) {
@@ -8585,7 +8832,7 @@ if ( !support.focusin ) {
 				dataPriv.access( doc, fix, ( attaches || 0 ) + 1 );
 			},
 			teardown: function() {
-				var doc = this.ownerDocument || this,
+				var doc = this.ownerDocument || this.document || this,
 					attaches = dataPriv.access( doc, fix ) - 1;
 
 				if ( !attaches ) {
@@ -8601,7 +8848,7 @@ if ( !support.focusin ) {
 }
 var location = window.location;
 
-var nonce = Date.now();
+var nonce = { guid: Date.now() };
 
 var rquery = ( /\?/ );
 
@@ -8733,7 +8980,7 @@ jQuery.fn.extend( {
 				rsubmittable.test( this.nodeName ) && !rsubmitterTypes.test( type ) &&
 				( this.checked || !rcheckableType.test( type ) );
 		} )
-		.map( function( i, elem ) {
+		.map( function( _i, elem ) {
 			var val = jQuery( this ).val();
 
 			if ( val == null ) {
@@ -9346,7 +9593,8 @@ jQuery.extend( {
 			// Add or update anti-cache param if needed
 			if ( s.cache === false ) {
 				cacheURL = cacheURL.replace( rantiCache, "$1" );
-				uncached = ( rquery.test( cacheURL ) ? "&" : "?" ) + "_=" + ( nonce++ ) + uncached;
+				uncached = ( rquery.test( cacheURL ) ? "&" : "?" ) + "_=" + ( nonce.guid++ ) +
+					uncached;
 			}
 
 			// Put hash and anti-cache on the URL that will be requested (gh-1732)
@@ -9479,6 +9727,11 @@ jQuery.extend( {
 				response = ajaxHandleResponses( s, jqXHR, responses );
 			}
 
+			// Use a noop converter for missing script
+			if ( !isSuccess && jQuery.inArray( "script", s.dataTypes ) > -1 ) {
+				s.converters[ "text script" ] = function() {};
+			}
+
 			// Convert no matter what (that way responseXXX fields are always set)
 			response = ajaxConvert( s, response, jqXHR, isSuccess );
 
@@ -9569,7 +9822,7 @@ jQuery.extend( {
 	}
 } );
 
-jQuery.each( [ "get", "post" ], function( i, method ) {
+jQuery.each( [ "get", "post" ], function( _i, method ) {
 	jQuery[ method ] = function( url, data, callback, type ) {
 
 		// Shift arguments if data argument was omitted
@@ -9590,8 +9843,17 @@ jQuery.each( [ "get", "post" ], function( i, method ) {
 	};
 } );
 
+jQuery.ajaxPrefilter( function( s ) {
+	var i;
+	for ( i in s.headers ) {
+		if ( i.toLowerCase() === "content-type" ) {
+			s.contentType = s.headers[ i ] || "";
+		}
+	}
+} );
 
-jQuery._evalUrl = function( url, options ) {
+
+jQuery._evalUrl = function( url, options, doc ) {
 	return jQuery.ajax( {
 		url: url,
 
@@ -9609,7 +9871,7 @@ jQuery._evalUrl = function( url, options ) {
 			"text script": function() {}
 		},
 		dataFilter: function( response ) {
-			jQuery.globalEval( response, options );
+			jQuery.globalEval( response, options, doc );
 		}
 	} );
 };
@@ -9931,7 +10193,7 @@ var oldCallbacks = [],
 jQuery.ajaxSetup( {
 	jsonp: "callback",
 	jsonpCallback: function() {
-		var callback = oldCallbacks.pop() || ( jQuery.expando + "_" + ( nonce++ ) );
+		var callback = oldCallbacks.pop() || ( jQuery.expando + "_" + ( nonce.guid++ ) );
 		this[ callback ] = true;
 		return callback;
 	}
@@ -10148,23 +10410,6 @@ jQuery.fn.load = function( url, params, callback ) {
 
 
 
-// Attach a bunch of functions for handling common AJAX events
-jQuery.each( [
-	"ajaxStart",
-	"ajaxStop",
-	"ajaxComplete",
-	"ajaxError",
-	"ajaxSuccess",
-	"ajaxSend"
-], function( i, type ) {
-	jQuery.fn[ type ] = function( fn ) {
-		return this.on( type, fn );
-	};
-} );
-
-
-
-
 jQuery.expr.pseudos.animated = function( elem ) {
 	return jQuery.grep( jQuery.timers, function( fn ) {
 		return elem === fn.elem;
@@ -10221,6 +10466,12 @@ jQuery.offset = {
 			options.using.call( elem, props );
 
 		} else {
+			if ( typeof props.top === "number" ) {
+				props.top += "px";
+			}
+			if ( typeof props.left === "number" ) {
+				props.left += "px";
+			}
 			curElem.css( props );
 		}
 	}
@@ -10371,7 +10622,7 @@ jQuery.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( 
 // Blink bug: https://bugs.chromium.org/p/chromium/issues/detail?id=589347
 // getComputedStyle returns percent when specified for top/left/bottom/right;
 // rather than make the css module depend on the offset module, just check for it here
-jQuery.each( [ "top", "left" ], function( i, prop ) {
+jQuery.each( [ "top", "left" ], function( _i, prop ) {
 	jQuery.cssHooks[ prop ] = addGetHookIf( support.pixelPosition,
 		function( elem, computed ) {
 			if ( computed ) {
@@ -10434,23 +10685,17 @@ jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
 } );
 
 
-jQuery.each( ( "blur focus focusin focusout resize scroll click dblclick " +
-	"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
-	"change select submit keydown keypress keyup contextmenu" ).split( " " ),
-	function( i, name ) {
-
-	// Handle event binding
-	jQuery.fn[ name ] = function( data, fn ) {
-		return arguments.length > 0 ?
-			this.on( name, null, data, fn ) :
-			this.trigger( name );
+jQuery.each( [
+	"ajaxStart",
+	"ajaxStop",
+	"ajaxComplete",
+	"ajaxError",
+	"ajaxSuccess",
+	"ajaxSend"
+], function( _i, type ) {
+	jQuery.fn[ type ] = function( fn ) {
+		return this.on( type, fn );
 	};
-} );
-
-jQuery.fn.extend( {
-	hover: function( fnOver, fnOut ) {
-		return this.mouseenter( fnOver ).mouseleave( fnOut || fnOver );
-	}
 } );
 
 
@@ -10474,8 +10719,32 @@ jQuery.fn.extend( {
 		return arguments.length === 1 ?
 			this.off( selector, "**" ) :
 			this.off( types, selector || "**", fn );
+	},
+
+	hover: function( fnOver, fnOut ) {
+		return this.mouseenter( fnOver ).mouseleave( fnOut || fnOver );
 	}
 } );
+
+jQuery.each( ( "blur focus focusin focusout resize scroll click dblclick " +
+	"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
+	"change select submit keydown keypress keyup contextmenu" ).split( " " ),
+	function( _i, name ) {
+
+		// Handle event binding
+		jQuery.fn[ name ] = function( data, fn ) {
+			return arguments.length > 0 ?
+				this.on( name, null, data, fn ) :
+				this.trigger( name );
+		};
+	} );
+
+
+
+
+// Support: Android <=4.0 only
+// Make sure we trim BOM and NBSP
+var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 
 // Bind a function to a context, optionally partially applying any
 // arguments.
@@ -10539,6 +10808,11 @@ jQuery.isNumeric = function( obj ) {
 		!isNaN( obj - parseFloat( obj ) );
 };
 
+jQuery.trim = function( text ) {
+	return text == null ?
+		"" :
+		( text + "" ).replace( rtrim, "" );
+};
 
 
 
@@ -10587,7 +10861,7 @@ jQuery.noConflict = function( deep ) {
 // Expose jQuery and $ identifiers, even in AMD
 // (#7102#comment:10, https://github.com/jquery/jquery/pull/557)
 // and CommonJS for browser emulators (#13566)
-if ( !noGlobal ) {
+if ( typeof noGlobal === "undefined" ) {
 	window.jQuery = window.$ = jQuery;
 }
 
@@ -10599,8 +10873,8 @@ return jQuery;
 
 
 /**
- * @license AngularJS v1.7.9
- * (c) 2010-2018 Google, Inc. http://angularjs.org
+ * @license AngularJS v1.8.0
+ * (c) 2010-2020 Google, Inc. http://angularjs.org
  * License: MIT
  */
 (function(window) {'use strict';
@@ -10637,7 +10911,7 @@ var minErrConfig = {
  *   non-positive or non-numeric value, removes the max depth limit.
  *   Default: 5
  *
- * * `urlErrorParamsEnabled`  **{Boolean}** - Specifies wether the generated error url will
+ * * `urlErrorParamsEnabled`  **{Boolean}** - Specifies whether the generated error url will
  *   contain the parameters of the thrown error. Disabling the parameters can be useful if the
  *   generated error url is very long.
  *
@@ -10687,7 +10961,7 @@ function isValidObjectMaxDepth(maxDepth) {
  * Since data will be parsed statically during a build step, some restrictions
  * are applied with respect to how minErr instances are created and called.
  * Instances should have names of the form namespaceMinErr for a minErr created
- * using minErr('namespace') . Error codes, namespaces and template strings
+ * using minErr('namespace'). Error codes, namespaces and template strings
  * should all be static strings, not variables or general expressions.
  *
  * @param {string} module The namespace to use for the new minErr instance.
@@ -10699,7 +10973,7 @@ function isValidObjectMaxDepth(maxDepth) {
 function minErr(module, ErrorConstructor) {
   ErrorConstructor = ErrorConstructor || Error;
 
-  var url = 'https://errors.angularjs.org/1.7.9/';
+  var url = 'https://errors.angularjs.org/1.8.0/';
   var regex = url.replace('.', '\\.') + '[\\s\\S]*';
   var errRegExp = new RegExp(regex, 'g');
 
@@ -10832,6 +11106,7 @@ function minErr(module, ErrorConstructor) {
   hasOwnProperty,
   createMap,
   stringify,
+  UNSAFE_restoreLegacyJqLiteXHTMLReplacement,
 
   NODE_TYPE_ELEMENT,
   NODE_TYPE_ATTRIBUTE,
@@ -11559,8 +11834,8 @@ function arrayRemove(array, value) {
  * - [`MediaStream`](https://developer.mozilla.org/docs/Web/API/MediaStream)
  * - [`Set`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Set)
  * - [`WeakMap`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/WeakMap)
- * - ['getter'](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get)/
- *   [`setter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/set)`
+ * - [`getter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get)/
+ *   [`setter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/set)
  *
  * @param {*} source The source that will be used to make a copy. Can be any type, including
  *     primitives, `null`, and `undefined`.
@@ -12689,6 +12964,26 @@ function bindJQuery() {
 }
 
 /**
+ * @ngdoc function
+ * @name angular.UNSAFE_restoreLegacyJqLiteXHTMLReplacement
+ * @module ng
+ * @kind function
+ *
+ * @description
+ * Restores the pre-1.8 behavior of jqLite that turns XHTML-like strings like
+ * `<div /><span />` to `<div></div><span></span>` instead of `<div><span></span></div>`.
+ * The new behavior is a security fix. Thus, if you need to call this function, please try to adjust
+ * your code for this change and remove your use of this function as soon as possible.
+
+ * Note that this only patches jqLite. If you use jQuery 3.5.0 or newer, please read the
+ * [jQuery 3.5 upgrade guide](https://jquery.com/upgrade-guide/3.5/) for more details
+ * about the workarounds.
+ */
+function UNSAFE_restoreLegacyJqLiteXHTMLReplacement() {
+  JQLite.legacyXHTMLReplacement = true;
+}
+
+/**
  * throw error if the argument is falsy.
  */
 function assertArg(arg, name, reason) {
@@ -13407,11 +13702,11 @@ function toDebugString(obj, maxDepth) {
 var version = {
   // These placeholder strings will be replaced by grunt's `build` task.
   // They need to be double- or single-quoted.
-  full: '1.7.9',
+  full: '1.8.0',
   major: 1,
-  minor: 7,
-  dot: 9,
-  codeName: 'pollution-eradication'
+  minor: 8,
+  dot: 0,
+  codeName: 'nested-vaccination'
 };
 
 
@@ -13444,6 +13739,7 @@ function publishExternalAPI(angular) {
     'callbacks': {$$counter: 0},
     'getTestability': getTestability,
     'reloadWithDebugInfo': reloadWithDebugInfo,
+    'UNSAFE_restoreLegacyJqLiteXHTMLReplacement': UNSAFE_restoreLegacyJqLiteXHTMLReplacement,
     '$$minErr': minErr,
     '$$csp': csp,
     '$$encodeUriSegment': encodeUriSegment,
@@ -13561,7 +13857,7 @@ function publishExternalAPI(angular) {
       });
     }
   ])
-  .info({ angularVersion: '1.7.9' });
+  .info({ angularVersion: '1.8.0' });
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -13654,6 +13950,16 @@ function publishExternalAPI(angular) {
  * - [`val()`](http://api.jquery.com/val/)
  * - [`wrap()`](http://api.jquery.com/wrap/)
  *
+ * jqLite also provides a method restoring pre-1.8 insecure treatment of XHTML-like tags.
+ * This legacy behavior turns input like `<div /><span />` to `<div></div><span></span>`
+ * instead of `<div><span></span></div>` like version 1.8 & newer do. To restore it, invoke:
+ * ```js
+ * angular.UNSAFE_restoreLegacyJqLiteXHTMLReplacement();
+ * ```
+ * Note that this only patches jqLite. If you use jQuery 3.5.0 or newer, please read the
+ * [jQuery 3.5 upgrade guide](https://jquery.com/upgrade-guide/3.5/) for more details
+ * about the workarounds.
+ *
  * ## jQuery/jqLite Extras
  * AngularJS also provides the following additional methods and events to both jQuery and jqLite:
  *
@@ -13733,20 +14039,36 @@ var HTML_REGEXP = /<|&#?\w+;/;
 var TAG_NAME_REGEXP = /<([\w:-]+)/;
 var XHTML_TAG_REGEXP = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:-]+)[^>]*)\/>/gi;
 
+// Table parts need to be wrapped with `<table>` or they're
+// stripped to their contents when put in a div.
+// XHTML parsers do not magically insert elements in the
+// same way that tag soup parsers do, so we cannot shorten
+// this by omitting <tbody> or other required elements.
 var wrapMap = {
-  'option': [1, '<select multiple="multiple">', '</select>'],
-
-  'thead': [1, '<table>', '</table>'],
-  'col': [2, '<table><colgroup>', '</colgroup></table>'],
-  'tr': [2, '<table><tbody>', '</tbody></table>'],
-  'td': [3, '<table><tbody><tr>', '</tr></tbody></table>'],
-  '_default': [0, '', '']
+  thead: ['table'],
+  col: ['colgroup', 'table'],
+  tr: ['tbody', 'table'],
+  td: ['tr', 'tbody', 'table']
 };
 
-wrapMap.optgroup = wrapMap.option;
 wrapMap.tbody = wrapMap.tfoot = wrapMap.colgroup = wrapMap.caption = wrapMap.thead;
 wrapMap.th = wrapMap.td;
 
+// Support: IE <10 only
+// IE 9 requires an option wrapper & it needs to have the whole table structure
+// set up in advance; assigning `"<td></td>"` to `tr.innerHTML` doesn't work, etc.
+var wrapMapIE9 = {
+  option: [1, '<select multiple="multiple">', '</select>'],
+  _default: [0, '', '']
+};
+
+for (var key in wrapMap) {
+  var wrapMapValueClosing = wrapMap[key];
+  var wrapMapValue = wrapMapValueClosing.slice().reverse();
+  wrapMapIE9[key] = [wrapMapValue.length, '<' + wrapMapValue.join('><') + '>', '</' + wrapMapValueClosing.join('></') + '>'];
+}
+
+wrapMapIE9.optgroup = wrapMapIE9.option;
 
 function jqLiteIsTextNode(html) {
   return !HTML_REGEXP.test(html);
@@ -13767,7 +14089,7 @@ function jqLiteHasData(node) {
 }
 
 function jqLiteBuildFragment(html, context) {
-  var tmp, tag, wrap,
+  var tmp, tag, wrap, finalHtml,
       fragment = context.createDocumentFragment(),
       nodes = [], i;
 
@@ -13778,13 +14100,30 @@ function jqLiteBuildFragment(html, context) {
     // Convert html into DOM nodes
     tmp = fragment.appendChild(context.createElement('div'));
     tag = (TAG_NAME_REGEXP.exec(html) || ['', ''])[1].toLowerCase();
-    wrap = wrapMap[tag] || wrapMap._default;
-    tmp.innerHTML = wrap[1] + html.replace(XHTML_TAG_REGEXP, '<$1></$2>') + wrap[2];
+    finalHtml = JQLite.legacyXHTMLReplacement ?
+      html.replace(XHTML_TAG_REGEXP, '<$1></$2>') :
+      html;
 
-    // Descend through wrappers to the right content
-    i = wrap[0];
-    while (i--) {
-      tmp = tmp.lastChild;
+    if (msie < 10) {
+      wrap = wrapMapIE9[tag] || wrapMapIE9._default;
+      tmp.innerHTML = wrap[1] + finalHtml + wrap[2];
+
+      // Descend through wrappers to the right content
+      i = wrap[0];
+      while (i--) {
+        tmp = tmp.firstChild;
+      }
+    } else {
+      wrap = wrapMap[tag] || [];
+
+      // Create wrappers & descend into them
+      i = wrap.length;
+      while (--i > -1) {
+        tmp.appendChild(window.document.createElement(wrap[i]));
+        tmp = tmp.firstChild;
+      }
+
+      tmp.innerHTML = finalHtml;
     }
 
     nodes = concat(nodes, tmp.childNodes);
@@ -18883,7 +19222,7 @@ function $TemplateCacheProvider() {
  *
  * When the original node and the replace template declare the same directive(s), they will be
  * {@link guide/compiler#double-compilation-and-how-to-avoid-it compiled twice} because the compiler
- * does not deduplicate them. In many cases, this is not noticable, but e.g. {@link ngModel} will
+ * does not deduplicate them. In many cases, this is not noticeable, but e.g. {@link ngModel} will
  * attach `$formatters` and `$parsers` twice.
  *
  * See issue [#2573](https://github.com/angular/angular.js/issues/2573).
@@ -44206,7 +44545,7 @@ var ngRefDirective = ['$parse', function($parse) {
  *     For example: `item in items | filter:x as results` will store the fragment of the repeated items as `results`, but only after
  *     the items have been processed through the filter.
  *
- *     Please note that `as [variable name] is not an operator but rather a part of ngRepeat
+ *     Please note that `as [variable name]` is not an operator but rather a part of ngRepeat
  *     micro-syntax so it can be used only after all filters (and not as operator, inside an expression).
  *
  *     For example: `item in items | filter : x | orderBy : order | limitTo : limit as results track by item.id` .
@@ -45015,11 +45354,11 @@ var ngHideDirective = ['$animate', function($animate) {
        var colorSpan = element(by.css('span'));
 
        it('should check ng-style', function() {
-         expect(colorSpan.getCssValue('color')).toBe('rgba(0, 0, 0, 1)');
+         expect(colorSpan.getCssValue('color')).toMatch(/rgba\(0, 0, 0, 1\)|rgb\(0, 0, 0\)/);
          element(by.css('input[value=\'set color\']')).click();
-         expect(colorSpan.getCssValue('color')).toBe('rgba(255, 0, 0, 1)');
+         expect(colorSpan.getCssValue('color')).toMatch(/rgba\(255, 0, 0, 1\)|rgb\(255, 0, 0\)/);
          element(by.css('input[value=clear]')).click();
-         expect(colorSpan.getCssValue('color')).toBe('rgba(0, 0, 0, 1)');
+         expect(colorSpan.getCssValue('color')).toMatch(/rgba\(0, 0, 0, 1\)|rgb\(0, 0, 0\)/);
        });
      </file>
    </example>
@@ -47028,7 +47367,7 @@ $provide.value("$locale", {
 
 })(window);
 
-!window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
+!window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend(window.angular.element('<style>').text('@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}'));
 
 /**
  * State-based routing for AngularJS 1.x
@@ -47036,7 +47375,7 @@ $provide.value("$locale", {
  *         This causes it to be incompatible with plugins that depend on @uirouter/core.
  *         We recommend switching to the ui-router-core.js and ui-router-angularjs.js bundles instead.
  *         For more information, see https://ui-router.github.io/blog/uirouter-for-angularjs-umd-bundles
- * @version v1.0.23
+ * @version v1.0.28
  * @link https://ui-router.github.io
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -47044,7 +47383,7 @@ $provide.value("$locale", {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('angular')) :
     typeof define === 'function' && define.amd ? define(['exports', 'angular'], factory) :
     (global = global || self, factory(global['@uirouter/angularjs'] = {}, global.angular));
-}(this, function (exports, ng_from_import) { 'use strict';
+}(this, (function (exports, ng_from_import) { 'use strict';
 
     /** @publicapi @module ng1 */ /** */
     /** @hidden */ var ng_from_global = angular;
@@ -47055,8 +47394,15 @@ $provide.value("$locale", {
      *
      * These utility functions are exported, but are subject to change without notice.
      *
-     * @module common_hof
-     */ /** */
+     * @packageDocumentation
+     */
+    var __spreadArrays = (undefined && undefined.__spreadArrays) || function () {
+        for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+        for (var r = Array(s), k = 0, i = 0; i < il; i++)
+            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+                r[k] = a[j];
+        return r;
+    };
     /**
      * Returns a new function for [Partial Application](https://en.wikipedia.org/wiki/Partial_application) of the original function.
      *
@@ -47095,22 +47441,17 @@ $provide.value("$locale", {
      *
      * ```
      *
-     * Stolen from: http://stackoverflow.com/questions/4394747/javascript-curry-function
-     *
      * @param fn
      * @returns {*|function(): (*|any)}
      */
     function curry(fn) {
-        var initial_args = [].slice.apply(arguments, [1]);
-        var func_args_length = fn.length;
-        function curried(args) {
-            if (args.length >= func_args_length)
-                return fn.apply(null, args);
-            return function () {
-                return curried(args.concat([].slice.apply(arguments)));
-            };
-        }
-        return curried(initial_args);
+        return function curried() {
+            if (arguments.length >= fn.length) {
+                return fn.apply(this, arguments);
+            }
+            var args = Array.prototype.slice.call(arguments);
+            return curried.bind.apply(curried, __spreadArrays([this], args));
+        };
     }
     /**
      * Given a varargs list of functions, returns a function that composes the argument functions, right-to-left
@@ -47271,13 +47612,14 @@ $provide.value("$locale", {
         };
     }
 
-    /** Predicates
+    /**
+     * Predicates
      *
      * These predicates return true/false based on the input.
      * Although these functions are exported, they are subject to change without notice.
      *
-     * @module common_predicates
-     */ /** */
+     * @packageDocumentation
+     */
     var toStr = Object.prototype.toString;
     var tis = function (t) { return function (x) { return typeof x === t; }; };
     var isUndefined = tis('undefined');
@@ -47322,13 +47664,13 @@ $provide.value("$locale", {
         $injector: undefined,
     };
 
-    /**
-     * Random utility functions used in the UI-Router code
-     *
-     * These functions are exported, but are subject to change without notice.
-     *
-     * @preferred @publicapi @module common
-     */ /** */
+    var __spreadArrays$1 = (undefined && undefined.__spreadArrays) || function () {
+        for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+        for (var r = Array(s), k = 0, i = 0; i < il; i++)
+            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+                r[k] = a[j];
+        return r;
+    };
     var root = (typeof self === 'object' && self.self === self && self) ||
         (typeof global === 'object' && global.global === global && global) ||
         undefined;
@@ -47456,7 +47798,7 @@ $provide.value("$locale", {
         for (var _i = 1; _i < arguments.length; _i++) {
             defaultsList[_i - 1] = arguments[_i];
         }
-        var defaultVals = extend.apply(void 0, [{}].concat(defaultsList.reverse()));
+        var defaultVals = extend.apply(void 0, __spreadArrays$1([{}], defaultsList.reverse()));
         return extend(defaultVals, pick(opts || {}, Object.keys(defaultVals)));
     }
     /** Reduce function that merges each element of the list into a single object, using extend */
@@ -47849,7 +48191,6 @@ $provide.value("$locale", {
     var silenceUncaughtInPromise = function (promise) { return promise.catch(function (e) { return 0; }) && promise; };
     var silentRejection = function (error) { return silenceUncaughtInPromise(services.$q.reject(error)); };
 
-    /** @publicapi @module core */
     /**
      * Matches state names using glob-like pattern strings.
      *
@@ -47897,6 +48238,7 @@ $provide.value("$locale", {
      * | `'**.X'`    | `'X'` , `'A.X'` , `'Z.Y.X'`                   | `'A'` , `'A.login.Z'`             |
      * | `'A.**.X'`  | `'A.X'` , `'A.B.X'` , `'A.B.C.X'`             | `'A'` , `'A.B.C'`                 |
      *
+     * @packageDocumentation
      */
     var Glob = /** @class */ (function () {
         function Glob(text) {
@@ -47928,7 +48270,6 @@ $provide.value("$locale", {
         return Glob;
     }());
 
-    /** @publicapi @module common */ /** */
     var Queue = /** @class */ (function () {
         function Queue(_items, _limit) {
             if (_items === void 0) { _items = []; }
@@ -47976,7 +48317,7 @@ $provide.value("$locale", {
         return Queue;
     }());
 
-    /** @publicapi @module transition */ /** */
+    /** An enum for Transition Rejection reasons */
 
     (function (RejectType) {
         /**
@@ -48016,11 +48357,11 @@ $provide.value("$locale", {
          */
         RejectType[RejectType["ERROR"] = 6] = "ERROR";
     })(exports.RejectType || (exports.RejectType = {}));
-    /** @hidden */
+    /** @internal */
     var id = 0;
     var Rejection = /** @class */ (function () {
         function Rejection(type, message, detail) {
-            /** @hidden */
+            /** @internal */
             this.$id = id++;
             this.type = type;
             this.message = message;
@@ -48092,8 +48433,8 @@ $provide.value("$locale", {
      *
      * Although these functions are exported, they are subject to change without notice.
      *
-     * @module common_strings
-     */ /** */
+     * @packageDocumentation
+     */
     /**
      * Returns a string shortened to a maximum length
      *
@@ -48220,6 +48561,40 @@ $provide.value("$locale", {
     }
 
     /**
+     * workaround for missing console object in IE9 when dev tools haven't been opened o_O
+     * @packageDocumentation
+     */
+    var noopConsoleStub = { log: noop, error: noop, table: noop };
+    function ie9Console(console) {
+        var bound = function (fn) { return Function.prototype.bind.call(fn, console); };
+        return {
+            log: bound(console.log),
+            error: bound(console.log),
+            table: bound(console.log),
+        };
+    }
+    function fallbackConsole(console) {
+        var log = console.log.bind(console);
+        var error = console.error ? console.error.bind(console) : log;
+        var table = console.table ? console.table.bind(console) : log;
+        return { log: log, error: error, table: table };
+    }
+    function getSafeConsole() {
+        // @ts-ignore
+        var isIE9 = typeof document !== 'undefined' && document.documentMode && document.documentMode === 9;
+        if (isIE9) {
+            return window && window.console ? ie9Console(window.console) : noopConsoleStub;
+        }
+        else if (!console.table || !console.error) {
+            return fallbackConsole(console);
+        }
+        else {
+            return console;
+        }
+    }
+    var safeConsole = getSafeConsole();
+
+    /**
      * # Transition tracing (debug)
      *
      * Enable transition tracing to print transition information to the console,
@@ -48251,29 +48626,22 @@ $provide.value("$locale", {
      * app.run($trace => $trace.enable());
      * ```
      *
-     * @publicapi @module trace
+     * @packageDocumentation
      */
-    /** @hidden */
     function uiViewString(uiview) {
         if (!uiview)
             return 'ui-view (defunct)';
         var state = uiview.creationContext ? uiview.creationContext.name || '(root)' : '(none)';
         return "[ui-view#" + uiview.id + " " + uiview.$type + ":" + uiview.fqn + " (" + uiview.name + "@" + state + ")]";
     }
-    /** @hidden */
     var viewConfigString = function (viewConfig) {
         var view = viewConfig.viewDecl;
         var state = view.$context.name || '(root)';
         return "[View#" + viewConfig.$id + " from '" + state + "' state]: target ui-view: '" + view.$uiViewName + "@" + view.$uiViewContextAnchor + "'";
     };
-    /** @hidden */
     function normalizedCat(input) {
         return isNumber(input) ? exports.Category[input] : exports.Category[exports.Category[input]];
     }
-    /** @hidden */
-    var consoleLog = Function.prototype.bind.call(console.log, console);
-    /** @hidden */
-    var consoletable = isFunction(console.table) ? console.table.bind(console) : consoleLog.bind(console);
     /**
      * Trace categories Enum
      *
@@ -48295,23 +48663,20 @@ $provide.value("$locale", {
         Category[Category["UIVIEW"] = 3] = "UIVIEW";
         Category[Category["VIEWCONFIG"] = 4] = "VIEWCONFIG";
     })(exports.Category || (exports.Category = {}));
-    /** @hidden */
     var _tid = parse('$id');
-    /** @hidden */
     var _rid = parse('router.$id');
-    /** @hidden */
     var transLbl = function (trans) { return "Transition #" + _tid(trans) + "-" + _rid(trans); };
     /**
      * Prints UI-Router Transition trace information to the console.
      */
     var Trace = /** @class */ (function () {
-        /** @hidden */
+        /** @internal */
         function Trace() {
-            /** @hidden */
+            /** @internal */
             this._enabled = {};
             this.approximateDigests = 0;
         }
-        /** @hidden */
+        /** @internal */
         Trace.prototype._set = function (enabled, categories) {
             var _this = this;
             if (!categories.length) {
@@ -48348,75 +48713,75 @@ $provide.value("$locale", {
         Trace.prototype.enabled = function (category) {
             return !!this._enabled[normalizedCat(category)];
         };
-        /** @internalapi called by ui-router code */
+        /** @internal called by ui-router code */
         Trace.prototype.traceTransitionStart = function (trans) {
             if (!this.enabled(exports.Category.TRANSITION))
                 return;
-            console.log(transLbl(trans) + ": Started  -> " + stringify(trans));
+            safeConsole.log(transLbl(trans) + ": Started  -> " + stringify(trans));
         };
-        /** @internalapi called by ui-router code */
+        /** @internal called by ui-router code */
         Trace.prototype.traceTransitionIgnored = function (trans) {
             if (!this.enabled(exports.Category.TRANSITION))
                 return;
-            console.log(transLbl(trans) + ": Ignored  <> " + stringify(trans));
+            safeConsole.log(transLbl(trans) + ": Ignored  <> " + stringify(trans));
         };
-        /** @internalapi called by ui-router code */
+        /** @internal called by ui-router code */
         Trace.prototype.traceHookInvocation = function (step, trans, options) {
             if (!this.enabled(exports.Category.HOOK))
                 return;
             var event = parse('traceData.hookType')(options) || 'internal', context = parse('traceData.context.state.name')(options) || parse('traceData.context')(options) || 'unknown', name = functionToString(step.registeredHook.callback);
-            console.log(transLbl(trans) + ":   Hook -> " + event + " context: " + context + ", " + maxLength(200, name));
+            safeConsole.log(transLbl(trans) + ":   Hook -> " + event + " context: " + context + ", " + maxLength(200, name));
         };
-        /** @internalapi called by ui-router code */
+        /** @internal called by ui-router code */
         Trace.prototype.traceHookResult = function (hookResult, trans, transitionOptions) {
             if (!this.enabled(exports.Category.HOOK))
                 return;
-            console.log(transLbl(trans) + ":   <- Hook returned: " + maxLength(200, stringify(hookResult)));
+            safeConsole.log(transLbl(trans) + ":   <- Hook returned: " + maxLength(200, stringify(hookResult)));
         };
-        /** @internalapi called by ui-router code */
+        /** @internal called by ui-router code */
         Trace.prototype.traceResolvePath = function (path, when, trans) {
             if (!this.enabled(exports.Category.RESOLVE))
                 return;
-            console.log(transLbl(trans) + ":         Resolving " + path + " (" + when + ")");
+            safeConsole.log(transLbl(trans) + ":         Resolving " + path + " (" + when + ")");
         };
-        /** @internalapi called by ui-router code */
+        /** @internal called by ui-router code */
         Trace.prototype.traceResolvableResolved = function (resolvable, trans) {
             if (!this.enabled(exports.Category.RESOLVE))
                 return;
-            console.log(transLbl(trans) + ":               <- Resolved  " + resolvable + " to: " + maxLength(200, stringify(resolvable.data)));
+            safeConsole.log(transLbl(trans) + ":               <- Resolved  " + resolvable + " to: " + maxLength(200, stringify(resolvable.data)));
         };
-        /** @internalapi called by ui-router code */
+        /** @internal called by ui-router code */
         Trace.prototype.traceError = function (reason, trans) {
             if (!this.enabled(exports.Category.TRANSITION))
                 return;
-            console.log(transLbl(trans) + ": <- Rejected " + stringify(trans) + ", reason: " + reason);
+            safeConsole.log(transLbl(trans) + ": <- Rejected " + stringify(trans) + ", reason: " + reason);
         };
-        /** @internalapi called by ui-router code */
+        /** @internal called by ui-router code */
         Trace.prototype.traceSuccess = function (finalState, trans) {
             if (!this.enabled(exports.Category.TRANSITION))
                 return;
-            console.log(transLbl(trans) + ": <- Success  " + stringify(trans) + ", final state: " + finalState.name);
+            safeConsole.log(transLbl(trans) + ": <- Success  " + stringify(trans) + ", final state: " + finalState.name);
         };
-        /** @internalapi called by ui-router code */
+        /** @internal called by ui-router code */
         Trace.prototype.traceUIViewEvent = function (event, viewData, extra) {
             if (extra === void 0) { extra = ''; }
             if (!this.enabled(exports.Category.UIVIEW))
                 return;
-            console.log("ui-view: " + padString(30, event) + " " + uiViewString(viewData) + extra);
+            safeConsole.log("ui-view: " + padString(30, event) + " " + uiViewString(viewData) + extra);
         };
-        /** @internalapi called by ui-router code */
+        /** @internal called by ui-router code */
         Trace.prototype.traceUIViewConfigUpdated = function (viewData, context) {
             if (!this.enabled(exports.Category.UIVIEW))
                 return;
             this.traceUIViewEvent('Updating', viewData, " with ViewConfig from context='" + context + "'");
         };
-        /** @internalapi called by ui-router code */
+        /** @internal called by ui-router code */
         Trace.prototype.traceUIViewFill = function (viewData, html) {
             if (!this.enabled(exports.Category.UIVIEW))
                 return;
             this.traceUIViewEvent('Fill', viewData, " with: " + maxLength(200, html));
         };
-        /** @internalapi called by ui-router code */
+        /** @internal called by ui-router code */
         Trace.prototype.traceViewSync = function (pairs) {
             if (!this.enabled(exports.Category.VIEWCONFIG))
                 return;
@@ -48431,19 +48796,19 @@ $provide.value("$locale", {
                 return _b = {}, _b[uivheader] = uiv, _b[cfgheader] = cfg, _b;
             })
                 .sort(function (a, b) { return (a[uivheader] || '').localeCompare(b[uivheader] || ''); });
-            consoletable(mapping);
+            safeConsole.table(mapping);
         };
-        /** @internalapi called by ui-router code */
+        /** @internal called by ui-router code */
         Trace.prototype.traceViewServiceEvent = function (event, viewConfig) {
             if (!this.enabled(exports.Category.VIEWCONFIG))
                 return;
-            console.log("VIEWCONFIG: " + event + " " + viewConfigString(viewConfig));
+            safeConsole.log("VIEWCONFIG: " + event + " " + viewConfigString(viewConfig));
         };
-        /** @internalapi called by ui-router code */
+        /** @internal called by ui-router code */
         Trace.prototype.traceViewServiceUIViewEvent = function (event, viewData) {
             if (!this.enabled(exports.Category.VIEWCONFIG))
                 return;
-            console.log("VIEWCONFIG: " + event + " " + uiViewString(viewData));
+            safeConsole.log("VIEWCONFIG: " + event + " " + uiViewString(viewData));
         };
         return Trace;
     }());
@@ -48458,9 +48823,6 @@ $provide.value("$locale", {
      */
     var trace = new Trace();
 
-    /** @publicapi @module common */ /** */
-
-    /** @publicapi @module params */ /** */
     /**
      * An internal class which implements [[ParamTypeDefinition]].
      *
@@ -48483,7 +48845,6 @@ $provide.value("$locale", {
      *
      * var paramType = new ParamType(paramTypeDef);
      * ```
-     * @internalapi
      */
     var ParamType = /** @class */ (function () {
         /**
@@ -48546,10 +48907,7 @@ $provide.value("$locale", {
         };
         return ParamType;
     }());
-    /**
-     * Wraps up a `ParamType` object to handle array values.
-     * @internalapi
-     */
+    /** Wraps up a `ParamType` object to handle array values. */
     function ArrayType(type, mode) {
         var _this = this;
         // Wrap non-array value as array
@@ -48606,21 +48964,16 @@ $provide.value("$locale", {
         });
     }
 
-    /** @publicapi @module params */ /** */
-    /** @hidden */
     var hasOwn = Object.prototype.hasOwnProperty;
-    /** @hidden */
     var isShorthand = function (cfg) {
         return ['value', 'type', 'squash', 'array', 'dynamic'].filter(hasOwn.bind(cfg || {})).length === 0;
     };
-    /** @internalapi */
 
     (function (DefType) {
         DefType[DefType["PATH"] = 0] = "PATH";
         DefType[DefType["SEARCH"] = 1] = "SEARCH";
         DefType[DefType["CONFIG"] = 2] = "CONFIG";
     })(exports.DefType || (exports.DefType = {}));
-    /** @internalapi */
     function getParamDeclaration(paramName, location, state) {
         var noReloadOnSearch = (state.reloadOnSearch === false && location === exports.DefType.SEARCH) || undefined;
         var dynamic = find([state.dynamic, noReloadOnSearch], isDefined);
@@ -48628,7 +48981,6 @@ $provide.value("$locale", {
         var paramConfig = unwrapShorthand(state && state.params && state.params[paramName]);
         return extend(defaultConfig, paramConfig);
     }
-    /** @hidden */
     function unwrapShorthand(cfg) {
         cfg = isShorthand(cfg) ? { value: cfg } : cfg;
         getStaticDefaultValue['__cacheable'] = true;
@@ -48638,7 +48990,6 @@ $provide.value("$locale", {
         var $$fn = isInjectable(cfg.value) ? cfg.value : getStaticDefaultValue;
         return extend(cfg, { $$fn: $$fn });
     }
-    /** @hidden */
     function getType(cfg, urlType, location, id, paramTypes) {
         if (cfg.type && urlType && urlType.name !== 'string')
             throw new Error("Param '" + id + "' has two type configurations.");
@@ -48658,10 +49009,7 @@ $provide.value("$locale", {
         }
         return cfg.type instanceof ParamType ? cfg.type : paramTypes.type(cfg.type);
     }
-    /**
-     * @internalapi
-     * returns false, true, or the squash value to indicate the "default parameter url squash policy".
-     */
+    /** returns false, true, or the squash value to indicate the "default parameter url squash policy". */
     function getSquashPolicy(config, isOptional, defaultPolicy) {
         var squash = config.squash;
         if (!isOptional || squash === false)
@@ -48672,7 +49020,6 @@ $provide.value("$locale", {
             return squash;
         throw new Error("Invalid squash policy: '" + squash + "'. Valid policies: false, true, or arbitrary string");
     }
-    /** @internalapi */
     function getReplace(config, arrayMode, isOptional, squash) {
         var defaultPolicy = [
             { from: '', to: isOptional || arrayMode ? undefined : '' },
@@ -48684,7 +49031,6 @@ $provide.value("$locale", {
         var configuredKeys = map(replace, prop('from'));
         return filter(defaultPolicy, function (item) { return configuredKeys.indexOf(item.from) === -1; }).concat(replace);
     }
-    /** @internalapi */
     var Param = /** @class */ (function () {
         function Param(id, type, location, urlConfig, state) {
             var config = getParamDeclaration(id, location, state);
@@ -48806,7 +49152,6 @@ $provide.value("$locale", {
         return Param;
     }());
 
-    /** @publicapi @module params */ /** */
     /**
      * A registry for parameter types.
      *
@@ -48831,13 +49176,9 @@ $provide.value("$locale", {
      * ```
      */
     var ParamTypes = /** @class */ (function () {
-        /** @internalapi */
         function ParamTypes() {
-            /** @hidden */
             this.enqueue = true;
-            /** @hidden */
             this.typeQueue = [];
-            /** @internalapi */
             this.defaultTypes = pick(ParamTypes.prototype, [
                 'hash',
                 'string',
@@ -48853,7 +49194,6 @@ $provide.value("$locale", {
             var makeType = function (definition, name) { return new ParamType(extend({ name: name }, definition)); };
             this.types = inherit(map(this.defaultTypes, makeType), {});
         }
-        /** @internalapi */
         ParamTypes.prototype.dispose = function () {
             this.types = {};
         };
@@ -48875,7 +49215,6 @@ $provide.value("$locale", {
             }
             return this;
         };
-        /** @internalapi */
         ParamTypes.prototype._flushTypeQueue = function () {
             while (this.typeQueue.length) {
                 var type = this.typeQueue.shift();
@@ -48886,7 +49225,6 @@ $provide.value("$locale", {
         };
         return ParamTypes;
     }());
-    /** @hidden */
     function initDefaultTypes() {
         var makeDefaultType = function (def) {
             var valToString = function (val) { return (val != null ? val.toString() : val); };
@@ -48960,8 +49298,6 @@ $provide.value("$locale", {
     }
     initDefaultTypes();
 
-    /** @publicapi @module params */ /** */
-    /** @internalapi */
     var StateParams = /** @class */ (function () {
         function StateParams(params) {
             if (params === void 0) { params = {}; }
@@ -48996,7 +49332,6 @@ $provide.value("$locale", {
         return StateParams;
     }());
 
-    /** @internalapi @module path */ /** */
     /**
      * A node in a [[TreeChanges]] path
      *
@@ -49069,7 +49404,6 @@ $provide.value("$locale", {
         return PathNode;
     }());
 
-    /** @publicapi @module state */ /** */
     /**
      * Encapsulate the target (destination) state/params/options of a [[Transition]].
      *
@@ -49112,7 +49446,7 @@ $provide.value("$locale", {
          * @param _params Parameters for the target state
          * @param _options Transition options.
          *
-         * @internalapi
+         * @internal
          */
         function TargetState(_stateRegistry, _identifier, _params, _options) {
             this._stateRegistry = _stateRegistry;
@@ -49203,11 +49537,12 @@ $provide.value("$locale", {
             return new TargetState(this._stateRegistry, this._identifier, this._params, newOpts);
         };
         /** Returns true if the object has a state property that might be a state or state name */
-        TargetState.isDef = function (obj) { return obj && obj.state && (isString(obj.state) || isString(obj.state.name)); };
+        TargetState.isDef = function (obj) {
+            return obj && obj.state && (isString(obj.state) || (isObject(obj.state) && isString(obj.state.name)));
+        };
         return TargetState;
     }());
 
-    /** @internalapi @module path */ /** */
     /**
      * This class contains functions which convert TargetStates, Nodes and paths from one type to another.
      */
@@ -49371,9 +49706,6 @@ $provide.value("$locale", {
         return PathUtils;
     }());
 
-    /** @internalapi @module path */ /** */
-
-    /** @internalapi */
     var resolvePolicies = {
         when: {
             LAZY: 'LAZY',
@@ -49382,11 +49714,9 @@ $provide.value("$locale", {
         async: {
             WAIT: 'WAIT',
             NOWAIT: 'NOWAIT',
-            RXWAIT: 'RXWAIT',
         },
     };
 
-    /** @publicapi @module resolve */ /** */
     // TODO: explicitly make this user configurable
     var defaultResolvePolicy = {
         when: 'LAZY',
@@ -49453,7 +49783,6 @@ $provide.value("$locale", {
             };
             // Invokes the resolve function passing the resolved dependencies as arguments
             var invokeResolveFn = function (resolvedDeps) { return _this.resolveFn.apply(null, resolvedDeps); };
-            // If the resolve policy is RXWAIT, wait for the observable to emit something. otherwise pass through.
             var node = resolveContext.findNode(this);
             var state = node && node.state;
             var asyncPolicy = this.getPolicy(state).async;
@@ -49493,7 +49822,6 @@ $provide.value("$locale", {
         return Resolvable;
     }());
 
-    /** @publicapi @module resolve */ /** */
     var whens = resolvePolicies.when;
     var ALL_WHENS = [whens.EAGER, whens.LAZY];
     var EAGER_WHENS = [whens.EAGER];
@@ -49655,7 +49983,7 @@ $provide.value("$locale", {
         };
         return ResolveContext;
     }());
-    /** @internalapi */
+    /** @internal */
     var UIInjectorImpl = /** @class */ (function () {
         function UIInjectorImpl(context) {
             this.context = context;
@@ -49686,9 +50014,6 @@ $provide.value("$locale", {
         return UIInjectorImpl;
     }());
 
-    /** @publicapi @module resolve */ /** */
-
-    /** @publicapi @module state */ /** */
     var parseUrl = function (url) {
         if (!isString(url))
             return false;
@@ -49853,7 +50178,7 @@ $provide.value("$locale", {
         return items.map(item2Resolvable);
     }
     /**
-     * @internalapi A internal global service
+     * A internal global service
      *
      * StateBuilder is a factory for the internal [[StateObject]] objects.
      *
@@ -49895,16 +50220,6 @@ $provide.value("$locale", {
                 resolvables: [resolvablesBuilder],
             };
         }
-        /**
-         * Registers a [[BuilderFunction]] for a specific [[StateObject]] property (e.g., `parent`, `url`, or `path`).
-         * More than one BuilderFunction can be registered for a given property.
-         *
-         * The BuilderFunction(s) will be used to define the property on any subsequently built [[StateObject]] objects.
-         *
-         * @param name The name of the State property being registered for.
-         * @param fn The BuilderFunction which will be used to build the State property
-         * @returns a function which deregisters the BuilderFunction
-         */
         StateBuilder.prototype.builder = function (name, fn) {
             var builders = this.builders;
             var array = builders[name] || [];
@@ -50070,12 +50385,13 @@ $provide.value("$locale", {
         StateObject.isStateClass = function (stateDecl) {
             return isFunction(stateDecl) && stateDecl['__uiRouterState'] === true;
         };
+        /** Predicate which returns true if the object is a [[StateDeclaration]] object */
+        StateObject.isStateDeclaration = function (obj) { return isFunction(obj['$$state']); };
         /** Predicate which returns true if the object is an internal [[StateObject]] object */
         StateObject.isState = function (obj) { return isObject(obj['__stateObjectCache']); };
         return StateObject;
     }());
 
-    /** @publicapi @module state */ /** */
     var StateMatcher = /** @class */ (function () {
         function StateMatcher(_states) {
             this._states = _states;
@@ -50100,8 +50416,7 @@ $provide.value("$locale", {
                 var _states = values(this._states);
                 var matches = _states.filter(function (_state) { return _state.__stateObjectCache.nameGlob && _state.__stateObjectCache.nameGlob.matches(name); });
                 if (matches.length > 1) {
-                    // tslint:disable-next-line:no-console
-                    console.log("stateMatcher.find: Found multiple matches for " + name + " using glob: ", matches.map(function (match) { return match.name; }));
+                    safeConsole.error("stateMatcher.find: Found multiple matches for " + name + " using glob: ", matches.map(function (match) { return match.name; }));
                 }
                 return matches[0];
             }
@@ -50133,8 +50448,6 @@ $provide.value("$locale", {
         return StateMatcher;
     }());
 
-    /** @publicapi @module state */ /** */
-    /** @internalapi */
     var StateQueueManager = /** @class */ (function () {
         function StateQueueManager(router, states, builder, listeners) {
             this.router = router;
@@ -50143,7 +50456,6 @@ $provide.value("$locale", {
             this.listeners = listeners;
             this.queue = [];
         }
-        /** @internalapi */
         StateQueueManager.prototype.dispose = function () {
             this.queue = [];
         };
@@ -50168,7 +50480,9 @@ $provide.value("$locale", {
             var getState = function (name) { return _this.states.hasOwnProperty(name) && _this.states[name]; };
             var notifyListeners = function () {
                 if (registered.length) {
-                    _this.listeners.forEach(function (listener) { return listener('registered', registered.map(function (s) { return s.self; })); });
+                    _this.listeners.forEach(function (listener) {
+                        return listener('registered', registered.map(function (s) { return s.self; }));
+                    });
                 }
             };
             while (queue.length > 0) {
@@ -50219,19 +50533,24 @@ $provide.value("$locale", {
         return StateQueueManager;
     }());
 
-    /** @publicapi @module state */ /** */
+    /**
+     * A registry for all of the application's [[StateDeclaration]]s
+     *
+     * This API is found at `router.stateRegistry` ([[UIRouter.stateRegistry]])
+     */
     var StateRegistry = /** @class */ (function () {
-        /** @internalapi */
+        /** @internal */
         function StateRegistry(router) {
             this.router = router;
             this.states = {};
+            /** @internal */
             this.listeners = [];
             this.matcher = new StateMatcher(this.states);
             this.builder = new StateBuilder(this.matcher, router.urlMatcherFactory);
             this.stateQueue = new StateQueueManager(router, this.states, this.builder, this.listeners);
             this._registerRoot();
         }
-        /** @internalapi */
+        /** @internal */
         StateRegistry.prototype._registerRoot = function () {
             var rootStateDef = {
                 name: '',
@@ -50245,7 +50564,7 @@ $provide.value("$locale", {
             var _root = (this._root = this.stateQueue.register(rootStateDef));
             _root.navigable = null;
         };
-        /** @internalapi */
+        /** @internal */
         StateRegistry.prototype.dispose = function () {
             var _this = this;
             this.stateQueue.dispose();
@@ -50315,7 +50634,7 @@ $provide.value("$locale", {
         StateRegistry.prototype.register = function (stateDefinition) {
             return this.stateQueue.register(stateDefinition);
         };
-        /** @hidden */
+        /** @internal */
         StateRegistry.prototype._deregisterTree = function (state) {
             var _this = this;
             var all = this.get().map(function (s) { return s.$$state(); });
@@ -50351,7 +50670,9 @@ $provide.value("$locale", {
             if (!_state)
                 throw new Error("Can't deregister state; not found: " + stateOrName);
             var deregisteredStates = this._deregisterTree(_state.$$state());
-            this.listeners.forEach(function (listener) { return listener('deregistered', deregisteredStates.map(function (s) { return s.self; })); });
+            this.listeners.forEach(function (listener) {
+                return listener('deregistered', deregisteredStates.map(function (s) { return s.self; }));
+            });
             return deregisteredStates;
         };
         StateRegistry.prototype.get = function (stateOrName, base) {
@@ -50361,8 +50682,18 @@ $provide.value("$locale", {
             var found = this.matcher.find(stateOrName, base);
             return (found && found.self) || null;
         };
-        StateRegistry.prototype.decorator = function (name, func) {
-            return this.builder.builder(name, func);
+        /**
+         * Registers a [[BuilderFunction]] for a specific [[StateObject]] property (e.g., `parent`, `url`, or `path`).
+         * More than one BuilderFunction can be registered for a given property.
+         *
+         * The BuilderFunction(s) will be used to define the property on any subsequently built [[StateObject]] objects.
+         *
+         * @param property The name of the State property being registered for.
+         * @param builderFunction The BuilderFunction which will be used to build the State property
+         * @returns a function which deregisters the BuilderFunction
+         */
+        StateRegistry.prototype.decorator = function (property, builderFunction) {
+            return this.builder.builder(property, builderFunction);
         };
         return StateRegistry;
     }());
@@ -50380,14 +50711,12 @@ $provide.value("$locale", {
         TransitionHookScope[TransitionHookScope["STATE"] = 1] = "STATE";
     })(exports.TransitionHookScope || (exports.TransitionHookScope = {}));
 
-    /** @publicapi @module transition */ /** */
     var defaultOptions = {
         current: noop,
         transition: null,
         traceData: {},
         bind: null,
     };
-    /** @hidden */
     var TransitionHook = /** @class */ (function () {
         function TransitionHook(transition, stateContext, registeredHook, options) {
             var _this = this;
@@ -50569,11 +50898,10 @@ $provide.value("$locale", {
         return TransitionHook;
     }());
 
-    /** @publicapi @module transition */ /** */
     /**
      * Determines if the given state matches the matchCriteria
      *
-     * @hidden
+     * @internal
      *
      * @param state a State Object to test against
      * @param criterion
@@ -50599,7 +50927,6 @@ $provide.value("$locale", {
         return !!matchFn(state, transition);
     }
     /**
-     * @internalapi
      * The registration data for a registered transition hook
      */
     var RegisteredHook = /** @class */ (function () {
@@ -50701,7 +51028,7 @@ $provide.value("$locale", {
         };
         return RegisteredHook;
     }());
-    /** @hidden Return a registration function of the requested type. */
+    /** Return a registration function of the requested type. */
     function makeEvent(registry, transitionService, eventType) {
         // Create the object which holds the registered transition hooks.
         var _registeredHooks = (registry._registeredHooks = registry._registeredHooks || {});
@@ -50718,7 +51045,6 @@ $provide.value("$locale", {
         return hookRegistrationFn;
     }
 
-    /** @publicapi @module transition */ /** */
     /**
      * This class returns applicable TransitionHooks for a specific Transition instance.
      *
@@ -50731,7 +51057,6 @@ $provide.value("$locale", {
      * The HookBuilder constructor is given the $transitions service and a Transition instance.  Thus, a HookBuilder
      * instance may only be used for one specific Transition object. (side note: the _treeChanges accessor is private
      * in the Transition class, so we must also provide the Transition's _treeChanges)
-     *
      */
     var HookBuilder = /** @class */ (function () {
         function HookBuilder(transition) {
@@ -50830,8 +51155,7 @@ $provide.value("$locale", {
         };
     }
 
-    /** @publicapi @module transition */ /** */
-    /** @hidden */
+    /** @internal */
     var stateSelf = prop('self');
     /**
      * Represents a transition between two states.
@@ -50847,16 +51171,17 @@ $provide.value("$locale", {
          *
          * If the target state is not valid, an error is thrown.
          *
-         * @internalapi
+         * @internal
          *
          * @param fromPath The path of [[PathNode]]s from which the transition is leaving.  The last node in the `fromPath`
          *        encapsulates the "from state".
          * @param targetState The target state and parameters being transitioned to (also, the transition options)
          * @param router The [[UIRouter]] instance
+         * @internal
          */
         function Transition(fromPath, targetState, router) {
             var _this = this;
-            /** @hidden */
+            /** @internal */
             this._deferred = services.$q.defer();
             /**
              * This promise is resolved or rejected based on the outcome of the Transition.
@@ -50865,9 +51190,9 @@ $provide.value("$locale", {
              * When the transition is unsuccessful, the promise is rejected with the [[Rejection]] or javascript error
              */
             this.promise = this._deferred.promise;
-            /** @hidden Holds the hook registration functions such as those passed to Transition.onStart() */
+            /** @internal Holds the hook registration functions such as those passed to Transition.onStart() */
             this._registeredHooks = {};
-            /** @hidden */
+            /** @internal */
             this._hookBuilder = new HookBuilder(this);
             /** Checks if this transition is currently active/running. */
             this.isActive = function () { return _this.router.globals.transition === _this; };
@@ -50886,7 +51211,7 @@ $provide.value("$locale", {
             TransitionHook.invokeHooks(onCreateHooks, function () { return null; });
             this.applyViewConfigs(router);
         }
-        /** @hidden */
+        /** @internal */
         Transition.prototype.onBefore = function (criteria, callback, options) {
             return;
         };
@@ -50918,7 +51243,7 @@ $provide.value("$locale", {
         Transition.prototype.onError = function (criteria, callback, options) {
             return;
         };
-        /** @hidden
+        /** @internal
          * Creates the transition-level hook registration functions
          * (which can then be used to register hooks)
          */
@@ -50929,7 +51254,7 @@ $provide.value("$locale", {
                 .filter(function (type) { return type.hookPhase !== exports.TransitionHookPhase.CREATE; })
                 .forEach(function (type) { return makeEvent(_this, _this.router.transitionService, type); });
         };
-        /** @internalapi */
+        /** @internal */
         Transition.prototype.getHooks = function (hookName) {
             return this._registeredHooks[hookName];
         };
@@ -50938,16 +51263,14 @@ $provide.value("$locale", {
             PathUtils.applyViewConfigs(router.transitionService.$view, this._treeChanges.to, enteringStates);
         };
         /**
-         * @internalapi
-         *
+         * @internal
          * @returns the internal from [State] object
          */
         Transition.prototype.$from = function () {
             return tail(this._treeChanges.from).state;
         };
         /**
-         * @internalapi
-         *
+         * @internal
          * @returns the internal to [State] object
          */
         Transition.prototype.$to = function () {
@@ -51223,9 +51546,7 @@ $provide.value("$locale", {
          * @returns an array of states that will be exited during this transition.
          */
         Transition.prototype.exiting = function () {
-            return map(this._treeChanges.exiting, prop('state'))
-                .map(stateSelf)
-                .reverse();
+            return map(this._treeChanges.exiting, prop('state')).map(stateSelf).reverse();
         };
         /**
          * Gets the states being retained.
@@ -51252,10 +51573,7 @@ $provide.value("$locale", {
             if (pathname === void 0) { pathname = 'entering'; }
             var path = this._treeChanges[pathname];
             path = !state ? path : path.filter(propEq('state', state));
-            return path
-                .map(prop('views'))
-                .filter(identity)
-                .reduce(unnestR, []);
+            return path.map(prop('views')).filter(identity).reduce(unnestR, []);
         };
         Transition.prototype.treeChanges = function (pathname) {
             return pathname ? this._treeChanges[pathname] : this._treeChanges;
@@ -51266,7 +51584,7 @@ $provide.value("$locale", {
          * This transition can be returned from a [[TransitionService]] hook to
          * redirect a transition to a new state and/or set of parameters.
          *
-         * @internalapi
+         * @internal
          *
          * @returns Returns a new [[Transition]] instance.
          */
@@ -51310,7 +51628,7 @@ $provide.value("$locale", {
             });
             return newTransition;
         };
-        /** @hidden If a transition doesn't exit/enter any states, returns any [[Param]] whose value changed */
+        /** @internal If a transition doesn't exit/enter any states, returns any [[Param]] whose value changed */
         Transition.prototype._changedParams = function () {
             var tc = this._treeChanges;
             /** Return undefined if it's not a "dynamic" transition, for the following reasons */
@@ -51359,7 +51677,7 @@ $provide.value("$locale", {
         Transition.prototype.ignored = function () {
             return !!this._ignoredReason();
         };
-        /** @hidden */
+        /** @internal */
         Transition.prototype._ignoredReason = function () {
             var pending = this.router.globals.transition;
             var reloadState = this._options.reloadState;
@@ -51381,7 +51699,7 @@ $provide.value("$locale", {
          *
          * This method is generally called from the [[StateService.transitionTo]]
          *
-         * @internalapi
+         * @internal
          *
          * @returns a promise for a successful transition.
          */
@@ -51484,13 +51802,11 @@ $provide.value("$locale", {
             var id = this.$id, from = isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName, fromParams = stringify(avoidEmptyHash(this._treeChanges.from.map(prop('paramValues')).reduce(mergeR, {}))), toValid = this.valid() ? '' : '(X) ', to = isObject(toStateOrName) ? toStateOrName.name : toStateOrName, toParams = stringify(avoidEmptyHash(this.params()));
             return "Transition#" + id + "( '" + from + "'" + fromParams + " -> " + toValid + "'" + to + "'" + toParams + " )";
         };
-        /** @hidden */
+        /** @internal */
         Transition.diToken = Transition;
         return Transition;
     }());
 
-    /** @publicapi @module url */ /** */
-    /** @hidden */
     function quoteRegExp(str, param) {
         var surroundPattern = ['', ''], result = str.replace(/[\\\[\]\^$*+?.()|{}]/g, '\\$&');
         if (!param)
@@ -51509,15 +51825,13 @@ $provide.value("$locale", {
         }
         return result + surroundPattern[0] + param.type.pattern.source + surroundPattern[1];
     }
-    /** @hidden */
     var memoizeTo = function (obj, _prop, fn) { return (obj[_prop] = obj[_prop] || fn()); };
-    /** @hidden */
     var splitOnSlash = splitOnDelim('/');
-    /** @hidden */
     var defaultConfig = {
         state: { params: {} },
         strict: true,
         caseInsensitive: true,
+        decodeParams: true,
     };
     /**
      * Matches URLs against patterns.
@@ -51579,15 +51893,15 @@ $provide.value("$locale", {
          */
         function UrlMatcher(pattern, paramTypes, paramFactory, config) {
             var _this = this;
-            /** @hidden */
+            /** @internal */
             this._cache = { path: [this] };
-            /** @hidden */
+            /** @internal */
             this._children = [];
-            /** @hidden */
+            /** @internal */
             this._params = [];
-            /** @hidden */
+            /** @internal */
             this._segments = [];
-            /** @hidden */
+            /** @internal */
             this._compiled = [];
             this.config = config = defaults(config, defaultConfig);
             this.pattern = pattern;
@@ -51667,17 +51981,12 @@ $provide.value("$locale", {
             this._segments.push(segment);
             this._compiled = patterns.map(function (_pattern) { return quoteRegExp.apply(null, _pattern); }).concat(quoteRegExp(segment));
         }
-        /** @hidden */
+        /** @internal */
         UrlMatcher.encodeDashes = function (str) {
             // Replace dashes with encoded "\-"
-            return encodeURIComponent(str).replace(/-/g, function (c) {
-                return "%5C%" + c
-                    .charCodeAt(0)
-                    .toString(16)
-                    .toUpperCase();
-            });
+            return encodeURIComponent(str).replace(/-/g, function (c) { return "%5C%" + c.charCodeAt(0).toString(16).toUpperCase(); });
         };
-        /** @hidden Given a matcher, return an array with the matcher's path segments and path params, in order */
+        /** @internal Given a matcher, return an array with the matcher's path segments and path params, in order */
         UrlMatcher.pathSegmentsAndParams = function (matcher) {
             var staticSegments = matcher._segments;
             var pathParams = matcher._params.filter(function (p) { return p.location === exports.DefType.PATH; });
@@ -51685,7 +51994,7 @@ $provide.value("$locale", {
                 .reduce(unnestR, [])
                 .filter(function (x) { return x !== '' && isDefined(x); });
         };
-        /** @hidden Given a matcher, return an array with the matcher's query params */
+        /** @internal Given a matcher, return an array with the matcher's query params */
         UrlMatcher.queryParams = function (matcher) {
             return matcher._params.filter(function (p) { return p.location === exports.DefType.SEARCH; });
         };
@@ -51774,13 +52083,22 @@ $provide.value("$locale", {
             };
             return url;
         };
-        /** @hidden */
+        /** @internal */
         UrlMatcher.prototype.isRoot = function () {
             return this._cache.path[0] === this;
         };
         /** Returns the input pattern string */
         UrlMatcher.prototype.toString = function () {
             return this.pattern;
+        };
+        UrlMatcher.prototype._getDecodedParamValue = function (value, param) {
+            if (isDefined(value)) {
+                if (this.config.decodeParams && !param.type.raw && !isArray(value)) {
+                    value = decodeURIComponent(value);
+                }
+                value = param.type.decode(value);
+            }
+            return param.value(value);
         };
         /**
          * Tests the specified url/path against this matcher.
@@ -51826,12 +52144,7 @@ $provide.value("$locale", {
             if (nPathSegments !== match.length - 1)
                 throw new Error("Unbalanced capture group in route '" + this.pattern + "'");
             function decodePathArray(paramVal) {
-                var reverseString = function (str) {
-                    return str
-                        .split('')
-                        .reverse()
-                        .join('');
-                };
+                var reverseString = function (str) { return str.split('').reverse().join(''); };
                 var unquoteDashes = function (str) { return str.replace(/\\-/g, '-'); };
                 var split = reverseString(paramVal).split(/-(?!\\)/);
                 var allReversed = map(split, reverseString);
@@ -51847,9 +52160,7 @@ $provide.value("$locale", {
                 }
                 if (value && param.array === true)
                     value = decodePathArray(value);
-                if (isDefined(value))
-                    value = param.type.decode(value);
-                values[param.id] = param.value(value);
+                values[param.id] = this._getDecodedParamValue(value, param);
             }
             searchParams.forEach(function (param) {
                 var value = search[param.id];
@@ -51857,16 +52168,14 @@ $provide.value("$locale", {
                     if (param.replace[j].from === value)
                         value = param.replace[j].to;
                 }
-                if (isDefined(value))
-                    value = param.type.decode(value);
-                values[param.id] = param.value(value);
+                values[param.id] = _this._getDecodedParamValue(value, param);
             });
             if (hash)
                 values['#'] = hash;
             return values;
         };
         /**
-         * @hidden
+         * @internal
          * Returns all the [[Param]] objects of all path and search parameters of this pattern in order of appearance.
          *
          * @returns {Array.<Param>}  An array of [[Param]] objects. Must be treated as read-only. If the
@@ -51879,7 +52188,7 @@ $provide.value("$locale", {
             return unnest(this._cache.path.map(function (matcher) { return matcher._params; }));
         };
         /**
-         * @hidden
+         * @internal
          * Returns a single parameter from this UrlMatcher by id
          *
          * @param id
@@ -52010,7 +52319,7 @@ $provide.value("$locale", {
             // Concat the pathstring with the queryString (if exists) and the hashString (if exists)
             return pathString + (queryString ? "?" + queryString : '') + (values['#'] ? '#' + values['#'] : '');
         };
-        /** @hidden */
+        /** @internal */
         UrlMatcher.nameValidator = /^\w+([-.]+\w+)*(?:\[\])?$/;
         return UrlMatcher;
     }());
@@ -52026,7 +52335,6 @@ $provide.value("$locale", {
         };
         return __assign.apply(this, arguments);
     };
-    /** @internalapi */
     var ParamFactory = /** @class */ (function () {
         function ParamFactory(router) {
             this.router = router;
@@ -52047,16 +52355,17 @@ $provide.value("$locale", {
      *
      * The factory is available to ng1 services as
      * `$urlMatcherFactory` or ng1 providers as `$urlMatcherFactoryProvider`.
-     *
-     * @internalapi
      */
     var UrlMatcherFactory = /** @class */ (function () {
         // TODO: move implementations to UrlConfig (urlService.config)
-        function UrlMatcherFactory(/** @hidden */ router) {
+        function UrlMatcherFactory(/** @internal */ router) {
             var _this = this;
             this.router = router;
-            /** @internalapi Creates a new [[Param]] for a given location (DefType) */
+            /** Creates a new [[Param]] for a given location (DefType) */
             this.paramFactory = new ParamFactory(this.router);
+            // TODO: Check if removal of this will break anything, then remove these
+            this.UrlMatcher = UrlMatcher;
+            this.Param = Param;
             /** @deprecated use [[UrlConfig.caseInsensitive]] */
             this.caseInsensitive = function (value) { return _this.router.urlService.config.caseInsensitive(value); };
             /** @deprecated use [[UrlConfig.defaultSquashPolicy]] */
@@ -52067,7 +52376,6 @@ $provide.value("$locale", {
             this.type = function (name, definition, definitionFn) {
                 return _this.router.urlService.config.type(name, definition, definitionFn) || _this;
             };
-            extend(this, { UrlMatcher: UrlMatcher, Param: Param });
         }
         /**
          * Creates a [[UrlMatcher]] for the specified pattern.
@@ -52081,7 +52389,11 @@ $provide.value("$locale", {
             // backward-compatible support for config.params -> config.state.params
             var params = config && !config.state && config.params;
             config = params ? __assign({ state: { params: params } }, config) : config;
-            var globalConfig = { strict: urlConfig._isStrictMode, caseInsensitive: urlConfig._isCaseInsensitive };
+            var globalConfig = {
+                strict: urlConfig._isStrictMode,
+                caseInsensitive: urlConfig._isCaseInsensitive,
+                decodeParams: urlConfig._decodeParams,
+            };
             return new UrlMatcher(pattern, urlConfig.paramTypes, this.paramFactory, extend(globalConfig, config));
         };
         /**
@@ -52098,11 +52410,11 @@ $provide.value("$locale", {
             var result = true;
             forEach(UrlMatcher.prototype, function (val, name) {
                 if (isFunction(val))
-                    result = result && (isDefined(object[name]) && isFunction(object[name]));
+                    result = result && isDefined(object[name]) && isFunction(object[name]);
             });
             return result;
         };
-        /** @hidden */
+        /** @internal */
         UrlMatcherFactory.prototype.$get = function () {
             var urlConfig = this.router.urlService.config;
             urlConfig.paramTypes.enqueue = false;
@@ -52112,7 +52424,6 @@ $provide.value("$locale", {
         return UrlMatcherFactory;
     }());
 
-    /** @publicapi @module url */ /** */
     /**
      * Creates a [[UrlRule]]
      *
@@ -52122,7 +52433,6 @@ $provide.value("$locale", {
      * - [[UrlMatcher]]
      * - `RegExp`
      * - [[StateObject]]
-     * @internalapi
      */
     var UrlRuleFactory = /** @class */ (function () {
         function UrlRuleFactory(router) {
@@ -52133,11 +52443,11 @@ $provide.value("$locale", {
         };
         UrlRuleFactory.prototype.create = function (what, handler) {
             var _this = this;
-            var isState = StateObject.isState;
+            var isState = StateObject.isState, isStateDeclaration = StateObject.isStateDeclaration;
             var makeRule = pattern([
                 [isString, function (_what) { return makeRule(_this.compile(_what)); }],
                 [is(UrlMatcher), function (_what) { return _this.fromUrlMatcher(_what, handler); }],
-                [isState, function (_what) { return _this.fromState(_what, _this.router); }],
+                [or(isState, isStateDeclaration), function (_what) { return _this.fromState(_what, _this.router); }],
                 [is(RegExp), function (_what) { return _this.fromRegExp(_what, handler); }],
                 [isFunction, function (_what) { return new BaseUrlRule(_what, handler); }],
             ]);
@@ -52218,7 +52528,8 @@ $provide.value("$locale", {
          * // Starts a transition to 'foo' with params: { fooId: '123', barId: '456' }
          * ```
          */
-        UrlRuleFactory.prototype.fromState = function (state, router) {
+        UrlRuleFactory.prototype.fromState = function (stateOrDecl, router) {
+            var state = StateObject.isStateDeclaration(stateOrDecl) ? stateOrDecl.$$state() : stateOrDecl;
             /**
              * Handles match by transitioning to matched state
              *
@@ -52292,7 +52603,7 @@ $provide.value("$locale", {
      * A base rule which calls `match`
      *
      * The value from the `match` function is passed through to the `handler`.
-     * @internalapi
+     * @internal
      */
     var BaseUrlRule = /** @class */ (function () {
         function BaseUrlRule(match, handler) {
@@ -52305,8 +52616,6 @@ $provide.value("$locale", {
         return BaseUrlRule;
     }());
 
-    /** @publicapi @module url */ /** */
-    /** @hidden */
     function appendBasePath(url, isHtml5, absolute, baseHref) {
         if (baseHref === '/')
             return url;
@@ -52323,12 +52632,10 @@ $provide.value("$locale", {
      * This class is now considered to be an internal API
      * Use the [[UrlService]] instead.
      * For configuring URL rules, use the [[UrlRules]] which can be found as [[UrlService.rules]].
-     *
-     * @internalapi
      */
     var UrlRouter = /** @class */ (function () {
-        /** @hidden */
-        function UrlRouter(/** @hidden */ router) {
+        /** @internal */
+        function UrlRouter(/** @internal */ router) {
             var _this = this;
             this.router = router;
             // Delegate these calls to [[UrlService]]
@@ -52361,10 +52668,7 @@ $provide.value("$locale", {
             this.when = function (matcher, handler, options) { return _this.router.urlService.rules.when(matcher, handler, options); };
             this.urlRuleFactory = new UrlRuleFactory(router);
         }
-        /**
-         * Internal API.
-         * @internalapi
-         */
+        /** Internal API. */
         UrlRouter.prototype.update = function (read) {
             var $url = this.router.locationService;
             if (read) {
@@ -52380,7 +52684,7 @@ $provide.value("$locale", {
          *
          * Pushes a new location to the browser history.
          *
-         * @internalapi
+         * @internal
          * @param urlMatcher
          * @param params
          * @param options
@@ -52432,13 +52736,12 @@ $provide.value("$locale", {
             get: function () {
                 return this.router.urlService.interceptDeferred;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return UrlRouter;
     }());
 
-    /** @publicapi @module view */ /** */
     /**
      * The View service
      *
@@ -52456,15 +52759,15 @@ $provide.value("$locale", {
      *
      */
     var ViewService = /** @class */ (function () {
-        /** @hidden */
-        function ViewService(/** @hidden */ router) {
+        /** @internal */
+        function ViewService(/** @internal */ router) {
             var _this = this;
             this.router = router;
-            /** @hidden */ this._uiViews = [];
-            /** @hidden */ this._viewConfigs = [];
-            /** @hidden */ this._viewConfigFactories = {};
-            /** @hidden */ this._listeners = [];
-            /** @internalapi */
+            /** @internal */ this._uiViews = [];
+            /** @internal */ this._viewConfigs = [];
+            /** @internal */ this._viewConfigFactories = {};
+            /** @internal */ this._listeners = [];
+            /** @internal */
             this._pluginapi = {
                 _rootViewContext: this._rootViewContext.bind(this),
                 _viewConfigFactory: this._viewConfigFactory.bind(this),
@@ -52519,11 +52822,11 @@ $provide.value("$locale", {
             }
             return { uiViewName: uiViewName, uiViewContextAnchor: uiViewContextAnchor };
         };
-        /** @hidden */
+        /** @internal */
         ViewService.prototype._rootViewContext = function (context) {
             return (this._rootContext = context || this._rootContext);
         };
-        /** @hidden */
+        /** @internal */
         ViewService.prototype._viewConfigFactory = function (viewType, factory) {
             this._viewConfigFactories[viewType] = factory;
         };
@@ -52700,7 +53003,7 @@ $provide.value("$locale", {
          * - And the remaining segments [ "$default", "bar" ].join("."_ of the ViewConfig's target name match
          *   the tail of the ui-view's fqn "default.bar"
          *
-         * @internalapi
+         * @internal
          */
         ViewService.matches = function (uiViewsByFqn, uiView) { return function (viewConfig) {
             // Don't supply an ng1 ui-view with an ng2 ViewConfig, etc
@@ -52724,7 +53027,6 @@ $provide.value("$locale", {
         return ViewService;
     }());
 
-    /** @publicapi @module core */ /** */
     /**
      * Global router state
      *
@@ -52739,11 +53041,11 @@ $provide.value("$locale", {
              * The parameter values from the latest successful transition
              */
             this.params = new StateParams();
-            /** @internalapi */
+            /** @internal */
             this.lastStartedTransitionId = -1;
-            /** @internalapi */
+            /** @internal */
             this.transitionHistory = new Queue([], 1);
-            /** @internalapi */
+            /** @internal */
             this.successfulTransitions = new Queue([], 1);
         }
         UIRouterGlobals.prototype.dispose = function () {
@@ -52754,18 +53056,14 @@ $provide.value("$locale", {
         return UIRouterGlobals;
     }());
 
-    /** @hidden */
     var prioritySort = function (a, b) { return (b.priority || 0) - (a.priority || 0); };
-    /** @hidden */
     var typeSort = function (a, b) {
         var weights = { STATE: 4, URLMATCHER: 4, REGEXP: 3, RAW: 2, OTHER: 1 };
         return (weights[a.type] || 0) - (weights[b.type] || 0);
     };
-    /** @hidden */
     var urlMatcherSort = function (a, b) {
         return !a.urlMatcher || !b.urlMatcher ? 0 : UrlMatcher.compare(a.urlMatcher, b.urlMatcher);
     };
-    /** @hidden */
     var idSort = function (a, b) {
         // Identically sorted STATE and URLMATCHER best rule will be chosen by `matchPriority` after each rule matches the URL
         var useMatchPriority = { STATE: true, URLMATCHER: true };
@@ -52783,8 +53081,6 @@ $provide.value("$locale", {
      * - Rule registration order (for rule types other than STATE and URLMATCHER)
      *   - Equally sorted State and UrlMatcher rules will each match the URL.
      *     Then, the *best* match is chosen based on how many parameter values were matched.
-     *
-     * @publicapi
      */
     var defaultRuleSortFn;
     defaultRuleSortFn = function (a, b) {
@@ -52799,7 +53095,6 @@ $provide.value("$locale", {
             return cmp;
         return idSort(a, b);
     };
-    /** @hidden */
     function getHandlerFn(handler) {
         if (!isFunction(handler) && !isString(handler) && !is(TargetState)(handler) && !TargetState.isDef(handler)) {
             throw new Error("'handler' must be a string, function, TargetState, or have a state: 'newtarget' property");
@@ -52814,20 +53109,18 @@ $provide.value("$locale", {
      *
      * The most commonly used methods are [[otherwise]] and [[when]].
      *
-     * This API is a property of [[UrlService]] as [[UrlService.rules]]
-     *
-     * @publicapi
+     * This API is found at `router.urlService.rules` (see: [[UIRouter.urlService]], [[URLService.rules]])
      */
     var UrlRules = /** @class */ (function () {
-        /** @hidden */
-        function UrlRules(/** @hidden */ router) {
+        /** @internal */
+        function UrlRules(/** @internal */ router) {
             this.router = router;
-            /** @hidden */ this._sortFn = defaultRuleSortFn;
-            /** @hidden */ this._rules = [];
-            /** @hidden */ this._id = 0;
+            /** @internal */ this._sortFn = defaultRuleSortFn;
+            /** @internal */ this._rules = [];
+            /** @internal */ this._id = 0;
             this.urlRuleFactory = new UrlRuleFactory(router);
         }
-        /** @hidden */
+        /** @internal */
         UrlRules.prototype.dispose = function (router) {
             this._rules = [];
             delete this._otherwiseFn;
@@ -53016,11 +53309,11 @@ $provide.value("$locale", {
             this._rules = sorted;
             this._sorted = true;
         };
-        /** @hidden */
+        /** @internal */
         UrlRules.prototype.ensureSorted = function () {
             this._sorted || this.sort();
         };
-        /** @hidden */
+        /** @internal */
         UrlRules.prototype.stableSort = function (arr, compareFn) {
             var arrOfWrapper = arr.map(function (elem, idx) { return ({ elem: elem, idx: idx }); });
             arrOfWrapper.sort(function (wrapperA, wrapperB) {
@@ -53109,17 +53402,18 @@ $provide.value("$locale", {
      * This information can be used to build absolute URLs, such as
      * `https://example.com:443/basepath/state/substate?param1=a#hashvalue`;
      *
-     * This API is a property of [[UrlService]] as [[UrlService.config]].
+     * This API is found at `router.urlService.config` (see: [[UIRouter.urlService]], [[URLService.config]])
      */
     var UrlConfig = /** @class */ (function () {
-        /** @hidden */ function UrlConfig(/** @hidden */ router) {
+        /** @internal */ function UrlConfig(/** @internal */ router) {
             var _this = this;
             this.router = router;
-            /** @hidden */ this.paramTypes = new ParamTypes();
-            /** @hidden */ this._isCaseInsensitive = false;
-            /** @hidden */ this._isStrictMode = true;
-            /** @hidden */ this._defaultSquashPolicy = false;
-            /** @internalapi */ this.dispose = function () { return _this.paramTypes.dispose(); };
+            /** @internal */ this.paramTypes = new ParamTypes();
+            /** @internal */ this._decodeParams = true;
+            /** @internal */ this._isCaseInsensitive = false;
+            /** @internal */ this._isStrictMode = true;
+            /** @internal */ this._defaultSquashPolicy = false;
+            /** @internal */ this.dispose = function () { return _this.paramTypes.dispose(); };
             // Delegate these calls to the current LocationConfig implementation
             /**
              * Gets the base Href, e.g., `http://localhost/approot/`
@@ -53251,13 +53545,15 @@ $provide.value("$locale", {
         return UrlConfig;
     }());
 
-    /** API for URL management */
+    /**
+     * API for URL management
+     */
     var UrlService = /** @class */ (function () {
-        /** @hidden */
-        function UrlService(/** @hidden */ router) {
+        /** @internal */
+        function UrlService(/** @internal */ router) {
             var _this = this;
             this.router = router;
-            /** @hidden */ this.interceptDeferred = false;
+            /** @internal */ this.interceptDeferred = false;
             /**
              * The nested [[UrlRules]] API for managing URL rules and rewrites
              *
@@ -53351,7 +53647,7 @@ $provide.value("$locale", {
              */
             this.hash = function () { return _this.router.locationService.hash(); };
             /**
-             * @internalapi
+             * @internal
              *
              * Registers a low level url change handler
              *
@@ -53367,7 +53663,7 @@ $provide.value("$locale", {
              */
             this.onChange = function (callback) { return _this.router.locationService.onChange(callback); };
         }
-        /** @hidden */
+        /** @internal */
         UrlService.prototype.dispose = function () {
             this.listen(false);
             this.rules.dispose();
@@ -53442,7 +53738,8 @@ $provide.value("$locale", {
                 delete this._stopListeningFn;
             }
             else {
-                return (this._stopListeningFn = this._stopListeningFn || this.router.urlService.onChange(function (evt) { return _this.sync(evt); }));
+                return (this._stopListeningFn =
+                    this._stopListeningFn || this.router.urlService.onChange(function (evt) { return _this.sync(evt); }));
             }
         };
         /**
@@ -53507,31 +53804,20 @@ $provide.value("$locale", {
         return UrlService;
     }());
 
-    /** @publicapi @module core */ /** */
-    /** @hidden */
+    /** @internal */
     var _routerInstance = 0;
-    /** @hidden */
+    /** @internal */
     var locSvcFns = ['url', 'path', 'search', 'hash', 'onChange'];
-    /** @hidden */
+    /** @internal */
     var locCfgFns = ['port', 'protocol', 'host', 'baseHref', 'html5Mode', 'hashPrefix'];
-    /** @hidden */
+    /** @internal */
     var locationServiceStub = makeStub('LocationServices', locSvcFns);
-    /** @hidden */
+    /** @internal */
     var locationConfigStub = makeStub('LocationConfig', locCfgFns);
     /**
-     * The master class used to instantiate an instance of UI-Router.
+     * An instance of UI-Router.
      *
-     * UI-Router (for each specific framework) will create an instance of this class during bootstrap.
-     * This class instantiates and wires the UI-Router services together.
-     *
-     * After a new instance of the UIRouter class is created, it should be configured for your app.
-     * For instance, app states should be registered with the [[UIRouter.stateRegistry]].
-     *
-     * ---
-     *
-     * Normally the framework code will bootstrap UI-Router.
-     * If you are bootstrapping UIRouter manually, tell it to monitor the URL by calling
-     * [[UrlService.listen]] then [[UrlService.sync]].
+     * This object contains references to service APIs which define your application's routing behavior.
      */
     var UIRouter = /** @class */ (function () {
         /**
@@ -53539,23 +53825,23 @@ $provide.value("$locale", {
          *
          * @param locationService a [[LocationServices]] implementation
          * @param locationConfig a [[LocationConfig]] implementation
-         * @internalapi
+         * @internal
          */
         function UIRouter(locationService, locationConfig) {
             if (locationService === void 0) { locationService = locationServiceStub; }
             if (locationConfig === void 0) { locationConfig = locationConfigStub; }
             this.locationService = locationService;
             this.locationConfig = locationConfig;
-            /** @hidden */ this.$id = _routerInstance++;
-            /** @hidden */ this._disposed = false;
-            /** @hidden */ this._disposables = [];
-            /** Provides trace information to the console */
+            /** @internal */ this.$id = _routerInstance++;
+            /** @internal */ this._disposed = false;
+            /** @internal */ this._disposables = [];
+            /** Enable/disable tracing to the javascript console */
             this.trace = trace;
             /** Provides services related to ui-view synchronization */
             this.viewService = new ViewService(this);
-            /** Global router state */
+            /** An object that contains global router state, such as the current state and params */
             this.globals = new UIRouterGlobals();
-            /** Provides services related to Transitions */
+            /** A service that exposes global Transition Hooks */
             this.transitionService = new TransitionService(this);
             /**
              * Deprecated for public use. Use [[urlService]] instead.
@@ -53573,7 +53859,7 @@ $provide.value("$locale", {
             this.stateRegistry = new StateRegistry(this);
             /** Provides services related to states */
             this.stateService = new StateService(this);
-            /** @hidden plugin instances are registered here */
+            /** @internal plugin instances are registered here */
             this._plugins = {};
             this.viewService._pluginapi._rootViewContext(this.stateRegistry.root());
             this.globals.$current = this.stateRegistry.root();
@@ -53598,6 +53884,7 @@ $provide.value("$locale", {
          *
          * Or, if a `disposable` object is provided, calls `dispose(this)` on that object only.
          *
+         * @internal
          * @param disposable (optional) the disposable to dispose
          */
         UIRouter.prototype.dispose = function (disposable) {
@@ -53682,7 +53969,6 @@ $provide.value("$locale", {
         return UIRouter;
     }());
 
-    /** @internalapi @module hooks */ /** */
     function addCoreResolvables(trans) {
         trans.addResolvable(Resolvable.fromData(UIRouter, trans.router), '');
         trans.addResolvable(Resolvable.fromData(Transition, trans), '');
@@ -53702,9 +53988,7 @@ $provide.value("$locale", {
     // This function removes resolves for '$transition$' and `Transition` from the treeChanges.
     // Do not use this on current transitions, only on old ones.
     var treeChangesCleanup = function (trans) {
-        var nodes = values(trans.treeChanges())
-            .reduce(unnestR, [])
-            .reduce(uniqR, []);
+        var nodes = values(trans.treeChanges()).reduce(unnestR, []).reduce(uniqR, []);
         // If the resolvable is a Transition, return a new resolvable with null data
         var replaceTransitionWithNull = function (r) {
             return isTransition(r.token) ? Resolvable.fromData(r.token, null) : r;
@@ -53714,7 +53998,6 @@ $provide.value("$locale", {
         });
     };
 
-    /** @internalapi @module hooks */ /** */
     /**
      * A [[TransitionHookFn]] that redirects to a different state or params
      *
@@ -53751,8 +54034,6 @@ $provide.value("$locale", {
      *
      * The returned function invokes the (for instance) state.onEnter hook when the
      * state is being entered.
-     *
-     * @hidden
      */
     function makeEnterExitRetainHook(hookName) {
         return function (transition, state) {
@@ -53801,7 +54082,6 @@ $provide.value("$locale", {
         return transitionService.onEnter({ entering: function (state) { return !!state.onEnter; } }, onEnterHook);
     };
 
-    /** @internalapi @module hooks */ /** */
     var RESOLVE_HOOK_PRIORITY = 1000;
     /**
      * A [[TransitionHookFn]] which resolves all EAGER Resolvables in the To Path
@@ -53828,10 +54108,7 @@ $provide.value("$locale", {
      * See [[StateDeclaration.resolve]]
      */
     var lazyResolveState = function (trans, state) {
-        return new ResolveContext(trans.treeChanges().to)
-            .subContext(state.$$state())
-            .resolvePath('LAZY', trans)
-            .then(noop);
+        return new ResolveContext(trans.treeChanges().to).subContext(state.$$state()).resolvePath('LAZY', trans).then(noop);
     };
     var registerLazyResolveState = function (transitionService) {
         return transitionService.onEnter({ entering: val(true) }, lazyResolveState, { priority: RESOLVE_HOOK_PRIORITY });
@@ -53853,7 +54130,6 @@ $provide.value("$locale", {
         return transitionService.onFinish({}, resolveRemaining, { priority: RESOLVE_HOOK_PRIORITY });
     };
 
-    /** @internalapi @module hooks */ /** */
     /**
      * A [[TransitionHookFn]] which waits for the views to load
      *
@@ -53969,7 +54245,7 @@ $provide.value("$locale", {
      * ```
      * .state('abc', {
      *   component: 'fooComponent',
-     *   lazyLoad: () => System.import('./fooComponent')
+     *   lazyLoad: () => import('./fooComponent')
      *   });
      * ```
      *
@@ -54048,8 +54324,6 @@ $provide.value("$locale", {
     /**
      * This class defines a type of hook, such as `onBefore` or `onEnter`.
      * Plugins can define custom hook types, such as sticky states does for `onInactive`.
-     *
-     * @interalapi
      */
     var TransitionEventType = /** @class */ (function () {
         /* tslint:disable:no-inferrable-types */
@@ -54070,7 +54344,6 @@ $provide.value("$locale", {
         return TransitionEventType;
     }());
 
-    /** @internalapi @module hooks */ /** */
     /**
      * A [[TransitionHookFn]] that skips a transition if it should be ignored
      *
@@ -54097,7 +54370,6 @@ $provide.value("$locale", {
         return transitionService.onBefore({}, ignoredHook, { priority: -9999 });
     };
 
-    /** @internalapi @module hooks */ /** */
     /**
      * A [[TransitionHookFn]] that rejects the Transition if it is invalid
      *
@@ -54114,7 +54386,6 @@ $provide.value("$locale", {
         return transitionService.onBefore({}, invalidTransitionHook, { priority: -10000 });
     };
 
-    /** @publicapi @module transition */ /** */
     /**
      * The default [[Transition]] options.
      *
@@ -54128,6 +54399,7 @@ $provide.value("$locale", {
         inherit: false,
         notify: true,
         reload: false,
+        supercede: true,
         custom: {},
         current: function () { return null; },
         source: 'unknown',
@@ -54140,17 +54412,19 @@ $provide.value("$locale", {
      * - It also has a factory function for creating new [[Transition]] objects, (used internally by the [[StateService]]).
      *
      * At bootstrap, [[UIRouter]] creates a single instance (singleton) of this class.
+     *
+     * This API is located at `router.transitionService` ([[UIRouter.transitionService]])
      */
     var TransitionService = /** @class */ (function () {
-        /** @hidden */
+        /** @internal */
         function TransitionService(_router) {
-            /** @hidden */
+            /** @internal */
             this._transitionCount = 0;
-            /** @hidden The transition hook types, such as `onEnter`, `onStart`, etc */
+            /** The transition hook types, such as `onEnter`, `onStart`, etc */
             this._eventTypes = [];
-            /** @hidden The registered transition hooks */
+            /** @internal The registered transition hooks */
             this._registeredHooks = {};
-            /** @hidden The  paths on a criteria object */
+            /** The  paths on a criteria object */
             this._criteriaPaths = {};
             this._router = _router;
             this.$view = _router.viewService;
@@ -54184,7 +54458,7 @@ $provide.value("$locale", {
          *
          * The hook's return value is ignored
          *
-         * @internalapi
+         * @internal
          * @param criteria defines which Transitions the Hook should be invoked for.
          * @param callback the hook function which will be invoked.
          * @param options the registration options
@@ -54227,7 +54501,7 @@ $provide.value("$locale", {
         };
         /**
          * dispose
-         * @internalapi
+         * @internal
          */
         TransitionService.prototype.dispose = function (router) {
             values(this._registeredHooks).forEach(function (hooksArray) {
@@ -54243,6 +54517,7 @@ $provide.value("$locale", {
          * This is a factory function for creating new Transition objects.
          * It is used internally by the [[StateService]] and should generally not be called by application code.
          *
+         * @internal
          * @param fromPath the path to the current state (the from state)
          * @param targetState the target state (destination)
          * @returns a Transition
@@ -54250,7 +54525,7 @@ $provide.value("$locale", {
         TransitionService.prototype.create = function (fromPath, targetState) {
             return new Transition(fromPath, targetState, this._router);
         };
-        /** @hidden */
+        /** @internal */
         TransitionService.prototype._defineCoreEvents = function () {
             var Phase = exports.TransitionHookPhase;
             var TH = TransitionHook;
@@ -54267,7 +54542,7 @@ $provide.value("$locale", {
             this._defineEvent('onSuccess', Phase.SUCCESS, 0, paths.to, NORMAL_SORT, TH.LOG_REJECTED_RESULT, TH.LOG_ERROR, SYNCHRONOUS);
             this._defineEvent('onError', Phase.ERROR, 0, paths.to, NORMAL_SORT, TH.LOG_REJECTED_RESULT, TH.LOG_ERROR, SYNCHRONOUS);
         };
-        /** @hidden */
+        /** @internal */
         TransitionService.prototype._defineCorePaths = function () {
             var STATE = exports.TransitionHookScope.STATE, TRANSITION = exports.TransitionHookScope.TRANSITION;
             this._definePathType('to', TRANSITION);
@@ -54276,7 +54551,7 @@ $provide.value("$locale", {
             this._definePathType('retained', STATE);
             this._definePathType('entering', STATE);
         };
-        /** @hidden */
+        /** @internal */
         TransitionService.prototype._defineEvent = function (name, hookPhase, hookOrder, criteriaMatchPath, reverseSort, getResultHandler, getErrorHandler, synchronous) {
             if (reverseSort === void 0) { reverseSort = false; }
             if (getResultHandler === void 0) { getResultHandler = TransitionHook.HANDLE_RESULT; }
@@ -54286,8 +54561,7 @@ $provide.value("$locale", {
             this._eventTypes.push(eventType);
             makeEvent(this, this, eventType);
         };
-        /** @hidden */
-        // tslint:disable-next-line
+        /** @internal */
         TransitionService.prototype._getEvents = function (phase) {
             var transitionHookTypes = isDefined(phase)
                 ? this._eventTypes.filter(function (type) { return type.hookPhase === phase; })
@@ -54308,21 +54582,21 @@ $provide.value("$locale", {
          * It was defined by calling `defineTreeChangesCriterion('to', TransitionHookScope.TRANSITION)`
          * Only the tail of the `to` path is checked against the criteria and returned as part of the match.
          *
-         * @hidden
+         * @internal
          */
         TransitionService.prototype._definePathType = function (name, hookScope) {
             this._criteriaPaths[name] = { name: name, scope: hookScope };
         };
-        /** * @hidden */
+        /** @internal */
         // tslint:disable-next-line
         TransitionService.prototype._getPathTypes = function () {
             return this._criteriaPaths;
         };
-        /** @hidden */
+        /** @internal */
         TransitionService.prototype.getHooks = function (hookName) {
             return this._registeredHooks[hookName];
         };
-        /** @hidden */
+        /** @internal */
         TransitionService.prototype._registerCoreTransitionHooks = function () {
             var fns = this._deregisterHookFns;
             fns.addCoreResolves = registerAddCoreResolvables(this);
@@ -54351,20 +54625,18 @@ $provide.value("$locale", {
         return TransitionService;
     }());
 
-    /** @publicapi @module state */ /** */
     /**
-     * Provides state related service functions
+     * Provides services related to ui-router states.
      *
-     * This class provides services related to ui-router states.
-     * An instance of this class is located on the global [[UIRouter]] object.
+     * This API is located at `router.stateService` ([[UIRouter.stateService]])
      */
     var StateService = /** @class */ (function () {
-        /** @internalapi */
-        function StateService(/** @hidden */ router) {
+        /** @internal */
+        function StateService(/** @internal */ router) {
             this.router = router;
-            /** @internalapi */
+            /** @internal */
             this.invalidCallbacks = [];
-            /** @hidden */
+            /** @internal */
             this._defaultErrorHandler = function $defaultErrorHandler($error$) {
                 if ($error$ instanceof Error && $error$.stack) {
                     console.error($error$);
@@ -54387,51 +54659,51 @@ $provide.value("$locale", {
             /**
              * The [[Transition]] currently in progress (or null)
              *
-             * This is a passthrough through to [[UIRouterGlobals.transition]]
+             * @deprecated This is a passthrough through to [[UIRouterGlobals.transition]]
              */
             get: function () {
                 return this.router.globals.transition;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(StateService.prototype, "params", {
             /**
              * The latest successful state parameters
              *
-             * This is a passthrough through to [[UIRouterGlobals.params]]
+             * @deprecated This is a passthrough through to [[UIRouterGlobals.params]]
              */
             get: function () {
                 return this.router.globals.params;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(StateService.prototype, "current", {
             /**
              * The current [[StateDeclaration]]
              *
-             * This is a passthrough through to [[UIRouterGlobals.current]]
+             * @deprecated This is a passthrough through to [[UIRouterGlobals.current]]
              */
             get: function () {
                 return this.router.globals.current;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(StateService.prototype, "$current", {
             /**
-             * The current [[StateObject]]
+             * The current [[StateObject]] (an internal API)
              *
-             * This is a passthrough through to [[UIRouterGlobals.$current]]
+             * @deprecated This is a passthrough through to [[UIRouterGlobals.$current]]
              */
             get: function () {
                 return this.router.globals.$current;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
-        /** @internalapi */
+        /** @internal */
         StateService.prototype.dispose = function () {
             this.defaultErrorHandler(noop);
             this.invalidCallbacks = [];
@@ -54445,7 +54717,7 @@ $provide.value("$locale", {
          *
          * If a callback returns an TargetState, then it is used as arguments to $state.transitionTo() and the result returned.
          *
-         * @internalapi
+         * @internal
          */
         StateService.prototype._handleInvalidTargetState = function (fromPath, toState) {
             var _this = this;
@@ -54624,6 +54896,7 @@ $provide.value("$locale", {
                 throw new Error("No such reload state '" + (isString(options.reload) ? options.reload : options.reload.name) + "'");
             return new TargetState(this.router.stateRegistry, identifier, params, options);
         };
+        /** @internal */
         StateService.prototype.getCurrentPath = function () {
             var _this = this;
             var globals = this.router.globals;
@@ -54669,6 +54942,9 @@ $provide.value("$locale", {
                 return this._handleInvalidTargetState(currentPath, ref);
             if (!ref.valid())
                 return silentRejection(ref.error());
+            if (options.supercede === false && getCurrent()) {
+                return (Rejection.ignored('Another transition is in progress and supercede has been set to false in TransitionOptions for the transition. So the transition was ignored in favour of the existing one in progress.').toPromise());
+            }
             /**
              * Special handling for Ignored, Aborted, and Redirected transitions
              *
@@ -54901,20 +55177,6 @@ $provide.value("$locale", {
     }());
 
     /**
-     * # Transition subsystem
-     *
-     * This module contains APIs related to a Transition.
-     *
-     * See:
-     * - [[TransitionService]]
-     * - [[Transition]]
-     * - [[HookFn]], [[TransitionHookFn]], [[TransitionStateHookFn]], [[HookMatchCriteria]], [[HookResult]]
-     *
-     * @preferred @publicapi @module transition
-     */ /** */
-
-    /** @internalapi @module vanilla */ /** */
-    /**
      * An angular1-like promise api
      *
      * This object implements four methods similar to the
@@ -54967,7 +55229,6 @@ $provide.value("$locale", {
         },
     };
 
-    /** @internalapi @module vanilla */ /** */
     // globally available injectables
     var globals = {};
     var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
@@ -55060,7 +55321,6 @@ $provide.value("$locale", {
         },
     };
 
-    /** @internalapi @module vanilla */ /** */
     var keyValsToObjectR = function (accum, _a) {
         var key = _a[0], val = _a[1];
         if (!accum.hasOwnProperty(key)) {
@@ -55075,11 +55335,7 @@ $provide.value("$locale", {
         return accum;
     };
     var getParams = function (queryString) {
-        return queryString
-            .split('&')
-            .filter(identity)
-            .map(splitEqual)
-            .reduce(keyValsToObjectR, {});
+        return queryString.split('&').filter(identity).map(splitEqual).reduce(keyValsToObjectR, {});
     };
     function parseUrl$1(url) {
         var orEmptyString = function (x) { return x || ''; };
@@ -55113,7 +55369,6 @@ $provide.value("$locale", {
         };
     }
 
-    /** @internalapi @module vanilla */ /** */
     /** A base `LocationServices` */
     var BaseLocationServices = /** @class */ (function () {
         function BaseLocationServices(router, fireAfterUpdate) {
@@ -55303,7 +55558,6 @@ $provide.value("$locale", {
         return MemoryLocationConfig;
     }());
 
-    /** @internalapi @module vanilla */
     /** A `LocationConfig` that delegates to the browser's `location` object */
     var BrowserLocationConfig = /** @class */ (function () {
         function BrowserLocationConfig(router, _isHtml5) {
@@ -55348,7 +55602,6 @@ $provide.value("$locale", {
         return BrowserLocationConfig;
     }());
 
-    /** @internalapi @module vanilla */ /** */
     function servicesPlugin(router) {
         services.$injector = $injector;
         services.$q = $q;
@@ -55361,17 +55614,6 @@ $provide.value("$locale", {
     /** A `UIRouterPlugin` that gets/sets the current location from an in-memory object */
     var memoryLocationPlugin = locationPluginFactory('vanilla.memoryLocation', false, MemoryLocationService, MemoryLocationConfig);
 
-    /** @internalapi @module vanilla */ /** */
-
-    /**
-     * # Core classes and interfaces
-     *
-     * The classes and interfaces that are core to ui-router and do not belong
-     * to a more specific subsystem (such as resolve).
-     *
-     * @preferred @publicapi @module core
-     */ /** */
-    /** @internalapi */
     var UIRouterPluginBase = /** @class */ (function () {
         function UIRouterPluginBase() {
         }
@@ -55379,9 +55621,8 @@ $provide.value("$locale", {
         return UIRouterPluginBase;
     }());
 
-    /** @publicapi @module common */ /** */
-
     var index = /*#__PURE__*/Object.freeze({
+        __proto__: null,
         root: root,
         fromJson: fromJson,
         toJson: toJson,
@@ -55545,6 +55786,7 @@ $provide.value("$locale", {
         UIRouterPluginBase: UIRouterPluginBase
     });
 
+    /** @publicapi @module ng1 */ /** */
     /** @internalapi */
     function getNg1ViewConfigFactory() {
         var templateFactory = null;
@@ -55819,9 +56061,7 @@ $provide.value("$locale", {
                 // some-attr="::$resolve.someResolveName"
                 return attrName + "='" + prefix + "$resolve." + resolveName + "'";
             };
-            var attrs = getComponentBindings(component)
-                .map(attributeTpl)
-                .join(' ');
+            var attrs = getComponentBindings(component).map(attributeTpl).join(' ');
             var kebobName = kebob(component);
             return "<" + kebobName + " " + attrs + "></" + kebobName + ">";
         };
@@ -56000,7 +56240,7 @@ $provide.value("$locale", {
      * @internalapi
      */
     var getStateHookBuilder = function (hookName) {
-        return function stateHookBuilder(stateObject, parentFn) {
+        return function stateHookBuilder(stateObject) {
             var hook = stateObject[hookName];
             var pathname = hookName === 'onExit' ? 'from' : 'to';
             function decoratedNg1Hook(trans, state) {
@@ -56047,6 +56287,7 @@ $provide.value("$locale", {
                 return x != null ? x.toString().replace(/(~~|~2F)/g, function (m) { return ({ '~~': '~', '~2F': '/' }[m]); }) : x;
             };
         };
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         Ng1LocationServices.prototype.dispose = function () { };
         Ng1LocationServices.prototype.onChange = function (callback) {
             var _this = this;
@@ -56281,23 +56522,14 @@ $provide.value("$locale", {
         return UrlRouterProvider;
     }());
 
-    /**
-     * # Angular 1 types
-     *
-     * UI-Router core provides various Typescript types which you can use for code completion and validating parameter values, etc.
-     * The customizations to the core types for Angular UI-Router are documented here.
-     *
-     * The optional [[$resolve]] service is also documented here.
-     *
-     * @preferred @publicapi @module ng1
-     */ /** */
+    /* eslint-disable @typescript-eslint/no-empty-function */
     ng.module('ui.router.angular1', []);
     var mod_init = ng.module('ui.router.init', ['ng']);
     var mod_util = ng.module('ui.router.util', ['ui.router.init']);
     var mod_rtr = ng.module('ui.router.router', ['ui.router.util']);
     var mod_state = ng.module('ui.router.state', ['ui.router.router', 'ui.router.util', 'ui.router.angular1']);
     var mod_main = ng.module('ui.router', ['ui.router.init', 'ui.router.state', 'ui.router.angular1']);
-    var mod_cmpt = ng.module('ui.router.compat', ['ui.router']); // tslint:disable-line
+    var mod_cmpt = ng.module('ui.router.compat', ['ui.router']);
     var router = null;
     $uiRouterProvider.$inject = ['$locationProvider'];
     /** This angular 1 provider instantiates a Router and exposes its services via the angular injector */
@@ -56311,6 +56543,8 @@ $provide.value("$locale", {
         router.stateRegistry.decorator('onRetain', getStateHookBuilder('onRetain'));
         router.stateRegistry.decorator('onEnter', getStateHookBuilder('onEnter'));
         router.viewService._pluginapi._viewConfigFactory('ng1', getNg1ViewConfigFactory());
+        // Disable decoding of params by UrlMatcherFactory because $location already handles this
+        router.urlService.config._decodeParams = false;
         var ng1LocationService = (router.locationService = router.locationConfig = new Ng1LocationServices($locationProvider));
         Ng1LocationServices.monkeyPatchPathParameterType(router);
         // backwards compat: also expose router instance as $uiRouterProvider.router
@@ -56339,7 +56573,7 @@ $provide.value("$locale", {
         services.$injector = $injector;
         services.$q = $q;
         // https://github.com/angular-ui/ui-router/issues/3678
-        if (!$injector.hasOwnProperty('strictDi')) {
+        if (!Object.prototype.hasOwnProperty.call($injector, 'strictDi')) {
             try {
                 $injector.invoke(function (checkStrictDi) { });
             }
@@ -56395,83 +56629,13 @@ $provide.value("$locale", {
         return tuples.reduce(applyPairs, {});
     };
 
-    /**
-     * The current (or pending) State Parameters
-     *
-     * An injectable global **Service Object** which holds the state parameters for the latest **SUCCESSFUL** transition.
-     *
-     * The values are not updated until *after* a `Transition` successfully completes.
-     *
-     * **Also:** an injectable **Per-Transition Object** object which holds the pending state parameters for the pending `Transition` currently running.
-     *
-     * ### Deprecation warning:
-     *
-     * The value injected for `$stateParams` is different depending on where it is injected.
-     *
-     * - When injected into an angular service, the object injected is the global **Service Object** with the parameter values for the latest successful `Transition`.
-     * - When injected into transition hooks, resolves, or view controllers, the object is the **Per-Transition Object** with the parameter values for the running `Transition`.
-     *
-     * Because of these confusing details, this service is deprecated.
-     *
-     * ### Instead of using the global `$stateParams` service object,
-     * inject [[$uiRouterGlobals]] and use [[UIRouterGlobals.params]]
-     *
-     * ```js
-     * MyService.$inject = ['$uiRouterGlobals'];
-     * function MyService($uiRouterGlobals) {
-     *   return {
-     *     paramValues: function () {
-     *       return $uiRouterGlobals.params;
-     *     }
-     *   }
-     * }
-     * ```
-     *
-     * ### Instead of using the per-transition `$stateParams` object,
-     * inject the current `Transition` (as [[$transition$]]) and use [[Transition.params]]
-     *
-     * ```js
-     * MyController.$inject = ['$transition$'];
-     * function MyController($transition$) {
-     *   var username = $transition$.params().username;
-     *   // .. do something with username
-     * }
-     * ```
-     *
-     * ---
-     *
-     * This object can be injected into other services.
-     *
-     * #### Deprecated Example:
-     * ```js
-     * SomeService.$inject = ['$http', '$stateParams'];
-     * function SomeService($http, $stateParams) {
-     *   return {
-     *     getUser: function() {
-     *       return $http.get('/api/users/' + $stateParams.username);
-     *     }
-     *   }
-     * };
-     * angular.service('SomeService', SomeService);
-     * ```
-     * @deprecated
-     */
-
-    /**
-     * # Angular 1 Directives
-     *
-     * These are the directives included in UI-Router for Angular 1.
-     * These directives are used in templates to create viewports and link/navigate to states.
-     *
-     * @preferred @publicapi @module directives
-     */ /** */
+    /* eslint-disable @typescript-eslint/no-empty-interface */
     /** @hidden */
     function parseStateRef(ref) {
-        var parsed;
         var paramsOnly = ref.match(/^\s*({[^}]*})\s*$/);
         if (paramsOnly)
             ref = '(' + paramsOnly[1] + ')';
-        parsed = ref.replace(/\n/g, ' ').match(/^\s*([^(]*?)\s*(\((.*)\))?\s*$/);
+        var parsed = ref.replace(/\n/g, ' ').match(/^\s*([^(]*?)\s*(\((.*)\))?\s*$/);
         if (!parsed || parsed.length !== 4)
             throw new Error("Invalid state ref '" + ref + "'");
         return { state: parsed[1] || null, paramExpr: parsed[3] || null };
@@ -56504,7 +56668,7 @@ $provide.value("$locale", {
     function clickHook(el, $state, $timeout, type, getDef) {
         return function (e) {
             var button = e.which || e.button, target = getDef();
-            if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || el.attr('target'))) {
+            if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || el.attr('target'))) {
                 // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
                 var transition_1 = $timeout(function () {
                     if (!el.attr('disabled')) {
@@ -56697,7 +56861,6 @@ $provide.value("$locale", {
                     var type = getTypeInfo(element);
                     var active = uiSrefActive[1] || uiSrefActive[0];
                     var unlinkInfoFn = null;
-                    var hookFn;
                     var rawDef = {};
                     var getDef = function () { return processedDef($state, element, rawDef); };
                     var ref = parseStateRef(attrs.uiSref);
@@ -56724,7 +56887,7 @@ $provide.value("$locale", {
                     scope.$on('$destroy', $uiRouter.transitionService.onSuccess({}, update));
                     if (!type.clickable)
                         return;
-                    hookFn = clickHook(element, $state, $timeout, type, getDef);
+                    var hookFn = clickHook(element, $state, $timeout, type, getDef);
                     bindEvents(element, scope, hookFn, rawDef.uiStateOpts);
                 },
             };
@@ -57058,9 +57221,7 @@ $provide.value("$locale", {
                                     .map(splitClasses)
                                     .reduce(unnestR, []);
                             };
-                            var allClasses = getClasses(states)
-                                .concat(splitClasses(activeEqClass))
-                                .reduce(uniqR, []);
+                            var allClasses = getClasses(states).concat(splitClasses(activeEqClass)).reduce(uniqR, []);
                             var fuzzyClasses = getClasses(states.filter(function (x) { return $state.includes(x.state.name, x.params); }));
                             var exactlyMatchesAny = !!states.filter(function (x) { return $state.is(x.state.name, x.params); }).length;
                             var exactClasses = exactlyMatchesAny ? splitClasses(activeEqClass) : [];
@@ -57121,10 +57282,7 @@ $provide.value("$locale", {
         includesFilter.$stateful = true;
         return includesFilter;
     }
-    ng
-        .module('ui.router.state')
-        .filter('isState', $IsStateFilter)
-        .filter('includedByState', $IncludedByStateFilter);
+    ng.module('ui.router.state').filter('isState', $IsStateFilter).filter('includedByState', $IncludedByStateFilter);
 
     /** @publicapi @module directives */ /** */
     /**
@@ -57253,6 +57411,7 @@ $provide.value("$locale", {
      * ```
      */
     var uiView;
+    // eslint-disable-next-line prefer-const
     uiView = [
         '$view',
         '$animate',
@@ -57260,7 +57419,7 @@ $provide.value("$locale", {
         '$interpolate',
         '$q',
         function $ViewDirective($view, $animate, $uiViewScroll, $interpolate, $q) {
-            function getRenderer(attrs, scope) {
+            function getRenderer() {
                 return {
                     enter: function (element, target, cb) {
                         if (ng.version.minor > 2) {
@@ -57296,7 +57455,7 @@ $provide.value("$locale", {
                 compile: function (tElement, tAttrs, $transclude) {
                     return function (scope, $element, attrs) {
                         var onloadExp = attrs['onload'] || '', autoScrollExp = attrs['autoscroll'], renderer = getRenderer(), inherited = $element.inheritedData('$uiView') || rootData, name = $interpolate(attrs['uiView'] || attrs['name'] || '')(scope) || '$default';
-                        var previousEl, currentEl, currentScope, viewConfig, unregister;
+                        var previousEl, currentEl, currentScope, viewConfig;
                         var activeUIView = {
                             $type: 'ng1',
                             id: directive.count++,
@@ -57325,7 +57484,7 @@ $provide.value("$locale", {
                         }
                         $element.data('$uiView', { $uiView: activeUIView });
                         updateView();
-                        unregister = $view.registerUIView(activeUIView);
+                        var unregister = $view.registerUIView(activeUIView);
                         scope.$on('$destroy', function () {
                             trace.traceUIViewEvent('Destroying/Unregistering', activeUIView);
                             unregister();
@@ -57411,9 +57570,9 @@ $provide.value("$locale", {
             return directive;
         },
     ];
-    $ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view', '$q', '$timeout'];
+    $ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view', '$q'];
     /** @hidden */
-    function $ViewDirectiveFill($compile, $controller, $transitions, $view, $q, $timeout) {
+    function $ViewDirectiveFill($compile, $controller, $transitions, $view, $q) {
         var getControllerAs = parse('viewDecl.controllerAs');
         var getResolveAs = parse('viewDecl.resolveAs');
         return {
@@ -57482,7 +57641,8 @@ $provide.value("$locale", {
     /** @hidden TODO: move these callbacks to $view and/or `/hooks/components.ts` or something */
     function registerControllerCallbacks($q, $transitions, controllerInstance, $scope, cfg) {
         // Call $onInit() ASAP
-        if (isFunction(controllerInstance.$onInit) && !((cfg.viewDecl.component || cfg.viewDecl.componentProvider) && hasComponentImpl)) {
+        if (isFunction(controllerInstance.$onInit) &&
+            !((cfg.viewDecl.component || cfg.viewDecl.componentProvider) && hasComponentImpl)) {
             controllerInstance.$onInit();
         }
         var viewState = tail(cfg.path).state.self;
@@ -57500,14 +57660,8 @@ $provide.value("$locale", {
                 var toParams = $transition$.params('to');
                 var fromParams = $transition$.params('from');
                 var getNodeSchema = function (node) { return node.paramSchema; };
-                var toSchema = $transition$
-                    .treeChanges('to')
-                    .map(getNodeSchema)
-                    .reduce(unnestR, []);
-                var fromSchema = $transition$
-                    .treeChanges('from')
-                    .map(getNodeSchema)
-                    .reduce(unnestR, []);
+                var toSchema = $transition$.treeChanges('to').map(getNodeSchema).reduce(unnestR, []);
+                var fromSchema = $transition$.treeChanges('from').map(getNodeSchema).reduce(unnestR, []);
                 // Find the to params that have different values than the from params
                 var changedToParams = toSchema.filter(function (param) {
                     var idx = fromSchema.indexOf(param);
@@ -57572,6 +57726,10 @@ $provide.value("$locale", {
     }
     ng.module('ui.router.state').provider('$uiViewScroll', $ViewScrollProvider);
 
+    /**
+     * Main entry point for angular 1.x build
+     * @publicapi @module ng1
+     */ /** */
     var index$1 = 'ui.router';
 
     exports.$injector = $injector;
@@ -57742,7 +57900,7 @@ $provide.value("$locale", {
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));
 //# sourceMappingURL=angular-ui-router.js.map
 
 
@@ -66103,7 +66261,8 @@ var Toponym = (function (exports) {
         }
     ])
         .config([
-        '$stateProvider', function ($stateProvider) {
+        '$stateProvider',
+        function ($stateProvider) {
             $stateProvider
                 .state({
                 name: 'app',
@@ -66118,7 +66277,8 @@ var Toponym = (function (exports) {
         }
     ])
         .run([
-        '$rootScope', function ($rootScope) {
+        '$rootScope',
+        function ($rootScope) {
             $rootScope.Core = {
                 rusCase: rusCase,
                 entryTypeAbbr: entryTypeAbbr,
