@@ -5,7 +5,7 @@ using Toponym.Site.Models;
 
 namespace Toponym.Site.Helpers
 {
-    public class RegexHelper
+    public static class RegexHelper
     {
         private const string SoftLeft = "[^^ ]";
         private const string SoftRight = "[^$ ]";

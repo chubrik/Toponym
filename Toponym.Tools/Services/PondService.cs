@@ -7,7 +7,7 @@ using Toponym.Tools.Helpers;
 
 namespace Toponym.Tools.Services
 {
-    public class PondService
+    public static class PondService
     {
         public static List<EntryData> Build()
         {

@@ -8,7 +8,7 @@ using Toponym.Tools.Helpers;
 
 namespace Toponym.Tools.Services
 {
-    public class GeoService
+    public static class GeoService
     {
         public static RelationObject LoadRelation(string cacheName, long relationId, string sourcePath = null)
         {

@@ -11,7 +11,7 @@ using Toponym.Tools.Helpers;
 
 namespace Toponym.Tools.Services
 {
-    public class PopulatedService
+    public static class PopulatedService
     {
         public static List<EntryData> Build()
         {

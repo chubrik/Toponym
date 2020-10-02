@@ -10,7 +10,7 @@ using Toponym.Tools.Helpers;
 
 namespace Toponym.Tools.Services
 {
-    public class WaterService
+    public static class WaterService
     {
         public static List<EntryData> Build()
         {

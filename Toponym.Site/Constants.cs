@@ -2,7 +2,7 @@
 
 namespace Toponym.Site
 {
-    public class Constants
+    public static class Constants
     {
         public const string DefaultHost = "toponim.by";
         public const string DataFileName = "data.json";

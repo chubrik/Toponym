@@ -9,7 +9,7 @@ using Toponym.Tools.Helpers;
 
 namespace Toponym.Tools.Services
 {
-    public class LakeService
+    public static class LakeService
     {
         public static List<EntryData> Build()
         {

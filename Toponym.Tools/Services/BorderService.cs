@@ -10,7 +10,7 @@ using Toponym.Tools.Extensions;
 
 namespace Toponym.Tools.Services
 {
-    public class BorderService
+    public static class BorderService
     {
         public static IReadOnlyList<IGeoPoint> Build()
         {

@@ -5,7 +5,7 @@ using Toponym.Site.Models;
 
 namespace Toponym.Site.Helpers
 {
-    public class LangHelper
+    public static class LangHelper
     {
         public static Language GetByQueryParam(string queryParam)
         {

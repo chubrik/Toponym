@@ -8,7 +8,7 @@ using Toponym.Tools.Models;
 
 namespace Toponym.Tools.Services
 {
-    public class ProjectionService
+    public static class ProjectionService
     {
         public static ProjectionData Data { get; private set; } = new ProjectionData();
 

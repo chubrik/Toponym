@@ -6,7 +6,7 @@ using Toponym.Tools.Services;
 
 namespace Toponym.Tools
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
