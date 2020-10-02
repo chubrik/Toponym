@@ -114,10 +114,10 @@ namespace Toponym.Tools.Helpers
             sb.Replace("ьи", "yi");
             sb.Replace("ъе", "ye");
             sb.Replace("ъи", "yi");
-            text = sb.ToString();
+            var sbString = sb.ToString();
 
             var result = Regex.Replace(
-                text, $"[{_cyrillicToLatinPattern}]", i =>
+                sbString, $"[{_cyrillicToLatinPattern}]", i =>
                 {
                     var isUpper = i.Value == i.Value.ToUpper();
                     var translited = _translitMap[i.Value.ToLower()];
