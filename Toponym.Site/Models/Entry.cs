@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Toponym.Core.Models;
-using Toponym.Site.Extensions;
 
-namespace Toponym.Site.Models
+namespace Toponym.Site
 {
     [DebuggerDisplay("{" + nameof(TitleRu) + "}")]
     public class Entry

@@ -1,8 +1,6 @@
 ﻿using System;
-using Toponym.Core.Models;
-using Toponym.Site.Models;
 
-namespace Toponym.Site.Extensions
+namespace Toponym.Site
 {
     public static class EntryTypeExtensions
     {

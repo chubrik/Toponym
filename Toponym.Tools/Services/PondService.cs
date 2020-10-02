@@ -1,11 +1,8 @@
 ﻿using Kit;
 using System.Collections.Generic;
 using System.Linq;
-using Toponym.Core.Models;
-using Toponym.Tools.Extensions;
-using Toponym.Tools.Helpers;
 
-namespace Toponym.Tools.Services
+namespace Toponym.Tools
 {
     public static class PondService
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Toponym.Core.Models
+namespace Toponym
 {
     [DebuggerDisplay("{" + nameof(TitleRu) + ",nq} / {" + nameof(TitleBe) + " ?? \"–\",nq}")]
     [JsonObject]

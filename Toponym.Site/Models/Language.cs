@@ -1,4 +1,4 @@
-﻿namespace Toponym.Site.Models
+﻿namespace Toponym.Site
 {
     public enum Language
     {

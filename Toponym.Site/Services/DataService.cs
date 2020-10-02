@@ -6,10 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using Toponym.Core.Models;
-using Toponym.Site.Models;
 
-namespace Toponym.Site.Services
+namespace Toponym.Site
 {
     public class DataService
     {

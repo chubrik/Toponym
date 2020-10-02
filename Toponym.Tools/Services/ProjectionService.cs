@@ -3,10 +3,8 @@ using OsmDataKit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Toponym.Tools.Helpers;
-using Toponym.Tools.Models;
 
-namespace Toponym.Tools.Services
+namespace Toponym.Tools
 {
     public static class ProjectionService
     {

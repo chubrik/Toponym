@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace Toponym.Site.Models
+namespace Toponym.Site
 {
     [JsonObject]
     public class ResponseTransport

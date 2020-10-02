@@ -5,10 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Toponym.Core.Models;
-using Toponym.Tools.Extensions;
 
-namespace Toponym.Tools.Services
+namespace Toponym.Tools
 {
     public static class BorderService
     {

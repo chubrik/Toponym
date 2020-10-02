@@ -1,9 +1,7 @@
 ﻿using OsmDataKit;
 using System.Collections.Generic;
-using Toponym.Core.Models;
-using Toponym.Tools.Helpers;
 
-namespace Toponym.Tools.Extensions
+namespace Toponym.Tools
 {
     public static class GeoObjectExtentions
     {

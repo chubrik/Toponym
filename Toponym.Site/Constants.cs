@@ -1,4 +1,4 @@
-﻿using Toponym.Site.Models;
+﻿using Toponym.Site;
 
 namespace Toponym.Site
 {

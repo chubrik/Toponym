@@ -1,8 +1,5 @@
 using Kit;
 using System.Linq;
-using Toponym.Tools.Extensions;
-using Toponym.Tools.Helpers;
-using Toponym.Tools.Services;
 
 namespace Toponym.Tools
 {

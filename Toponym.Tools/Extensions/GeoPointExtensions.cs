@@ -1,10 +1,7 @@
 ﻿using OsmDataKit;
 using System;
-using Toponym.Core.Models;
-using Toponym.Tools.Helpers;
-using Toponym.Tools.Services;
 
-namespace Toponym.Tools.Extensions
+namespace Toponym.Tools
 {
     public static class GeoPointExtensions
     {

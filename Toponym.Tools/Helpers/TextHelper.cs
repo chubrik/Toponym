@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Toponym.Tools.Helpers
+namespace Toponym.Tools
 {
     public static class TextHelper
     {

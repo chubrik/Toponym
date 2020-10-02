@@ -1,4 +1,4 @@
-﻿namespace Toponym.Core.Models
+﻿namespace Toponym
 {
     public class ScreenPoint
     {
