@@ -22,9 +22,9 @@ namespace Toponym.Tools
                     var rivers = RiverService.Build();
                     var data = populated.Concat(localities).Concat(lakes).Concat(waters).Concat(rivers).ToSortedList();
                     EntryHelper.Validate(data);
-                    JsonFileClient.Write(Constants.ResultDataPath, data);
+                    FileClient.WriteObject(Constants.ResultDataPath, data);
                     var wrappedJson = FileClient.ReadText(Constants.ResultDataPath).Replace("},{", "},\r\n{");
-                    FileClient.Write(Constants.ResultDataPath, wrappedJson);
+                    FileClient.WriteText(Constants.ResultDataPath, wrappedJson);
                     LogService.EndSuccess("Build master completed");
                     break;
 
@@ -63,7 +63,7 @@ namespace Toponym.Tools
                     break;
 
                 default:
-                    LogService.LogError($"Unknown command \"{arg}\"");
+                    LogService.Error($"Unknown command \"{arg}\"");
                     break;
             }
         }

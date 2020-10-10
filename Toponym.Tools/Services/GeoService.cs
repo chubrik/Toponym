@@ -10,19 +10,19 @@ namespace Toponym.Tools
     {
         public static RelationObject LoadRelation(string cacheName, long relationId, string sourcePath = null)
         {
-            var request = new OsmRequest { RelationIds = new[] { relationId } };
-            var response = OsmService.LoadObjects(sourcePath ?? Constants.OsmNewSourcePath, cacheName, request);
-            return response.RootRelations.Values.Single();
+            var request = new GeoRequest { RelationIds = new[] { relationId } };
+            var response = OsmService.LoadCompleteObjects(sourcePath ?? Constants.OsmNewSourcePath, cacheName, request);
+            return response.RootRelations.Single();
         }
 
-        public static OsmObjectResponse Load(string cacheName, Func<OsmGeo, bool> predicate, string sourcePath = null)
+        public static CompleteGeoObjects Load(string cacheName, Func<OsmGeo, bool> predicate, string sourcePath = null)
         {
-            var response = OsmService.LoadObjects(
+            var response = OsmService.LoadCompleteObjects(
                 sourcePath ?? Constants.OsmNewSourcePath, cacheName, predicate);
 
             LogService.Begin("Set titles");
 
-            foreach (var geo in response.DeepObjects())
+            foreach (var geo in response.AllObjects())
             {
                 var titleRu = GeoHelper.TitleRu(geo);
                 var titleBe = GeoHelper.TitleBe(geo);
@@ -30,7 +30,7 @@ namespace Toponym.Tools
                 geo.SetTitleBe(titleBe);
             }
 
-            foreach (var relation in response.RootRelations.Values.Where(i => i.TitleBe() == null))
+            foreach (var relation in response.RootRelations.Where(i => i.TitleBe() == null))
             {
                 var label = relation.Members.FirstOrDefault(i => i.Role == "label");
 
@@ -43,7 +43,7 @@ namespace Toponym.Tools
                 }
             }
 
-            GeoObject.TitleFormatter = geo =>
+            GeoObject.StringFormatter = geo =>
             {
                 var titleRu = geo.TitleRu();
                 var titleBe = geo.TitleBe();

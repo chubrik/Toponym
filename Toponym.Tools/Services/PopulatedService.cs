@@ -22,7 +22,7 @@ namespace Toponym.Tools
                       i.Tags.Contains("landuse", "residential")) &&
                      GeoHelper.TitleRu(i) != null);
 
-            LogService.LogInfo("Filter & fix");
+            LogService.Info("Filter & fix");
 
             var filteredByType = response.RootObjects().Where(FilterByType).OrderBy(i => i.TitleRu()).ToList();
             var badNames = filteredByType.Where(i => !FilterByName(i)).ToList();
@@ -43,7 +43,7 @@ namespace Toponym.Tools
 
             var data = final.Select(GetEntryData).ToList();
             FixMinskCenter(data);
-            JsonFileClient.Write(Constants.PopulatedDataPath, data);
+            FileClient.WriteObject(Constants.PopulatedDataPath, data);
             LogService.EndSuccess("Build populated completed");
             return data;
         }
@@ -172,7 +172,7 @@ namespace Toponym.Tools
                 area is WayObject way
                     ? way.Nodes
                     : area is RelationObject relation
-                        ? relation.DeepNodes()
+                        ? relation.AllChildNodes()
                         : throw new InvalidOperationException();
 
             var top = areaNodes.Max(i => i.Latitude);
@@ -223,7 +223,7 @@ namespace Toponym.Tools
             switch (geoType)
             {
                 case OsmGeoType.Node:
-                    return EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), entryType, (NodeObject)geo);
+                    return EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), entryType, ((NodeObject)geo).Location);
 
                 case OsmGeoType.Way:
                     return ((WayObject)geo).ToEntryDataAsPoint(entryType);
@@ -248,7 +248,7 @@ namespace Toponym.Tools
         private static void FixMinskCenter(List<EntryData> data)
         {
             var minsk = data.Single(i => i.TitleRu == "Минск");
-            var geoPoint = new GeoPoint(53.90234, 27.56188);
+            var geoPoint = new Location(53.90234, 27.56188);
             var fakeEntry = EntryHelper.GetData(minsk.TitleRu, minsk.TitleBe, minsk.Type, geoPoint);
             minsk.GeoPoint = fakeEntry.GeoPoint;
             minsk.ScreenPoints = fakeEntry.ScreenPoints;

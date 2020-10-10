@@ -19,11 +19,11 @@ namespace Toponym.Tools
                 i => i.Tags.Contains("place", "locality") &&
                 GeoHelper.TitleRu(i) != null);
 
-            LogService.LogInfo("Filter & fix");
+            LogService.Info("Filter & fix");
 
             var filtered = response.RootObjects().Where(Filter).Select(Fix).ToList();
             var data = filtered.Select(GetEntryData).OrderBy(i => i.TitleRu).ToList();
-            JsonFileClient.Write(Constants.LocalitiesDataPath, data);
+            FileClient.WriteObject(Constants.LocalitiesDataPath, data);
             LogService.EndSuccess("Build populated completed");
             return data;
         }
@@ -121,7 +121,7 @@ namespace Toponym.Tools
             switch (geoType)
             {
                 case OsmGeoType.Node:
-                    return EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), EntryType.Locality, (NodeObject)geo);
+                    return EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), EntryType.Locality, ((NodeObject)geo).Location);
 
                 case OsmGeoType.Way:
                     return ((WayObject)geo).ToEntryDataAsPoint(EntryType.Locality);

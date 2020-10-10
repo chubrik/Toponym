@@ -28,12 +28,11 @@ namespace Toponym.Tools
                 Constants.OsmOldSourcePath);
 
             FixBrokenNeman(response);
-            var rootRelations = response.RootRelations.Values;
 
-            var memberWays = rootRelations.SelectMany(
+            var memberWays = response.RootRelations.SelectMany(
                 relation =>
                 {
-                    var members = relation.Members.Where(i => i.Role == "main_stream" || i.Role == "");
+                    var members = relation.Members.Where(i => i.Role == null || i.Role == "main_stream");
 
                     var geos = members.Select(
                         member =>
@@ -55,22 +54,24 @@ namespace Toponym.Tools
                     return geos;
                 });
 
-            var ways = response.RootWays.Values.Concat(memberWays);
+            var ways = response.RootWays.Concat(memberWays);
             var preFiltered = ways.Where(PreFilter).Select(PreFix);
             var rivers = GetMergedWays(preFiltered);
             var postFiltered = rivers.Where(PostFilter).Select(PostFix);
             var data = postFiltered.Select(i => i.ToEntryData(EntryType.River)).ToSortedList();
-            JsonFileClient.Write(Constants.RiversDataPath, data);
-            LogService.EndSuccess("Build rivers completed");
+            FileClient.WriteObject(Constants.RiversDataPath, data);
+            LogService.EndSuccess("Build rivers");
             return data;
         }
 
-        private static void FixBrokenNeman(OsmObjectResponse response)
+        private static void FixBrokenNeman(CompleteGeoObjects response)
         {
-            var neman = response.RootRelations.Values.Single(i => i.TitleRu() == "Неман");
+            var neman = response.RootRelations.Single(i => i.TitleRu() == "Неман");
             var members = neman.Members.ToList();
             members.Remove(members.First(i => i.Geo.TitleRu() == "Неманец"));
-            neman.ReplaceMembers(members);
+            var nemanMembers = neman.Members as List<RelationMemberObject>; // Hack
+            nemanMembers.Clear();
+            nemanMembers.AddRange(members);
         }
 
         private static bool PreFilter(WayObject way)

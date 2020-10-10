@@ -16,13 +16,13 @@ namespace Toponym.Tools
 
             if (FileClient.Exists(Constants.ProjectionDataPath))
             {
-                Data = JsonFileClient.Read<ProjectionData>(Constants.ProjectionDataPath);
+                Data = FileClient.ReadObject<ProjectionData>(Constants.ProjectionDataPath);
                 LogService.EndInfo("Build projection completed");
                 return;
             }
 
             var borderGeoPoints = BorderService.Build();
-            var centerGeoPoint = borderGeoPoints.CenterPoint();
+            var centerGeoPoint = borderGeoPoints.CenterLocation();
 
             Data.Lat0 = GeoPointHelper.DegToRad(centerGeoPoint.Latitude);
             Data.Lng0 = GeoPointHelper.DegToRad(centerGeoPoint.Longitude);
@@ -44,7 +44,7 @@ namespace Toponym.Tools
             Data.Coeff = 1 / (rawXs.Max() - Data.MinRawX);
             Data.Ratio = (rawYs.Max() - Data.MinRawY) * Data.Coeff;
 
-            JsonFileClient.Write(Constants.ProjectionDataPath, Data);
+            FileClient.WriteObject(Constants.ProjectionDataPath, Data);
             LogService.EndSuccess("Build projection completed");
             BorderService.BuildScreen(borderGeoPoints);
         }

@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OsmDataKit" Version="2.2.0" />
+    <PackageReference Include="OsmDataKit" Version="3.0.3" />
   </ItemGroup>
 
   <ItemGroup>

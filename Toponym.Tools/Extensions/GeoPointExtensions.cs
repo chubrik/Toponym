@@ -7,7 +7,7 @@ namespace Toponym.Tools
     {
         private static readonly double _coeffPercent = ProjectionService.Data.Coeff * 100;
 
-        public static ScreenPoint ToScreen(this IGeoPoint geoPoint)
+        public static ScreenPoint ToScreen(this Location geoPoint)
         {
             GeoPointHelper.CalculateRaw(geoPoint, out double rawX, out double rawY);
             var x = (float)Math.Round((rawX - ProjectionService.Data.MinRawX) * _coeffPercent, 2);

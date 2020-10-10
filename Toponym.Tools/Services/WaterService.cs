@@ -26,18 +26,18 @@ namespace Toponym.Tools
                      GeoHelper.TitleRu(i) != null,
                 Constants.OsmOldSourcePath);
 
-            LogService.LogInfo("Filter & fix");
+            LogService.Info("Filter & fix");
 
-            var rejectedWays = response.RootWays.Values.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
-            var rejectedRelations = response.RootRelations.Values.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
+            var rejectedWays = response.RootWays.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
+            var rejectedRelations = response.RootRelations.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
             BuildHtmlLinks(rejectedWays, rejectedRelations);
 
-            var filteredWays = response.RootWays.Values.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
-            var filteredRelations = response.RootRelations.Values.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
+            var filteredWays = response.RootWays.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
+            var filteredRelations = response.RootRelations.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
             var wayData = filteredWays.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
             var relData = filteredRelations.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
             var data = wayData.Concat(relData).ToSortedList();
-            JsonFileClient.Write(Constants.WatersDataPath, data);
+            FileClient.WriteObject(Constants.WatersDataPath, data);
             LogService.EndSuccess("Build waters completed");
             return data;
         }
@@ -255,7 +255,7 @@ namespace Toponym.Tools
                         $"www.openstreetmap.org/way/{ways[i].Id}\" " +
                         $"target=\"_blank\">{ways[i].TitleRu()}</a><br>\n";
 
-            FileClient.Write("waters-rejected-links.html", html);
+            FileClient.WriteText("waters-rejected-links.html", html);
         }
     }
 }

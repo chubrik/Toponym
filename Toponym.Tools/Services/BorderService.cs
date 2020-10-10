@@ -10,20 +10,20 @@ namespace Toponym.Tools
 {
     public static class BorderService
     {
-        public static IReadOnlyList<IGeoPoint> Build()
+        public static IReadOnlyList<Location> Build()
         {
             LogService.BeginInfo("Load border");
-            List<IGeoPoint> geoPoints;
+            List<Location> geoPoints;
 
             if (FileClient.Exists(Constants.BorderDataPath))
             {
-                var readData = JsonFileClient.Read<List<double[]>>(Constants.BorderDataPath);
-                geoPoints = readData.Select(i => new GeoPoint(i[0], i[1]) as IGeoPoint).ToList();
+                var readData = FileClient.ReadObject<List<double[]>>(Constants.BorderDataPath);
+                geoPoints = readData.Select(i => new Location(i[0], i[1])).ToList();
                 LogService.EndInfo("Load border completed");
                 return geoPoints;
             }
 
-            geoPoints = new List<IGeoPoint>();
+            geoPoints = new List<Location>();
             var nodes = LoadNodes();
             var prevLatitude = 0d;
             var prevLongitude = 0d;
@@ -33,13 +33,13 @@ namespace Toponym.Tools
                 if (node.Latitude.Equals(prevLatitude) && node.Longitude.Equals(prevLongitude))
                     continue;
 
-                geoPoints.Add(node);
+                geoPoints.Add(node.Location);
                 prevLatitude = node.Latitude;
                 prevLongitude = node.Longitude;
             }
 
             var saveData = geoPoints.Select(i => new[] { i.Latitude, i.Longitude }).ToList();
-            JsonFileClient.Write(Constants.BorderDataPath, saveData);
+            FileClient.WriteObject(Constants.BorderDataPath, saveData);
             LogService.EndSuccess("Load border completed");
             return geoPoints;
         }
@@ -80,7 +80,7 @@ namespace Toponym.Tools
             return sortedNodes;
         }
 
-        public static void BuildScreen(IEnumerable<IGeoPoint> geoPoints)
+        public static void BuildScreen(IEnumerable<Location> geoPoints)
         {
             LogService.BeginInfo("Build border screen points");
             var screenPoints = new List<ScreenPoint>();
@@ -100,7 +100,7 @@ namespace Toponym.Tools
             }
 
             var data = screenPoints.Select(i => new[] { i.X, i.Y }).ToList();
-            JsonFileClient.Write(Constants.BorderScreenDataPath, data);
+            FileClient.WriteObject(Constants.BorderScreenDataPath, data);
 
             const int width = 1000;
             var height = Math.Round(width * ProjectionService.Data.Ratio);
@@ -110,7 +110,7 @@ namespace Toponym.Tools
             html += "        <polygon stroke=\"black\" vector-effect=\"non-scaling-stroke\" stroke-width=\"0.35\" sstroke-linejoin=\"round\" fill=\"#fcfcfc\" points=\"";
             html += screenPoints.Select(i => $"{i.X.ToString(CultureInfo.InvariantCulture)},{i.Y.ToString(CultureInfo.InvariantCulture)}").Join(" ");
             html += "\" />\n    </svg>\n</div>\n";
-            FileClient.Write(Constants.BorderScreenHtmlPath, html);
+            FileClient.WriteText(Constants.BorderScreenHtmlPath, html);
             LogService.EndSuccess("Build border screen points completed");
         }
     }

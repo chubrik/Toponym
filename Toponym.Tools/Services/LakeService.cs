@@ -17,17 +17,17 @@ namespace Toponym.Tools
                 i => i.Tags.Contains("water", "lake") && GeoHelper.TitleRu(i) != null,
                 Constants.OsmOldSourcePath);
 
-            LogService.LogInfo("Filter & fix");
+            LogService.Info("Filter & fix");
 #if DEBUG
-            var rejectedWays = response.RootWays.Values.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
-            var rejectedRelations = response.RootRelations.Values.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
+            var rejectedWays = response.RootWays.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
+            var rejectedRelations = response.RootRelations.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
 #endif
-            var filteredWays = response.RootWays.Values.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
-            var filteredRelations = response.RootRelations.Values.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
+            var filteredWays = response.RootWays.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
+            var filteredRelations = response.RootRelations.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
             var wayData = filteredWays.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
             var relData = filteredRelations.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
             var data = relData.Concat(wayData).ToSortedList();
-            JsonFileClient.Write(Constants.LakesDataPath, data);
+            FileClient.WriteObject(Constants.LakesDataPath, data);
             LogService.EndSuccess("Build lakes completed");
             return data;
         }
