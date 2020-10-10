@@ -13,17 +13,17 @@ namespace Toponym.Tools
         public static IReadOnlyList<Location> Build()
         {
             LogService.BeginInfo("Load border");
-            List<Location> geoPoints;
+            List<Location> locations;
 
             if (FileClient.Exists(Constants.BorderDataPath))
             {
                 var readData = FileClient.ReadObject<List<double[]>>(Constants.BorderDataPath);
-                geoPoints = readData.Select(i => new Location(i[0], i[1])).ToList();
+                locations = readData.Select(i => new Location(i[0], i[1])).ToList();
                 LogService.EndInfo("Load border completed");
-                return geoPoints;
+                return locations;
             }
 
-            geoPoints = new List<Location>();
+            locations = new List<Location>();
             var nodes = LoadNodes();
             var prevLatitude = 0d;
             var prevLongitude = 0d;
@@ -33,15 +33,15 @@ namespace Toponym.Tools
                 if (node.Latitude.Equals(prevLatitude) && node.Longitude.Equals(prevLongitude))
                     continue;
 
-                geoPoints.Add(node.Location);
+                locations.Add(node.Location);
                 prevLatitude = node.Latitude;
                 prevLongitude = node.Longitude;
             }
 
-            var saveData = geoPoints.Select(i => new[] { i.Latitude, i.Longitude }).ToList();
+            var saveData = locations.Select(i => new[] { i.Latitude, i.Longitude }).ToList();
             FileClient.WriteObject(Constants.BorderDataPath, saveData);
             LogService.EndSuccess("Load border completed");
-            return geoPoints;
+            return locations;
         }
 
         private static IEnumerable<NodeObject> LoadNodes()
@@ -80,16 +80,16 @@ namespace Toponym.Tools
             return sortedNodes;
         }
 
-        public static void BuildScreen(IEnumerable<Location> geoPoints)
+        public static void BuildScreen(IEnumerable<Location> locations)
         {
             LogService.BeginInfo("Build border screen points");
             var screenPoints = new List<ScreenPoint>();
             var prevX = 0f;
             var prevY = 0f;
 
-            foreach (var geoPoint in geoPoints)
+            foreach (var location in locations)
             {
-                var screenPoint = geoPoint.ToScreen();
+                var screenPoint = location.ToScreen();
 
                 if (Math.Abs(screenPoint.X - prevX) < 0.1 && Math.Abs(screenPoint.Y - prevY) < 0.1)
                     continue;

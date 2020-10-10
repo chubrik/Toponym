@@ -21,7 +21,7 @@ namespace Toponym
         public EntryType Type { get; set; }
 
         [JsonProperty("geo")]
-        public float[] GeoPoint { get; set; }
+        public float[] Location { get; set; }
 
         [JsonProperty("screen")]
         public List<float[]> ScreenPoints { get; set; }
