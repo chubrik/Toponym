@@ -11,35 +11,35 @@ namespace Toponym.Tools
     {
         public static List<EntryData> Build()
         {
-            LogService.BeginInfo("Build waters");
+            return LogService.InfoSuccess("Build waters", () =>
+            {
+                var response = GeoService.Load(
+                    "waters-old",
+                    i => i.Tags.Contains("natural", "water") &&
+                         !i.Tags.Contains("water", "lake") &&
+                         !i.Tags.Contains("water", "pond") &&
+                         !i.Tags.Contains("water", "river") &&
+                         !i.Tags.Contains("waterway", "river") &&
+                         !i.Tags.Contains("water", "riverbank") &&
+                         !i.Tags.Contains("waterway", "riverbank") &&
+                         !i.Tags.Contains("waterway", "stream") &&
+                         GeoHelper.TitleRu(i) != null,
+                    Constants.OsmOldSourcePath);
 
-            var response = GeoService.Load(
-                "waters-old",
-                i => i.Tags.Contains("natural", "water") &&
-                     !i.Tags.Contains("water", "lake") &&
-                     !i.Tags.Contains("water", "pond") &&
-                     !i.Tags.Contains("water", "river") &&
-                     !i.Tags.Contains("waterway", "river") &&
-                     !i.Tags.Contains("water", "riverbank") &&
-                     !i.Tags.Contains("waterway", "riverbank") &&
-                     !i.Tags.Contains("waterway", "stream") &&
-                     GeoHelper.TitleRu(i) != null,
-                Constants.OsmOldSourcePath);
+                LogService.Info("Filter & fix");
 
-            LogService.Info("Filter & fix");
+                var rejectedWays = response.RootWays.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
+                var rejectedRelations = response.RootRelations.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
+                BuildHtmlLinks(rejectedWays, rejectedRelations);
 
-            var rejectedWays = response.RootWays.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
-            var rejectedRelations = response.RootRelations.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
-            BuildHtmlLinks(rejectedWays, rejectedRelations);
-
-            var filteredWays = response.RootWays.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
-            var filteredRelations = response.RootRelations.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
-            var wayData = filteredWays.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
-            var relData = filteredRelations.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
-            var data = wayData.Concat(relData).ToSortedList();
-            FileClient.WriteObject(Constants.WatersDataPath, data);
-            LogService.EndSuccess("Build waters completed");
-            return data;
+                var filteredWays = response.RootWays.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
+                var filteredRelations = response.RootRelations.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
+                var wayData = filteredWays.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
+                var relData = filteredRelations.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
+                var data = wayData.Concat(relData).ToSortedList();
+                FileClient.WriteObject(Constants.WatersDataPath, data);
+                return data;
+            });
         }
 
         #region Filter

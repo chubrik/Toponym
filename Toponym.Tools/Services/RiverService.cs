@@ -12,56 +12,56 @@ namespace Toponym.Tools
     {
         public static List<EntryData> Build()
         {
-            LogService.BeginInfo("Build rivers");
+            return LogService.InfoSuccess("Build rivers", () =>
+            {
+                //var response = OsmService.Get("rivers",
+                //    i => (i.Tags.Contains("water", "river") ||
+                //          i.Tags.Contains("waterway", "river") ||
+                //          i.Tags.Contains("water", "riverbank") ||
+                //          i.Tags.Contains("waterway", "riverbank") ||
+                //          i.Tags.Contains("waterway", "stream")) &&
+                //         GeoHelper.TitleRu(i) != null);
 
-            //var response = OsmService.Get("rivers",
-            //    i => (i.Tags.Contains("water", "river") ||
-            //          i.Tags.Contains("waterway", "river") ||
-            //          i.Tags.Contains("water", "riverbank") ||
-            //          i.Tags.Contains("waterway", "riverbank") ||
-            //          i.Tags.Contains("waterway", "stream")) &&
-            //         GeoHelper.TitleRu(i) != null);
+                var response = GeoService.Load(
+                    "rivers-old",
+                    i => i.Tags.Contains("waterway", "river") && GeoHelper.TitleRu(i) != null,
+                    Constants.OsmOldSourcePath);
 
-            var response = GeoService.Load(
-                "rivers-old",
-                i => i.Tags.Contains("waterway", "river") && GeoHelper.TitleRu(i) != null,
-                Constants.OsmOldSourcePath);
+                FixBrokenNeman(response);
 
-            FixBrokenNeman(response);
+                var memberWays = response.RootRelations.SelectMany(
+                    relation =>
+                    {
+                        var members = relation.Members.Where(i => i.Role == null || i.Role == "main_stream");
 
-            var memberWays = response.RootRelations.SelectMany(
-                relation =>
-                {
-                    var members = relation.Members.Where(i => i.Role == null || i.Role == "main_stream");
-
-                    var geos = members.Select(
-                        member =>
-                        {
-                            var geo = member.Geo;
-
-                            if (geo.Type != OsmGeoType.Way)
-                                throw new InvalidOperationException();
-
-                            if (geo.TitleRu() == null)
+                        var geos = members.Select(
+                            member =>
                             {
-                                geo.SetTitleRu(relation.TitleRu());
-                                geo.SetTitleBe(relation.TitleBe());
-                            }
+                                var geo = member.Geo;
 
-                            return geo as WayObject;
-                        });
+                                if (geo.Type != OsmGeoType.Way)
+                                    throw new InvalidOperationException();
 
-                    return geos;
-                });
+                                if (geo.TitleRu() == null)
+                                {
+                                    geo.SetTitleRu(relation.TitleRu());
+                                    geo.SetTitleBe(relation.TitleBe());
+                                }
 
-            var ways = response.RootWays.Concat(memberWays);
-            var preFiltered = ways.Where(PreFilter).Select(PreFix);
-            var rivers = GetMergedWays(preFiltered);
-            var postFiltered = rivers.Where(PostFilter).Select(PostFix);
-            var data = postFiltered.Select(i => i.ToEntryData(EntryType.River)).ToSortedList();
-            FileClient.WriteObject(Constants.RiversDataPath, data);
-            LogService.EndSuccess("Build rivers");
-            return data;
+                                return geo as WayObject;
+                            });
+
+                        return geos;
+                    });
+
+                var ways = response.RootWays.Concat(memberWays);
+                var preFiltered = ways.Where(PreFilter).Select(PreFix);
+                var rivers = GetMergedWays(preFiltered);
+                var postFiltered = rivers.Where(PostFilter).Select(PostFix);
+                var data = postFiltered.Select(i => i.ToEntryData(EntryType.River)).ToSortedList();
+                FileClient.WriteObject(Constants.RiversDataPath, data);
+                return data;
+            });
         }
 
         private static void FixBrokenNeman(CompleteGeoObjects response)

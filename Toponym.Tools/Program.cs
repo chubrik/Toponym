@@ -1,4 +1,5 @@
 using Kit;
+using OsmDataKit;
 using System.Linq;
 
 namespace Toponym.Tools
@@ -7,25 +8,32 @@ namespace Toponym.Tools
     {
         public static void Main(string[] args)
         {
-            Kit.Kit.Setup(baseDirectory: "../../..");
+            OsmService.CacheDirectory = PathHelper.Combine(Kit.Kit.BaseDirectory, Kit.Kit.WorkingDirectory, "$osm-cache");
             var arg = args.Length > 0 ? args[0] : "master";
 
             switch (arg)
             {
                 case "master":
-                    LogService.BeginInfo("Build master");
-                    ProjectionService.Build();
-                    var populated = PopulatedService.Build();
-                    var localities = LocalityService.Build();
-                    var lakes = LakeService.Build();
-                    var waters = WaterService.Build();
-                    var rivers = RiverService.Build();
-                    var data = populated.Concat(localities).Concat(lakes).Concat(waters).Concat(rivers).ToSortedList();
-                    EntryHelper.Validate(data);
-                    FileClient.WriteObject(Constants.ResultDataPath, data);
-                    var wrappedJson = FileClient.ReadText(Constants.ResultDataPath).Replace("},{", "},\r\n{");
-                    FileClient.WriteText(Constants.ResultDataPath, wrappedJson);
-                    LogService.EndSuccess("Build master completed");
+
+                    LogService.InfoSuccess("Build master", () =>
+                    {
+                        ProjectionService.Build();
+                        var populated = PopulatedService.Build();
+                        var localities = LocalityService.Build();
+                        var lakes = LakeService.Build();
+                        var waters = WaterService.Build();
+                        var rivers = RiverService.Build();
+                        var data = populated.Concat(localities).Concat(lakes).Concat(waters).Concat(rivers).ToSortedList();
+                        EntryHelper.Validate(data);
+                        FileClient.WriteObject(Constants.ResultDataPath, data);
+
+                        LogService.Info("Prettify data", () =>
+                        {
+                            var wrappedJson = FileClient.ReadText(Constants.ResultDataPath).Replace("},{", "},\r\n{");
+                            FileClient.WriteText(Constants.ResultDataPath, wrappedJson);
+                        });
+                    });
+
                     break;
 
                 case "projection":

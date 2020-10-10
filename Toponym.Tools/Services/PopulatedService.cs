@@ -12,40 +12,40 @@ namespace Toponym.Tools
     {
         public static List<EntryData> Build()
         {
-            LogService.BeginInfo("Build populated");
-
-            var response = GeoService.Load(
-                "populated",
-                i => ((i.Tags.ContainsKey("place") && !i.Tags.Contains("place", "locality")) ||
-                      i.Tags.ContainsKey("old_place") ||
-                      i.Tags.ContainsKey("abandoned:place") ||
-                      i.Tags.Contains("landuse", "residential")) &&
-                     GeoHelper.TitleRu(i) != null);
-
-            LogService.Info("Filter & fix");
-
-            var filteredByType = response.RootObjects().Where(FilterByType).OrderBy(i => i.TitleRu()).ToList();
-            var badNames = filteredByType.Where(i => !FilterByName(i)).ToList();
-
-            var filtered = filteredByType.Where(FilterByName).Select(Fix).ToList();
-            var nodes = filtered.Where(i => i.Type == OsmGeoType.Node).Select(i => (NodeObject)i).ToList();
-            var final = filtered.Where(i => i.Type != OsmGeoType.Node).ToList();
-            var areasLookup = final.ToLookup(i => i.TitleRu());
-
-            foreach (var node in nodes)
+            return LogService.InfoSuccess("Build populated", () =>
             {
-                var title = node.TitleRu();
-                var areas = areasLookup[title];
+                var response = GeoService.Load(
+                    "populated",
+                    i => ((i.Tags.ContainsKey("place") && !i.Tags.Contains("place", "locality")) ||
+                          i.Tags.ContainsKey("old_place") ||
+                          i.Tags.ContainsKey("abandoned:place") ||
+                          i.Tags.Contains("landuse", "residential")) &&
+                         GeoHelper.TitleRu(i) != null);
 
-                if (areas.All(i => !IsInside(i, node)))
-                    final.Add(node);
-            }
+                LogService.Info("Filter & fix");
 
-            var data = final.Select(GetEntryData).ToList();
-            FixMinskCenter(data);
-            FileClient.WriteObject(Constants.PopulatedDataPath, data);
-            LogService.EndSuccess("Build populated completed");
-            return data;
+                var filteredByType = response.RootObjects().Where(FilterByType).OrderBy(i => i.TitleRu()).ToList();
+                var badNames = filteredByType.Where(i => !FilterByName(i)).ToList();
+
+                var filtered = filteredByType.Where(FilterByName).Select(Fix).ToList();
+                var nodes = filtered.Where(i => i.Type == OsmGeoType.Node).Select(i => (NodeObject)i).ToList();
+                var final = filtered.Where(i => i.Type != OsmGeoType.Node).ToList();
+                var areasLookup = final.ToLookup(i => i.TitleRu());
+
+                foreach (var node in nodes)
+                {
+                    var title = node.TitleRu();
+                    var areas = areasLookup[title];
+
+                    if (areas.All(i => !IsInside(i, node)))
+                        final.Add(node);
+                }
+
+                var data = final.Select(GetEntryData).ToList();
+                FixMinskCenter(data);
+                FileClient.WriteObject(Constants.PopulatedDataPath, data);
+                return data;
+            });
         }
 
         private static bool FilterByType(GeoObject geo)

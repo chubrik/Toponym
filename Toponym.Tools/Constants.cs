@@ -4,11 +4,9 @@ namespace Toponym.Tools
 {
     public static class Constants
     {
-        private const string RepositoryPath = "C:/Repositories/Toponym/";
-        private static readonly string _projectPath = PathHelper.Combine(RepositoryPath, "Toponym.Tools");
-        private static readonly string _dataPath = PathHelper.Combine(_projectPath, "App_Data");
-        public static readonly string OsmOldSourcePath = PathHelper.Combine(_dataPath, "belarus-2016-06-11.osm.pbf");
-        public static readonly string OsmNewSourcePath = PathHelper.Combine(_dataPath, "belarus-2018-08-10.osm.pbf");
+        private static readonly string _dataDir = PathHelper.Combine(Kit.Kit.BaseDirectory, "App_Data");
+        public static readonly string OsmOldSourcePath = PathHelper.Combine(_dataDir, "belarus-2016-06-11.osm.pbf");
+        public static readonly string OsmNewSourcePath = PathHelper.Combine(_dataDir, "belarus-2018-08-10.osm.pbf");
         public const string ProjectionDataPath = "projection.json";
         public const string BorderDataPath = "border.json";
         public const string BorderScreenDataPath = "border-screen.json";

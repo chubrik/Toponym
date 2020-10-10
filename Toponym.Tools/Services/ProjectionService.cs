@@ -12,12 +12,13 @@ namespace Toponym.Tools
 
         public static void Build()
         {
-            LogService.BeginInfo("Build projection");
+            var logMessage = "Build projection";
+            LogService.BeginInfo(logMessage);
 
             if (FileClient.Exists(Constants.ProjectionDataPath))
             {
                 Data = FileClient.ReadObject<ProjectionData>(Constants.ProjectionDataPath);
-                LogService.EndInfo("Build projection completed");
+                LogService.EndInfo(logMessage);
                 return;
             }
 
@@ -45,7 +46,7 @@ namespace Toponym.Tools
             Data.Ratio = (rawYs.Max() - Data.MinRawY) * Data.Coeff;
 
             FileClient.WriteObject(Constants.ProjectionDataPath, Data);
-            LogService.EndSuccess("Build projection completed");
+            LogService.EndSuccess(logMessage);
             BorderService.BuildScreen(borderLocations);
         }
     }

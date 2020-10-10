@@ -12,20 +12,20 @@ namespace Toponym.Tools
     {
         public static List<EntryData> Build()
         {
-            LogService.BeginInfo("Build localities");
+            return LogService.InfoSuccess("Build localities", () =>
+            {
+                var response = GeoService.Load(
+                    "localities",
+                    i => i.Tags.Contains("place", "locality") &&
+                    GeoHelper.TitleRu(i) != null);
 
-            var response = GeoService.Load(
-                "localities",
-                i => i.Tags.Contains("place", "locality") &&
-                GeoHelper.TitleRu(i) != null);
+                LogService.Info("Filter & fix");
 
-            LogService.Info("Filter & fix");
-
-            var filtered = response.RootObjects().Where(Filter).Select(Fix).ToList();
-            var data = filtered.Select(GetEntryData).OrderBy(i => i.TitleRu).ToList();
-            FileClient.WriteObject(Constants.LocalitiesDataPath, data);
-            LogService.EndSuccess("Build populated completed");
-            return data;
+                var filtered = response.RootObjects().Where(Filter).Select(Fix).ToList();
+                var data = filtered.Select(GetEntryData).OrderBy(i => i.TitleRu).ToList();
+                FileClient.WriteObject(Constants.LocalitiesDataPath, data);
+                return data;
+            });
         }
 
         private static bool Filter(GeoObject geo)

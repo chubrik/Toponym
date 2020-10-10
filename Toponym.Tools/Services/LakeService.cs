@@ -10,26 +10,26 @@ namespace Toponym.Tools
     {
         public static List<EntryData> Build()
         {
-            LogService.BeginInfo("Build lakes");
+            return LogService.InfoSuccess("Build lakes", () =>
+            {
+                var response = GeoService.Load(
+                    "lakes-old",
+                    i => i.Tags.Contains("water", "lake") && GeoHelper.TitleRu(i) != null,
+                    Constants.OsmOldSourcePath);
 
-            var response = GeoService.Load(
-                "lakes-old",
-                i => i.Tags.Contains("water", "lake") && GeoHelper.TitleRu(i) != null,
-                Constants.OsmOldSourcePath);
-
-            LogService.Info("Filter & fix");
+                LogService.Info("Filter & fix");
 #if DEBUG
-            var rejectedWays = response.RootWays.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
-            var rejectedRelations = response.RootRelations.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
+                var rejectedWays = response.RootWays.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
+                var rejectedRelations = response.RootRelations.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
 #endif
-            var filteredWays = response.RootWays.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
-            var filteredRelations = response.RootRelations.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
-            var wayData = filteredWays.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
-            var relData = filteredRelations.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
-            var data = relData.Concat(wayData).ToSortedList();
-            FileClient.WriteObject(Constants.LakesDataPath, data);
-            LogService.EndSuccess("Build lakes completed");
-            return data;
+                var filteredWays = response.RootWays.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
+                var filteredRelations = response.RootRelations.Where(Filter).Select(Fix).OrderBy(i => i.TitleRu());
+                var wayData = filteredWays.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
+                var relData = filteredRelations.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
+                var data = relData.Concat(wayData).ToSortedList();
+                FileClient.WriteObject(Constants.LakesDataPath, data);
+                return data;
+            });
         }
 
         private static bool Filter(GeoObject geo)
