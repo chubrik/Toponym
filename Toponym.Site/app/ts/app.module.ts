@@ -11,13 +11,22 @@ declare const angular: any;
 export let defaultHost: string;
 export let language: Language;
 export let fbAppId: string;
+export let antiForgeryName: string;
+export let antiForgeryValue: string;
 
-export function startup(options: { defaultHost: string, language: Language, fbAppId: string })
+export function startup(
+    options: { defaultHost: string, language: Language, fbAppId: string, antiForgery: string })
     : void {
 
     defaultHost = options.defaultHost;
     language = options.language;
     fbAppId = options.fbAppId;
+   
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = options.antiForgery;
+    var element = wrapper.firstChild as HTMLInputElement;
+    antiForgeryName = element.name;
+    antiForgeryValue = element.value;
 }
 
 angular

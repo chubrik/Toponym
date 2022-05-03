@@ -117,7 +117,8 @@
         Toponym.startup({
             defaultHost: '@defaultHost',
             language: @((int)lang),
-            fbAppId: '@fbAppId'
+            fbAppId: '@fbAppId',
+            antiForgery: '@Html.AntiForgeryToken()'
         });
     </script>
 

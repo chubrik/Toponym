@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Linq;
-using System.Threading;
 
 namespace Toponym.Site.Pages
 {
-    [IgnoreAntiforgeryToken]
     public class EntriesModel : PageModel
     {
         private readonly DataService _dataService;
@@ -15,20 +13,15 @@ namespace Toponym.Site.Pages
             _dataService = dataService;
         }
 
-        public IActionResult OnGet()
+        public JsonResult OnPost(string query, int category, Language language)
         {
-            return Page();
-        }
-
-        public JsonResult OnPost([FromBody] EntriesRequest request, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrWhiteSpace(request.Query))
+            if (string.IsNullOrWhiteSpace(query))
                 return new(new ResponseTransport
                 {
                     Status = ResponseStatus.Failure
                 });
 
-            var regex = RegexHelper.GetRegex(request.Query, request.Language);
+            var regex = RegexHelper.GetRegex(query, language);
 
             if (regex == null)
                 return new(new ResponseTransport
@@ -36,9 +29,9 @@ namespace Toponym.Site.Pages
                     Status = ResponseStatus.SyntaxError
                 });
 
-            var matched = _dataService.GetEntries(regex, request.Category, request.Language);
+            var matched = _dataService.GetEntries(regex, (EntryCategory)category, language);
             var limited = matched.Take(Constants.EntryCountLimit);
-            var data = limited.Select(i => i.ToTransport(request.Language)).ToList();
+            var data = limited.Select(i => i.ToTransport(language)).ToList();
 
             return new(new ResponseTransport
             {
@@ -46,13 +39,6 @@ namespace Toponym.Site.Pages
                 Entries = data,
                 MatchCount = matched.Count
             });
-        }
-
-        public class EntriesRequest
-        {
-            public string Query { get; set; }
-            public EntryCategory Category { get; set; }
-            public Language Language { get; set; }
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿import { checkArgument } from './errors';
 import { IResponse, IEntry, Status, EntryType, EntryCategory } from './types';
-import { language } from './app.module';
+import { antiForgeryName, antiForgeryValue, language } from './app.module';
 
 export class Service {
 
@@ -12,8 +12,17 @@ export class Service {
     getEntries(query: string, category: EntryCategory): ng.IPromise<IResponse> {
         checkArgument(query, 'query');
 
-        return this.$http
-            .post<IResponse>('/xhr/entries', { query, category, language })
+        const data = { query, category, language };
+        data[antiForgeryName] = antiForgeryValue;
+
+        const request = {
+            method: 'POST',
+            url: '/xhr/entries',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8' },
+            data: this.formEncode(data)
+        };
+
+        return this.$http(request)
             .then((callback: any) => {
                 const response: IResponse = callback.data;
 
@@ -26,6 +35,20 @@ export class Service {
 
                 return response;
             });
+    }
+
+    private formEncode(data: {}): string {
+        let encoded = '';
+
+        for (let key in data) {
+
+            if (encoded.length > 0)
+                encoded += '&';
+
+            encoded += key + '=' + encodeURIComponent(data[key]);
+        }
+
+        return encoded;
     }
 
     private initLocal(entry: IEntry): void {

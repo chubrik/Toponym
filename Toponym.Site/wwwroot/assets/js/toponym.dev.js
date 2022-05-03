@@ -66297,8 +66297,15 @@ var Toponym = (function (exports) {
         Service.prototype.getEntries = function (query, category) {
             var _this = this;
             checkArgument(query, 'query');
-            return this.$http
-                .post('/xhr/entries', { query: query, category: category, language: exports.language })
+            var data = { query: query, category: category, language: exports.language };
+            data[exports.antiForgeryName] = exports.antiForgeryValue;
+            var request = {
+                method: 'POST',
+                url: '/xhr/entries',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8' },
+                data: this.formEncode(data)
+            };
+            return this.$http(request)
                 .then(function (callback) {
                 var response = callback.data;
                 if (!response || response.status === 3 /* Failure */)
@@ -66310,6 +66317,15 @@ var Toponym = (function (exports) {
                     }
                 return response;
             });
+        };
+        Service.prototype.formEncode = function (data) {
+            var encoded = '';
+            for (var key in data) {
+                if (encoded.length > 0)
+                    encoded += '&';
+                encoded += key + '=' + encodeURIComponent(data[key]);
+            }
+            return encoded;
         };
         Service.prototype.initLocal = function (entry) {
             var type = entry.type;
@@ -66367,6 +66383,11 @@ var Toponym = (function (exports) {
         exports.defaultHost = options.defaultHost;
         exports.language = options.language;
         exports.fbAppId = options.fbAppId;
+        var wrapper = document.createElement('div');
+        wrapper.innerHTML = options.antiForgery;
+        var element = wrapper.firstChild;
+        exports.antiForgeryName = element.name;
+        exports.antiForgeryValue = element.value;
     }
     angular
         .module('toponym', ['ui.router', 'ui.bootstrap'])
