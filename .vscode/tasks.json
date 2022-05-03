@@ -1,30 +1,45 @@
 {
   // See https://go.microsoft.com/fwlink/?LinkId=733558
   // for the documentation about the tasks.json format
-  "version": "0.1.0",
+  "version": "2.0.0",
   "command": "npm",
-  "isShellCommand": true,
-  "showOutput": "always",
-  "suppressTaskName": true,
   "problemMatcher": "$tsc",
   "tasks": [
     {
-      "taskName": "Build",
-      "args": ["run-script", "build"],
-      "isBuildCommand": true
+      "label": "Build",
+      "type": "shell",
+      "args": [
+        "run-script",
+        "build"
+      ],
+      "group": {
+        "_id": "build",
+        "isDefault": false
+      }
     },
     {
-      "taskName": "TSLint",
-      "args": ["run-script", "tslint"]
+      "label": "TSLint",
+      "type": "shell",
+      "args": [
+        "run-script",
+        "tslint"
+      ]
     },
     {
-      "taskName": "Run & Watch",
-      "args": ["run-script", "start"],
-      "showOutput": "never"
+      "label": "Run & Watch",
+      "type": "shell",
+      "args": [
+        "run-script",
+        "start"
+      ]
     },
     {
-      "taskName": "Clean",
-      "args": ["run-script", "clean"]
+      "label": "Clean",
+      "type": "shell",
+      "args": [
+        "run-script",
+        "clean"
+      ]
     }
   ]
 }

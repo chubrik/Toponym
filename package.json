@@ -15,20 +15,20 @@
     "watch": "gulp watch"
   },
   "dependencies": {
-    "@uirouter/angularjs": "1.0.29",
-    "angular": "1.8.2",
+    "@uirouter/angularjs": "1.0.30",
+    "angular": "1.8.3",
     "angular-ui-bootstrap": "2.5.6",
     "bootstrap": "3.4.1",
     "jquery": "3.6.0"
   },
   "devDependencies": {
-    "@types/angular": "1.8.1",
-    "@types/angular-ui-bootstrap": "0.13.47",
-    "@types/angular-ui-router": "1.1.40",
+    "@types/angular": "1.8.4",
+    "@types/angular-ui-bootstrap": "1.0.1",
+    "@types/angular-ui-router": "1.1.41",
     "@types/bootstrap": "3.4.0",
-    "@types/jquery": "3.5.5",
-    "browser-sync": "2.26.14",
-    "fs-extra": "10.0.0",
+    "@types/jquery": "3.5.14",
+    "browser-sync": "2.27.9",
+    "fs-extra": "10.1.0",
     "gulp": "4.0.2",
     "gulp-clean-css": "4.3.0",
     "gulp-concat": "2.6.1",
@@ -43,10 +43,10 @@
     "tslint-eslint-rules": "5.4.0",
     "tslint-microsoft-contrib": "6.2.0",
     "tslint-misc-rules": "3.6.0",
-    "typescript": "4.2.4",
-    "uglify-js": "3.13.5"
+    "typescript": "4.6.4",
+    "uglify-js": "3.15.4"
   },
-  "author": "Arkadi Chubrik <arkadi@chubrik.org> (http://www.chubrik.org/)",
-  "license": "SEE LICENSE IN http://www.toponim.by/license",
-  "repository": "bitbucket:chubrik/Toponym"
+  "author": "Arkadi Chubrik <arkadi@chubrik.org> (https://www.chubrik.org/)",
+  "license": "MIT",
+  "repository": "github:chubrik/Toponym"
 }

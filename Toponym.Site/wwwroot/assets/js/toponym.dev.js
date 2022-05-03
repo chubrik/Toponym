@@ -10882,7 +10882,7 @@ return jQuery;
 
 
 /**
- * @license AngularJS v1.8.2
+ * @license AngularJS v1.8.3
  * (c) 2010-2020 Google LLC. http://angularjs.org
  * License: MIT
  */
@@ -10982,7 +10982,7 @@ function isValidObjectMaxDepth(maxDepth) {
 function minErr(module, ErrorConstructor) {
   ErrorConstructor = ErrorConstructor || Error;
 
-  var url = 'https://errors.angularjs.org/1.8.2/';
+  var url = 'https://errors.angularjs.org/1.8.3/';
   var regex = url.replace('.', '\\.') + '[\\s\\S]*';
   var errRegExp = new RegExp(regex, 'g');
 
@@ -13711,11 +13711,11 @@ function toDebugString(obj, maxDepth) {
 var version = {
   // These placeholder strings will be replaced by grunt's `build` task.
   // They need to be double- or single-quoted.
-  full: '1.8.2',
+  full: '1.8.3',
   major: 1,
   minor: 8,
-  dot: 2,
-  codeName: 'meteoric-mining'
+  dot: 3,
+  codeName: 'ultimate-farewell'
 };
 
 
@@ -13866,7 +13866,7 @@ function publishExternalAPI(angular) {
       });
     }
   ])
-  .info({ angularVersion: '1.8.2' });
+  .info({ angularVersion: '1.8.3' });
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -28483,7 +28483,7 @@ function $ParseProvider() {
 
       var useInputs = parsedExpression.inputs && !exp.inputs;
 
-      // Propogate the literal/inputs/constant attributes
+      // Propagate the literal/inputs/constant attributes
       // ... but not oneTime since we are handling it
       oneTimeWatch.literal = parsedExpression.literal;
       oneTimeWatch.constant = parsedExpression.constant;
@@ -28570,7 +28570,7 @@ function $ParseProvider() {
       fn.$$intercepted = parsedExpression;
       fn.$$interceptor = interceptorFn;
 
-      // Propogate the literal/oneTime/constant attributes
+      // Propagate the literal/oneTime/constant attributes
       fn.literal = parsedExpression.literal;
       fn.oneTime = parsedExpression.oneTime;
       fn.constant = parsedExpression.constant;
@@ -47488,7 +47488,7 @@ $provide.value("$locale", {
  *         This causes it to be incompatible with plugins that depend on @uirouter/core.
  *         We recommend switching to the ui-router-core.js and ui-router-angularjs.js bundles instead.
  *         For more information, see https://ui-router.github.io/blog/uirouter-for-angularjs-umd-bundles
- * @version v1.0.29
+ * @version v1.0.30
  * @link https://ui-router.github.io
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -48595,21 +48595,21 @@ $provide.value("$locale", {
         var _fn = isArray(fn) ? fn.slice(-1)[0] : fn;
         return (_fn && _fn.toString()) || 'undefined';
     }
-    var isRejection = Rejection.isRejectionPromise;
-    var hasToString = function (obj) {
-        return isObject(obj) && !isArray(obj) && obj.constructor !== Object && isFunction(obj.toString);
-    };
-    var stringifyPattern = pattern([
-        [isUndefined, val('undefined')],
-        [isNull, val('null')],
-        [isPromise, val('[Promise]')],
-        [isRejection, function (x) { return x._transitionRejection.toString(); }],
-        [hasToString, function (x) { return x.toString(); }],
-        [isInjectable, functionToString],
-        [val(true), identity],
-    ]);
     function stringify(o) {
         var seen = [];
+        var isRejection = Rejection.isRejectionPromise;
+        var hasToString = function (obj) {
+            return isObject(obj) && !isArray(obj) && obj.constructor !== Object && isFunction(obj.toString);
+        };
+        var stringifyPattern = pattern([
+            [isUndefined, val('undefined')],
+            [isNull, val('null')],
+            [isPromise, val('[Promise]')],
+            [isRejection, function (x) { return x._transitionRejection.toString(); }],
+            [hasToString, function (x) { return x.toString(); }],
+            [isInjectable, functionToString],
+            [val(true), identity],
+        ]);
         function format(value) {
             if (isObject(value)) {
                 if (seen.indexOf(value) !== -1)
@@ -48627,14 +48627,16 @@ $provide.value("$locale", {
         return JSON.stringify(o, function (key, value) { return format(value); }).replace(/\\"/g, '"');
     }
     /** Returns a function that splits a string on a character or substring */
-    var beforeAfterSubstr = function (char) { return function (str) {
-        if (!str)
-            return ['', ''];
-        var idx = str.indexOf(char);
-        if (idx === -1)
-            return [str, ''];
-        return [str.substr(0, idx), str.substr(idx + 1)];
-    }; };
+    var beforeAfterSubstr = function (char) {
+        return function (str) {
+            if (!str)
+                return ['', ''];
+            var idx = str.indexOf(char);
+            if (idx === -1)
+                return [str, ''];
+            return [str.substr(0, idx), str.substr(idx + 1)];
+        };
+    };
     var hostRegex = new RegExp('^(?:[a-z]+:)?//[^/]+/');
     var stripLastPathElement = function (str) { return str.replace(/\/[^/]*$/, ''); };
     var splitHash = beforeAfterSubstr('#');
@@ -65945,24 +65947,24 @@ var Toponym = (function (exports) {
     }
     function linkOsm(entry) {
         checkArgument(entry, 'entry');
-        return 'https://' + "www.openstreetmap.org/" +
-            ("?mlat=" + entry.geo[0] + "&mlon=" + entry.geo[1] + "&zoom=14");
+        return "".concat('https://', "www.openstreetmap.org/") +
+            "?mlat=".concat(entry.geo[0], "&mlon=").concat(entry.geo[1], "&zoom=14");
     }
     function linkGoogle(entry) {
         checkArgument(entry, 'entry');
-        return 'https://' + "www.google." + langText('ru', 'by', 'com') + "/maps/" +
-            ("place//@" + entry.geo[0] + "," + entry.geo[1] + ",5000m/data=!3m1!1e3!4m2!3m1!1s0x0:0x0?hl=ru");
+        return "".concat('https://', "www.google.").concat(langText('ru', 'by', 'com'), "/maps/") +
+            "place//@".concat(entry.geo[0], ",").concat(entry.geo[1], ",5000m/data=!3m1!1e3!4m2!3m1!1s0x0:0x0?hl=ru");
     }
     function linkYandex(entry) {
         checkArgument(entry, 'entry');
-        return "https://" + "yandex." + langText('ru', 'by', 'com') + "/maps" +
-            ("?ll=" + entry.geo[1] + "," + entry.geo[0]) +
-            ("&pt=" + entry.geo[1] + "," + entry.geo[0] + "&z=14&l=sat%2Cskl");
+        return "".concat("https://", "yandex.").concat(langText('ru', 'by', 'com'), "/maps") +
+            "?ll=".concat(entry.geo[1], ",").concat(entry.geo[0]) +
+            "&pt=".concat(entry.geo[1], ",").concat(entry.geo[0], "&z=14&l=sat%2Cskl");
     }
     function linkLoadmap(entry) {
         checkArgument(entry, 'entry');
-        return 'http://' + "m.loadmap.net/" + langText('ru', 'ru', 'en') +
-            ("?qq=" + entry.geo[0] + "%20" + entry.geo[1] + "&z=13&s=100000&c=41&g=1");
+        return "".concat('http://', "m.loadmap.net/").concat(langText('ru', 'ru', 'en')) +
+            "?qq=".concat(entry.geo[0], "%20").concat(entry.geo[1], "&z=13&s=100000&c=41&g=1");
     }
     var isFirstTime = true;
     function checkFirstTime() {
@@ -65975,7 +65977,7 @@ var Toponym = (function (exports) {
     function outOfRange(argName) {
         checkArgument(argName, 'argName');
         checkFirstTime();
-        return new Error("Out of range '" + argName + "'.");
+        return new Error("Out of range '".concat(argName, "'."));
     }
     function invalidOperation() {
         checkFirstTime();
@@ -65983,7 +65985,7 @@ var Toponym = (function (exports) {
     }
     function invalidArgument(argName) {
         checkFirstTime();
-        return new Error("Invalid argument " + (argName || 'argName') + ".");
+        return new Error("Invalid argument ".concat(argName || 'argName', "."));
     }
     /** Допустимо: '', 0, false */
     function checkArgument(argValue, argName) {
@@ -66116,8 +66118,8 @@ var Toponym = (function (exports) {
             var transition = side.css('transition');
             // ReSharper disable once RedundantUnits
             side.css({ transition: '0s' })
-                .removeClass("color" + (this.currentGroupIndex + 1))
-                .addClass("color" + (index + 1));
+                .removeClass("color".concat(this.currentGroupIndex + 1))
+                .addClass("color".concat(index + 1));
             this.currentGroupIndex = index;
             this.entriesShowLimit = 50;
             return this.$timeout()
@@ -66194,12 +66196,12 @@ var Toponym = (function (exports) {
             var text = langText('Смотрите, что есть на карте Беларуси!', 'Глядзіце, што ёсць на карце Беларусі!', 'Look what is on the map of Belarus!');
             if (firstQuery) {
                 var count = this.groups[0].matchCount || 0;
-                var found = langText(rusCase(count, ['топоним', 'топонима', 'топонимов']), rusCase(count, ['тапонім', 'тапоніма', 'тапонімаў']), count + (count === 1 ? ' toponym' : ' toponyms')) + (" \"" + firstQuery + "\"");
+                var found = langText(rusCase(count, ['топоним', 'топонима', 'топонимов']), rusCase(count, ['тапонім', 'тапоніма', 'тапонімаў']), count + (count === 1 ? ' toponym' : ' toponyms')) + " \"".concat(firstQuery, "\"");
                 var textRu = rusCase(count, ['Найден', 'Найдено', 'Найдено'], false /* includeNumber */) +
-                    (" " + found + " \u043D\u0430 \u043A\u0430\u0440\u0442\u0435 \u0411\u0435\u043B\u0430\u0440\u0443\u0441\u0438.");
+                    " ".concat(found, " \u043D\u0430 \u043A\u0430\u0440\u0442\u0435 \u0411\u0435\u043B\u0430\u0440\u0443\u0441\u0438.");
                 var textBe = rusCase(count, ['Знойдзены', 'Знойдзена', 'Знойдзена'], false /* includeNumber */) +
-                    (" " + found + " \u043D\u0430 \u043A\u0430\u0440\u0446\u0435 \u0411\u0435\u043B\u0430\u0440\u0443\u0441\u0456.");
-                text = langText(textRu, textBe, "Found " + found + " on the map Belarus.");
+                    " ".concat(found, " \u043D\u0430 \u043A\u0430\u0440\u0446\u0435 \u0411\u0435\u043B\u0430\u0440\u0443\u0441\u0456.");
+                text = langText(textRu, textBe, "Found ".concat(found, " on the map Belarus."));
             }
             var tags = langText('#топоним #топонимика #беларусь #белоруссия', '#топоним #топонимика #беларусь #белоруссия', '#toponym #toponymy #belarus #belorussia');
             return 'https://twitter.com/intent/tweet?text=' +
@@ -66379,8 +66381,7 @@ var Toponym = (function (exports) {
         }
     ])
         .config([
-        '$stateProvider',
-        function ($stateProvider) {
+        '$stateProvider', function ($stateProvider) {
             $stateProvider
                 .state({
                 name: 'app',
@@ -66395,8 +66396,7 @@ var Toponym = (function (exports) {
         }
     ])
         .run([
-        '$rootScope',
-        function ($rootScope) {
+        '$rootScope', function ($rootScope) {
             $rootScope.Core = {
                 rusCase: rusCase,
                 entryTypeAbbr: entryTypeAbbr,
