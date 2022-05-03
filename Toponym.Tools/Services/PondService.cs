@@ -1,6 +1,4 @@
 ﻿using Kit;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Toponym.Tools
 {

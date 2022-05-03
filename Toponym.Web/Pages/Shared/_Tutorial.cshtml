@@ -1,0 +1,32 @@
+﻿@model Toponym.Web.Pages.IndexModel
+@switch (NotNull(Model.Language)) {
+    case Language.Russian:
+        <p>Примеры запросов:</p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('оло')" tabindex="-1">оло</a><br>содержит <b>оло</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('&#34;гора&#34;')" tabindex="-1">"гора"</a><br>точно соответствует <b>гора</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('лес-')" tabindex="-1">лес-</a><br>начинается на <b>лес</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('-ов/-ин')" tabindex="-1">-ов/-ин</a><br>оканчивается на <b>ов</b> или <b>ин</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('гуд-ки')" tabindex="-1">гуд-ки</a><br>начинается на <b>гуд</b><br>и оканчивается на <b>ки</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('(?<!ки)$')" tabindex="-1">(?&lt;!ки)$</a><br>см. <a href="https://ru.wikipedia.org/wiki/Регулярные_выражения" target="_blank" tabindex="-1">регулярные выражения</a></p>
+        break;
+    case Language.Belarusian:
+        <p>Прыклады запытаў:</p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('ала')" tabindex="-1">ала</a><br>змяшчае <b>ала</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('&#34;гара&#34;')" tabindex="-1">"гара"</a><br>дакладна адпавядае <b>гара</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('ляс-')" tabindex="-1">ляс-</a><br>пачынаецца на <b>ляс</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('-аў/-ін')" tabindex="-1">-аў/-ін</a><br>скончваецца на <b>аў</b> або <b>ін</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('гуд-кі')" tabindex="-1">гуд-кі</a><br>пачынаецца на <b>гуд</b><br>і скончваецца на <b>кі</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('(?<!кі)$')" tabindex="-1">(?&lt;!кі)$</a><br>гл. <a href="https://ru.wikipedia.org/wiki/Регулярные_выражения" target="_blank" tabindex="-1">рэгулярныя выразы</a></p>
+        break;
+    case Language.English:
+        <p>Query examples:</p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('olo')" tabindex="-1">olo</a><br>contains <b>olo</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('&#34;gora&#34;')" tabindex="-1">"gora"</a><br>exactly matches <b>gora</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('les-')" tabindex="-1">les-</a><br>starting with <b>les</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('-ov/-in')" tabindex="-1">-ov/-in</a><br>ending with <b>ov</b> or <b>in</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('gud-ki')" tabindex="-1">gud-ki</a><br>starting with <b>gud</b><br>and ending with <b>ki</b></p>
+        <p><a class="example" href="" ng-click="ctrl.onSetValue('(?<!ki)$')" tabindex="-1">(?&lt;!ki)$</a><br>see <a href="https://en.wikipedia.org/wiki/Regular_expression" target="_blank" tabindex="-1">regular expression</a></p>
+        break;
+    default:
+        throw new ArgumentOutOfRangeException(nameof(ViewBag.Language));
+}

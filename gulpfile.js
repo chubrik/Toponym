@@ -1,9 +1,9 @@
 // Paths
 const path = require('path');
 const repoRoot = __dirname;
-const siteRoot = path.join(repoRoot, './Toponym.Site');
+const webRoot = path.join(repoRoot, './Toponym.Web');
 const npmRoot = path.join(repoRoot, './node_modules');
-const wwwRoot = path.join(siteRoot, './wwwroot');
+const wwwRoot = path.join(webRoot, './wwwroot');
 
 // Requires
 const browserSync = require('browser-sync').create();
@@ -21,7 +21,7 @@ gulp.task('less', () => {
     const bootstrapPath = gulp.src(path.join(npmRoot, './bootstrap/dist/css/bootstrap.css'));
 
     const entryPath =
-        gulp.src(path.join(siteRoot, './app/less/app.less'))
+        gulp.src(path.join(webRoot, './app/less/app.less'))
             .pipe(less({ paths: npmRoot, javascriptEnabled: true }));
 
     const merged = merge(normalizePath, bootstrapPath, entryPath);
@@ -41,14 +41,14 @@ gulp.task('less', () => {
 gulp.task('watch', gulp.parallel(
     () => {
         gulp.watch(
-            path.join(siteRoot, './app/less/**').replace(/\\/g, '/'),
+            path.join(webRoot, './app/less/**').replace(/\\/g, '/'),
             gulp.series('less'));
     },
     () => {
         gulp.watch(
-            path.join(siteRoot, './$temp/js/**').replace(/\\/g, '/'),
+            path.join(webRoot, './$temp/js/**').replace(/\\/g, '/'),
             (done) => {
-                execSync('node ./Toponym.Site/app/dev/ts-bundle.js');
+                execSync('node ./Toponym.Web/app/dev/ts-bundle.js');
                 done();
             });
     },
@@ -60,7 +60,7 @@ gulp.task('watch', gulp.parallel(
         browserSync
             .watch([
                 path.join(wwwRoot, './**/*'),
-                path.join(siteRoot, './Views/**')
+                path.join(webRoot, './Views/**')
             ])
             .on('change', browserSync.reload);
     }
@@ -71,9 +71,9 @@ gulp.task('clean', (done) => {
     fs.removeSync(path.join(repoRoot, './Toponym.Core/obj'));
     fs.removeSync(path.join(repoRoot, './Toponym.Tools/bin'));
     fs.removeSync(path.join(repoRoot, './Toponym.Tools/obj'));
-    fs.removeSync(path.join(siteRoot, './bin'));
-    fs.removeSync(path.join(siteRoot, './obj'));
-    fs.removeSync(path.join(siteRoot, './$temp'));
+    fs.removeSync(path.join(webRoot, './bin'));
+    fs.removeSync(path.join(webRoot, './obj'));
+    fs.removeSync(path.join(webRoot, './$temp'));
     fs.removeSync(path.join(wwwRoot, './assets/css'));
     fs.removeSync(path.join(wwwRoot, './assets/js'));
     done();

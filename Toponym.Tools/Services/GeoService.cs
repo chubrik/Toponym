@@ -1,8 +1,6 @@
 ﻿using Kit;
 using OsmDataKit;
 using OsmSharp;
-using System;
-using System.Linq;
 
 namespace Toponym.Tools
 {

@@ -1,5 +1,4 @@
 ﻿using OsmDataKit;
-using System;
 
 namespace Toponym.Tools
 {

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Toponym.Tools
+﻿namespace Toponym.Tools
 {
     public static class EntryDataExtensions
     {
