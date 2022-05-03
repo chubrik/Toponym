@@ -1,6 +1,5 @@
-﻿@using Toponym.Site
-
-@switch ((Language)ViewBag.Language) {
+﻿@model Toponym.Site.Pages.IndexModel
+@switch (NotNull(Model.Language)) {
     case Language.Russian:
         <p>Примеры запросов:</p>
         <p><a class="example" href="" ng-click="ctrl.onSetValue('оло')" tabindex="-1">оло</a><br>содержит <b>оло</b></p>

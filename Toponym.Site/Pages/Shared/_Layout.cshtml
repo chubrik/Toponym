@@ -1,11 +1,11 @@
-﻿@using Toponym.Site
+﻿@model Toponym.Site.Pages.IndexModel
 @{
     const string defaultHost = Constants.DefaultHost;
     const string fbAppId = "606010706223050";
-    var firstQuery = (string)ViewBag.FirstQuery;
-    //var firstCategory = (Group)ViewBag.FirstCategory;
-    var matchCount = (int)ViewBag.MatchCount;
-    var lang = (Language)ViewBag.Language;
+    var firstQuery = Model.FirstQuery;
+    //var firstCategory = Model.FirstCategory;
+    var matchCount = NotNull(Model.MatchCount);
+    var lang = NotNull(Model.Language);
     var text = new Func<Language, string, string, string, string>(LangHelper.Text);
 
     var hostUpper = defaultHost.First().ToString().ToUpper() + defaultHost.Substring(1);

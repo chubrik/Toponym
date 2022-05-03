@@ -1,6 +1,6 @@
-﻿@using Toponym.Site
+﻿@model Toponym.Site.Pages.IndexModel
 @{
-    var lang = (Language)ViewBag.Language;
+    var lang = NotNull(Model.Language);
 }
 <div id="languages">
     @if (lang == Language.Russian) {

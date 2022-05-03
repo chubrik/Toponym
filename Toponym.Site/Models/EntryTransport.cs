@@ -1,21 +1,18 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Toponym.Site
 {
-    [JsonObject]
     public class EntryTransport
     {
-        [JsonProperty("title")]
         public string Title { get; set; }
 
-        [JsonProperty("type")]
         public EntryType Type { get; set; }
 
-        [JsonProperty("geo")]
+        [JsonPropertyName("geo")]
         public float[] GeoPoint { get; set; }
 
-        [JsonProperty("screen")]
+        [JsonPropertyName("screen")]
         public List<float[]> ScreenPoints { get; set; }
     }
 }

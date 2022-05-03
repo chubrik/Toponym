@@ -15,7 +15,7 @@ namespace Toponym.Site
         public static string CssBundleHash;
         public static string JsBundleHash;
 
-        public DataService(IHostingEnvironment environment)
+        public DataService(IWebHostEnvironment environment)
         {
             var dataPath = Path.Combine(environment.ContentRootPath, "App_Data", Constants.DataFileName);
 

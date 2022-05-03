@@ -12,9 +12,6 @@ using Toponym.Site;
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 
-//todo delete
-services.AddMvc(opt => opt.EnableEndpointRouting = false);
-
 services.AddSingleton<DataService>();
 
 // https://github.com/aspnet/HttpAbstractions/issues/315
@@ -27,6 +24,7 @@ services.AddRazorPages()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = false;
         //options.JsonSerializerOptions.PropertyNamingPolicy = null;
     });
@@ -61,8 +59,5 @@ app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = contentTypeProv
 
 app.UseRouting();
 app.MapRazorPages();
-
-//todo delete
-app.UseMvc();
 
 app.Run();

@@ -1,7 +1,8 @@
-﻿@using Toponym.Site
+﻿@page "/{lang?}"
+@model Toponym.Site.Pages.IndexModel
 @{
     var text = new Func<Language, string, string, string, string>(LangHelper.Text);
-    var lang = (Language)ViewBag.Language;
+    var lang = NotNull(Model.Language);
 }
 <div id="side" class="color1" ng-class="{silented: ctrl.isSilentedGroup(ctrl.currentGroupIndex)}"
      ng-mouseover="ctrl.groups[ctrl.currentGroupIndex].isIntensive = true" ng-mouseleave="ctrl.groups[ctrl.currentGroupIndex].isIntensive = false">
