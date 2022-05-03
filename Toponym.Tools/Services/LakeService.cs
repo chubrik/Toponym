@@ -32,7 +32,7 @@ namespace Toponym.Tools
 
         private static bool Filter(GeoObject geo)
         {
-            var normTitle = geo.TitleRu().ToLower().Replace("ё", "е");
+            var normTitle = NotNull(geo.TitleRu()).ToLower().Replace("ё", "е");
 
             if (normTitle.Contains("аэропорт") ||
                 normTitle == "божье око" ||
@@ -54,7 +54,7 @@ namespace Toponym.Tools
 
         private static T Fix<T>(T geo) where T : GeoObject
         {
-            var titleRu = Regex.Replace(geo.TitleRu(),
+            var titleRu = Regex.Replace(NotNull(geo.TitleRu()),
                 @"(?<=^|\s)(оз\.?|озеро|озёра)(?=\s|$)|^оз\.", "", RegexOptions.IgnoreCase).Trim(' ', '"');
 
             var titleBe = geo.TitleBe();
@@ -109,7 +109,10 @@ namespace Toponym.Tools
                 titleBe = "Сцернік";
 
             geo.SetTitleRu(titleRu);
-            geo.SetTitleBe(titleBe);
+
+            if (titleBe != null)
+                geo.SetTitleBe(titleBe);
+
             return geo;
         }
     }

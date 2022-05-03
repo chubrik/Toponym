@@ -2,8 +2,20 @@
 {
     public class ResponseTransport
     {
-        public ResponseStatus Status { get; set; }
-        public List<EntryTransport> Entries { get; set; }
-        public int? MatchCount { get; set; }
+        public ResponseStatus Status { get; }
+        public IReadOnlyList<EntryTransport>? Entries { get; }
+        public int? MatchCount { get; }
+
+        public ResponseTransport(ResponseStatus status)
+        {
+            Status = status;
+        }
+
+        public ResponseTransport(IReadOnlyList<EntryTransport> entries, int? matchCount)
+        {
+            Status = ResponseStatus.Success;
+            Entries = entries;
+            MatchCount = matchCount;
+        }
     }
 }

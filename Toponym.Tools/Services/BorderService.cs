@@ -45,26 +45,26 @@ namespace Toponym.Tools
         private static IEnumerable<NodeObject> LoadNodes()
         {
             var relation = GeoService.LoadRelation("border", Constants.OsmBorderRelationId);
-            var ways = relation.Members.Where(i => i.Geo.Type == OsmGeoType.Way && i.Role == "outer").Select(i => (WayObject)i.Geo);
+            var ways = NotNull(relation.Members).Where(i => i.Geo.Type == OsmGeoType.Way && i.Role == "outer").Select(i => (WayObject)i.Geo);
 
             return LogService.Log("Sort nodes", () =>
             {
                 var sortedNodes = new List<NodeObject>();
                 var waysLeft = ways.ToList();
-                var cursorNode = waysLeft.SelectMany(i => i.Nodes).First(i => i.Id == Constants.OsmBorderStartNodeId);
+                var cursorNode = waysLeft.SelectMany(i => NotNull(i.Nodes)).First(i => i.Id == Constants.OsmBorderStartNodeId);
                 var thisWay = waysLeft.Single(i => i.Id == Constants.OsmBorderStartWayId);
 
                 while (true)
                 {
-                    var thisNodes = thisWay.Nodes.ToList();
+                    var thisNodes = NotNull(thisWay.Nodes).ToList();
 
-                    if (thisNodes.Last().Id == cursorNode.Id)
+                    if (thisNodes[^1].Id == cursorNode.Id)
                         thisNodes.Reverse();
 
-                    if (thisNodes.First().Id != cursorNode.Id)
+                    if (thisNodes[0].Id != cursorNode.Id)
                         throw new InvalidOperationException();
 
-                    cursorNode = thisNodes.Last();
+                    cursorNode = thisNodes[^1];
                     thisNodes.Remove(cursorNode);
                     sortedNodes.AddRange(thisNodes);
                     waysLeft.Remove(thisWay);
@@ -72,7 +72,7 @@ namespace Toponym.Tools
                     if (waysLeft.Count == 0)
                         break;
 
-                    thisWay = waysLeft.Single(i => i.Nodes.Contains(cursorNode));
+                    thisWay = waysLeft.Single(i => NotNull(i.Nodes).Contains(cursorNode));
                 }
 
                 return sortedNodes;

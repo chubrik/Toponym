@@ -5,7 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OsmDataKit" Version="3.0.3" />
+    <Compile Include="..\ValidationHelper.cs" Link="Helpers\ValidationHelper.cs" />
+    <Using Include="Toponym.ValidationHelper" Static="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Kit" Version="1.9.3" />
+    <PackageReference Include="OsmDataKit" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>

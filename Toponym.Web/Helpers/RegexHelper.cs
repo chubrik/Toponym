@@ -10,12 +10,12 @@ namespace Toponym.Web
         private const string StrictLeft = "(^| |-)";
         private const string StrictRight = "($| |-)";
 
-        public static Regex GetRegex(string query, Language language)
+        public static Regex? GetRegex(string query, Language language)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(query));
 
             if (string.IsNullOrWhiteSpace(query))
-                throw new ArgumentException(nameof(query));
+                throw new ArgumentNullException(nameof(query));
 
             query = Regex.Replace(query, "[`‘’\"«»„“”]", "'");
             query = Regex.Replace(query, "[–—−]", "-");
@@ -45,22 +45,22 @@ namespace Toponym.Web
                         continue;
 
                     if (part.StartsWith("'") && part.EndsWith("'"))
-                        part = StrictLeft + part.Substring(1, part.Length - 2) + StrictRight;
+                        part = StrictLeft + part[1..^1] + StrictRight;
 
-                    else if (part.Contains("-"))
+                    else if (part.Contains('-'))
                     {
                         // Hyphens in the middle
                         part = Regex.Replace(part, "(?<=[а-яa-z'])-(?=[а-яa-z'])", "[а-яa-z'-]+", RegexOptions.IgnoreCase);
 
                         if (part.StartsWith("-"))
-                            part = SoftLeft + part.Substring(1);
+                            part = SoftLeft + part[1..];
                         else
                             part = StrictLeft + part;
 
                         if (part.EndsWith("-"))
-                            part = part.Substring(0, part.Length - 1) + SoftRight;
+                            part = part[0..^1] + SoftRight;
                         else
-                            part = part + StrictRight;
+                            part += StrictRight;
                     }
 
                     parts[i] = part;

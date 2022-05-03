@@ -27,7 +27,7 @@ namespace Toponym.Tools
 
         private static bool Filter(GeoObject geo)
         {
-            var normRu = geo.TitleRu().ToLower();
+            var normRu = NotNull(geo.TitleRu()).ToLower();
 
             if (Regex.IsMatch(normRu, @"\d"))
                 return false;
@@ -55,7 +55,7 @@ namespace Toponym.Tools
 
         private static GeoObject Fix(GeoObject geo)
         {
-            var titleRu = geo.TitleRu();
+            var titleRu = NotNull(geo.TitleRu());
 
             var match1 = Regex.Match(titleRu, @"^ур(очище|\.)(.+)$", RegexOptions.IgnoreCase);
 
@@ -115,20 +115,14 @@ namespace Toponym.Tools
         {
             var geoType = geo.Type;
 
-            switch (geoType)
+            return geoType switch
             {
-                case OsmGeoType.Node:
-                    return EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), EntryType.Locality, ((NodeObject)geo).Location);
-
-                case OsmGeoType.Way:
-                    return ((WayObject)geo).ToEntryDataAsPoint(EntryType.Locality);
-
-                case OsmGeoType.Relation:
-                    return ((RelationObject)geo).ToEntryDataAsPoint(EntryType.Locality);
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(geoType));
-            }
+                OsmGeoType.Node => EntryHelper.GetData(
+                    NotNull(geo.TitleRu()), geo.TitleBe(), EntryType.Locality, ((NodeObject)geo).Location),
+                OsmGeoType.Way => ((WayObject)geo).ToEntryDataAsPoint(EntryType.Locality),
+                OsmGeoType.Relation => ((RelationObject)geo).ToEntryDataAsPoint(EntryType.Locality),
+                _ => throw new ArgumentOutOfRangeException(nameof(geo)),
+            };
         }
     }
 }

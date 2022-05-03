@@ -29,7 +29,7 @@ namespace Toponym.Tools
                 var memberWays = response.RootRelations.SelectMany(
                     relation =>
                     {
-                        var members = relation.Members.Where(i => i.Role == null || i.Role == "main_stream");
+                        var members = NotNull(relation.Members).Where(i => i.Role == null || i.Role == "main_stream");
 
                         var geos = members.Select(
                             member =>
@@ -41,11 +41,17 @@ namespace Toponym.Tools
 
                                 if (geo.TitleRu() == null)
                                 {
-                                    geo.SetTitleRu(relation.TitleRu());
-                                    geo.SetTitleBe(relation.TitleBe());
+                                    var titleRu = relation.TitleRu();
+                                    var titleBe = relation.TitleBe();
+
+                                    if (titleRu != null)
+                                        geo.SetTitleRu(titleRu);
+
+                                    if (titleBe != null)
+                                        geo.SetTitleBe(titleBe);
                                 }
 
-                                return geo as WayObject;
+                                return (WayObject)geo;
                             });
 
                         return geos;
@@ -64,16 +70,16 @@ namespace Toponym.Tools
         private static void FixBrokenNeman(CompleteGeoObjects response)
         {
             var neman = response.RootRelations.Single(i => i.TitleRu() == "Неман");
-            var members = neman.Members.ToList();
+            var members = NotNull(neman.Members).ToList();
             members.Remove(members.First(i => i.Geo.TitleRu() == "Неманец"));
-            var nemanMembers = neman.Members as List<RelationMemberObject>; // Hack
+            var nemanMembers = NotNull(neman.Members as List<RelationMemberObject>); // Hack
             nemanMembers.Clear();
             nemanMembers.AddRange(members);
         }
 
         private static bool PreFilter(WayObject way)
         {
-            var normTitle = way.TitleRu().ToLower().Replace("ё", "е");
+            var normTitle = NotNull(way.TitleRu()).ToLower().Replace("ё", "е");
 
             if (normTitle.Contains("канал") ||
                 normTitle.Contains("канава") ||
@@ -90,7 +96,7 @@ namespace Toponym.Tools
 
         private static T PreFix<T>(T geo) where T : GeoObject
         {
-            var titleRu = geo.TitleRu();
+            var titleRu = NotNull(geo.TitleRu());
             var titleBe = geo.TitleBe();
 
             if (titleRu == "Западная Березина")
@@ -160,12 +166,16 @@ namespace Toponym.Tools
                 titleBe = "Тонкая Лучка";
 
             geo.SetTitleRu(titleRu);
-            geo.SetTitleBe(titleBe);
+
+            if (titleBe != null)
+                geo.SetTitleBe(titleBe);
+
             return geo;
         }
 
         private static readonly HashSet<long> _badIds =
-            new HashSet<long> {
+            new()
+            {
                 156664420, // Березина
                 338382063,
                 39539780,
@@ -264,7 +274,7 @@ namespace Toponym.Tools
 
         private static List<WayObject> GetMergedWays(IEnumerable<WayObject> ways)
         {
-            var groups = ways.GroupBy(i => i.TitleRu().ToLower().Replace('ё', 'е'));
+            var groups = ways.GroupBy(i => NotNull(i.TitleRu()).ToLower().Replace('ё', 'е'));
             var rivers = new List<WayObject>();
 
             foreach (var group in groups)
@@ -281,11 +291,11 @@ namespace Toponym.Tools
             return rivers;
         }
 
-        private static WayObject GetMergedWay(ICollection<WayObject> waysLeft)
+        private static WayObject GetMergedWay(List<WayObject> waysLeft)
         {
-            var first = waysLeft.First();
+            var first = waysLeft[0];
             var id = first.Id;
-            var nodes = first.Nodes.ToList();
+            var nodes = NotNull(first.Nodes).ToList();
             waysLeft.Remove(first);
 
             // Пристыкованные отрезки
@@ -299,15 +309,17 @@ namespace Toponym.Tools
 
                 foreach (var way in waysLeft)
                 {
-                    if (way.Nodes.First().Id == nodes.Last().Id)
+                    var wayNodes = NotNull(way.Nodes);
+
+                    if (wayNodes[0].Id == nodes[^1].Id)
                     {
-                        nodes.AddRange(way.Nodes.Skip(1));
+                        nodes.AddRange(wayNodes.Skip(1));
                         usedWays.Add(way);
                         repeat = true;
                     }
-                    else if (way.Nodes.Last().Id == nodes.First().Id)
+                    else if (wayNodes[^1].Id == nodes[0].Id)
                     {
-                        nodes.InsertRange(0, way.Nodes.Take(way.Nodes.Count - 1));
+                        nodes.InsertRange(0, wayNodes.Take(wayNodes.Count - 1));
                         usedWays.Add(way);
                         id = way.Id;
                         repeat = true;
@@ -332,15 +344,17 @@ namespace Toponym.Tools
 
                 foreach (var way in waysLeft)
                 {
-                    if (IsNear(way.Nodes.First(), nodes.Last()))
+                    var wayNodes = NotNull(way.Nodes);
+
+                    if (IsNear(wayNodes[0], nodes[^1]))
                     {
-                        nodes.AddRange(way.Nodes);
+                        nodes.AddRange(wayNodes);
                         usedWays.Add(way);
                         repeat = true;
                     }
-                    else if (IsNear(way.Nodes.Last(), nodes.First()))
+                    else if (IsNear(wayNodes[^1], nodes[0]))
                     {
-                        nodes.InsertRange(0, way.Nodes);
+                        nodes.InsertRange(0, wayNodes);
                         usedWays.Add(way);
                         id = way.Id;
                         repeat = true;

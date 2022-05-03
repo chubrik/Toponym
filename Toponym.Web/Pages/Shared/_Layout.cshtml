@@ -8,7 +8,7 @@
     var lang = NotNull(Model.Language);
     var text = new Func<Language, string, string, string, string>(LangHelper.Text);
 
-    var hostUpper = defaultHost.First().ToString().ToUpper() + defaultHost.Substring(1);
+    var hostUpper = defaultHost[0].ToString().ToUpper() + defaultHost.Substring(1);
     var canonicalUrl = "https://" + defaultHost + Context.Request.Path + Context.Request.QueryString;
     var logoUrl = "https://" + defaultHost + Url.Content("~/assets/img/logo-big.png");
 

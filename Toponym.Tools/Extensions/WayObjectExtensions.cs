@@ -6,12 +6,13 @@ namespace Toponym.Tools
     {
         public static EntryData ToEntryData(this WayObject way, EntryType type)
         {
-            var firstLocation = way.Nodes.First().Location;
+            var nodes = NotNull(way.Nodes);
+            var firstLocation = nodes[0].Location;
             var screenPoints = new List<ScreenPoint>();
             var prevX = 0f;
             var prevY = 0f;
 
-            foreach (var wayNode in way.Nodes.Take(way.Nodes.Count - 1))
+            foreach (var wayNode in nodes.Take(nodes.Count - 1))
             {
                 var screenPoint = wayNode.Location.ToScreen();
 
@@ -23,8 +24,8 @@ namespace Toponym.Tools
                 prevY = screenPoint.Y;
             }
 
-            screenPoints.Add(way.Nodes.Last().Location.ToScreen());
-            return EntryHelper.GetData(way.TitleRu(), way.TitleBe(), type, firstLocation, screenPoints);
+            screenPoints.Add(nodes[^1].Location.ToScreen());
+            return EntryHelper.GetData(NotNull(way.TitleRu()), way.TitleBe(), type, firstLocation, screenPoints);
         }
     }
 }

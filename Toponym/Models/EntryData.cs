@@ -8,21 +8,39 @@ namespace Toponym
     public class EntryData
     {
         [JsonProperty("ru")]
-        public string TitleRu { get; set; }
+        public string TitleRu { get; }
 
         [JsonProperty("be", NullValueHandling = NullValueHandling.Ignore)]
-        public string TitleBe { get; set; }
+        public string? TitleBe { get; }
 
         [JsonProperty("en")]
-        public string TitleEn { get; set; }
+        public string TitleEn { get; }
 
         [JsonProperty("type")]
-        public EntryType Type { get; set; }
+        public EntryType Type { get; }
 
         [JsonProperty("geo")]
-        public float[] Location { get; set; }
+        public float[] Location { get; private set; }
 
         [JsonProperty("screen")]
-        public List<float[]> ScreenPoints { get; set; }
+        public IReadOnlyList<float[]> ScreenPoints { get; private set; }
+
+        public EntryData(
+            string titleRu, string? titleBe, string titleEn, EntryType type, 
+            float[] location, IReadOnlyList<float[]> screenPoints)
+        {
+            TitleRu = titleRu;
+            TitleBe = titleBe;
+            TitleEn = titleEn;
+            Type = type;
+            Location = location;
+            ScreenPoints = screenPoints;
+        }
+
+        public void Relocate(float[] location, IReadOnlyList<float[]> screenPoints)
+        {
+            Location = location;
+            ScreenPoints = screenPoints;
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace Toponym.Tools
                    !lower.Contains("цё") && !lower.Contains("ць") && !lower.Contains("ця");
         }
 
-        public static bool IsValidTitleBe(string titleBe)
+        public static bool IsValidTitleBe(string? titleBe)
         {
             if (titleBe == null)
                 return true;
@@ -28,7 +28,8 @@ namespace Toponym.Tools
         #region Constants & Maps
 
         private static readonly Dictionary<string, string> _translitMap =
-            new Dictionary<string, string> {
+            new()
+            {
                 { "а", "a" },
                 { "б", "b" },
                 { "в", "v" },
@@ -103,7 +104,7 @@ namespace Toponym.Tools
             Debug.Assert(!text.IsNullOrWhiteSpace());
 
             if (text.IsNullOrWhiteSpace())
-                throw new ArgumentException(nameof(text));
+                throw new ArgumentNullException(nameof(text));
 
             var sb = new StringBuilder(text);
             sb.Replace("ее", "eye");
@@ -120,7 +121,7 @@ namespace Toponym.Tools
                     var translited = _translitMap[i.Value.ToLower()];
 
                     return isUpper && translited.Length > 0
-                        ? translited.First().ToString().ToUpper() + translited.Substring(1)
+                        ? translited[0].ToString().ToUpper() + translited[1..]
                         : translited;
                 });
 

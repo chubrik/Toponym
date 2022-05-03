@@ -7,8 +7,8 @@ namespace Toponym.Web
     public class DataService
     {
         private readonly IReadOnlyList<Entry> _entries;
-        public static string CssBundleHash;
-        public static string JsBundleHash;
+        public static string? CssBundleHash { get; private set; }
+        public static string? JsBundleHash { get; private set; }
 
         public DataService(IWebHostEnvironment environment)
         {
@@ -18,7 +18,7 @@ namespace Toponym.Web
             using (var streamReader = new StreamReader(fileStream))
             using (var jsonTextReader = new JsonTextReader(streamReader))
             {
-                var data = new JsonSerializer().Deserialize<List<EntryData>>(jsonTextReader);
+                var data = NotNull(new JsonSerializer().Deserialize<List<EntryData>>(jsonTextReader));
                 _entries = data.Select(i => new Entry(i)).ToList();
             }
 
@@ -30,30 +30,21 @@ namespace Toponym.Web
         {
             var groupEntries = _entries.Where(i => (i.Category & category) != 0);
 
-            switch (language)
+            return language switch
             {
-                case Language.Russian:
-                    return groupEntries.Where(i => regex.IsMatch(i.TitleRuIndex)).ToList();
-
-                case Language.Belarusian:
-                    return groupEntries.Where(i => i.TitleBe != null && regex.IsMatch(i.TitleBeIndex)).ToList();
-
-                case Language.English:
-                    return groupEntries.Where(i => regex.IsMatch(i.TitleEn)).ToList();
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(language));
-            }
+                Language.Russian => groupEntries.Where(i => regex.IsMatch(i.TitleRuIndex)).ToList(),
+                Language.Belarusian => groupEntries.Where(i => i.TitleBeIndex != null && regex.IsMatch(i.TitleBeIndex)).ToList(),
+                Language.English => groupEntries.Where(i => regex.IsMatch(i.TitleEn)).ToList(),
+                _ => throw new ArgumentOutOfRangeException(nameof(language)),
+            };
         }
 
         private static string GetFileHash(string path)
         {
-            using (var md5 = MD5.Create())
-            using (var stream = File.OpenRead(path))
-            {
-                var hash = BitConverter.ToString(md5.ComputeHash(stream));
-                return hash.Replace("-", string.Empty).Substring(0, 16).ToLower();
-            }
+            using var md5 = MD5.Create();
+            using var stream = File.OpenRead(path);
+            var hash = BitConverter.ToString(md5.ComputeHash(stream));
+            return hash.Replace("-", string.Empty)[..16].ToLower();
         }
     }
 }

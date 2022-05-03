@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{27CE87CB-87E5-418C-8112-748C3B08D8CA}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
+		ValidationHelper.cs = ValidationHelper.cs
 	EndProjectSection
 EndProject
 Global

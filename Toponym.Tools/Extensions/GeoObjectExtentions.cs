@@ -7,11 +7,11 @@ namespace Toponym.Tools
         private const string TitleRuKey = "_titleRu";
         private const string TitleBeKey = "_titleBe";
 
-        public static string TitleRu(this GeoObject geo) =>
-            geo.Tags.GetValueOrDefault(TitleRuKey);
+        public static string? TitleRu(this GeoObject geo) =>
+            geo.Tags?.GetValueOrDefault(TitleRuKey);
 
-        public static string TitleBe(this GeoObject geo) =>
-            geo.Tags.GetValueOrDefault(TitleBeKey);
+        public static string? TitleBe(this GeoObject geo) =>
+            geo.Tags?.GetValueOrDefault(TitleBeKey);
 
         public static void SetTitleRu(this GeoObject geo, string value)
         {
@@ -30,6 +30,6 @@ namespace Toponym.Tools
         }
 
         public static EntryData ToEntryDataAsPoint(this GeoObject geo, EntryType type) =>
-            EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), type, geo.CenterLocation());
+            EntryHelper.GetData(NotNull(geo.TitleRu()), geo.TitleBe(), type, geo.CenterLocation());
     }
 }

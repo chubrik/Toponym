@@ -54,10 +54,10 @@ namespace Toponym.Web
             if (num.Length > 1 && num[num.Length - 2] == '1')
                 return result + (cases[2] ?? cases[1]);
 
-            if (num.Last() == '1')
+            if (num[^1] == '1')
                 return result + cases[0];
 
-            if (Regex.IsMatch(num.Last().ToString(), "[234]"))
+            if (Regex.IsMatch(num[^1].ToString(), "[234]"))
                 return result + cases[1];
 
             return result + (cases[2] ?? cases[1]);

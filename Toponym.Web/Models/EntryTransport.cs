@@ -4,14 +4,23 @@ namespace Toponym.Web
 {
     public class EntryTransport
     {
-        public string Title { get; set; }
+        public string Title { get; }
 
-        public EntryType Type { get; set; }
+        public EntryType Type { get; }
 
         [JsonPropertyName("geo")]
-        public float[] GeoPoint { get; set; }
+        public float[] GeoPoint { get; }
 
         [JsonPropertyName("screen")]
-        public List<float[]> ScreenPoints { get; set; }
+        public IReadOnlyList<float[]> ScreenPoints { get; }
+
+        public EntryTransport(
+            string title, EntryType type, float[] geoPoint, IReadOnlyList<float[]> screenPoints)
+        {
+            Title = title;
+            Type = type;
+            GeoPoint = geoPoint;
+            ScreenPoints = screenPoints;
+        }
     }
 }

@@ -105,7 +105,7 @@ namespace Toponym.Tools
 
         private static bool Filter(GeoObject geo)
         {
-            var normTitle = geo.TitleRu().ToLower().Replace("ё", "е");
+            var normTitle = NotNull(geo.TitleRu()).ToLower().Replace("ё", "е");
 
             if (normTitle == "бас." ||
                 normTitle.Contains("басейн") ||
@@ -168,7 +168,7 @@ namespace Toponym.Tools
 
         private static T Fix<T>(T geo) where T : GeoObject
         {
-            var titleRu = Regex.Replace(geo.TitleRu(),
+            var titleRu = Regex.Replace(NotNull(geo.TitleRu()),
                 @"(?<=^|\s)(озеро|озёра)(?=\s|$)|^о\.|^оз\.", "", RegexOptions.IgnoreCase).Trim(' ', '«', '»');
 
             var titleBe = geo.TitleBe();
@@ -232,10 +232,13 @@ namespace Toponym.Tools
                 titleBe = "Ільгінія";
 
             if (titleRu[0] == titleRu.ToLower()[0])
-                titleRu = titleRu.ToUpper()[0] + titleRu.Substring(1);
+                titleRu = titleRu.ToUpper()[0] + titleRu[1..];
 
             geo.SetTitleRu(titleRu);
-            geo.SetTitleBe(titleBe);
+
+            if (titleBe != null)
+                geo.SetTitleBe(titleBe);
+
             return geo;
         }
 

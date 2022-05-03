@@ -47,7 +47,7 @@ namespace Toponym.Tools
 
         private static bool FilterByType(GeoObject geo)
         {
-            if (!geo.Tags.ContainsKey("place"))
+            if (!NotNull(geo.Tags).ContainsKey("place"))
                 return false;
 
             var placeType = GetPlaceType(geo);
@@ -64,7 +64,7 @@ namespace Toponym.Tools
 
         private static bool FilterByName(GeoObject geo)
         {
-            var titleRu = geo.TitleRu();
+            var titleRu = NotNull(geo.TitleRu());
 
             if (titleRu.Contains("Блок Пост") ||
                 titleRu.Contains("Военный") ||
@@ -95,18 +95,23 @@ namespace Toponym.Tools
         {
             if (geo is RelationObject relation)
             {
-                var label = relation.Members.FirstOrDefault(i => i.Role == "label");
+                var label = NotNull(relation.Members).FirstOrDefault(i => i.Role == "label");
 
                 if (label != null)
                 {
                     //Debug.Assert(label.Geo.TitleRu() == geo.TitleRu());
 
                     if (relation.TitleBe() == null)
-                        geo.SetTitleBe(label.Geo.TitleBe());
+                    {
+                        var labelTitleBe = label.Geo.TitleBe();
+
+                        if (labelTitleBe != null)
+                            geo.SetTitleBe(labelTitleBe);
+                    }
                 }
             }
 
-            var titleRu = geo.TitleRu();
+            var titleRu = NotNull(geo.TitleRu());
             var titleBe = geo.TitleBe();
 
             if (titleRu == "Заборье (ферма)")
@@ -155,7 +160,7 @@ namespace Toponym.Tools
                     geo.SetTitleBe(matchBe.Value);
             }
 
-            if (!TextHelper.IsValidTitleRu(geo.TitleRu()) ||
+            if (!TextHelper.IsValidTitleRu(NotNull(geo.TitleRu())) ||
                 !TextHelper.IsValidTitleBe(geo.TitleBe()))
             {
             }
@@ -165,12 +170,12 @@ namespace Toponym.Tools
 
         private static bool IsInside(GeoObject area, NodeObject node)
         {
-            var areaNodes =
+            var areaNodes = NotNull(
                 area is WayObject way
                     ? way.Nodes
                     : area is RelationObject relation
                         ? relation.AllChildNodes()
-                        : throw new InvalidOperationException();
+                        : throw new InvalidOperationException());
 
             var top = areaNodes.Max(i => i.Latitude);
             var bottom = areaNodes.Min(i => i.Latitude);
@@ -187,59 +192,38 @@ namespace Toponym.Tools
         private static EntryData GetEntryData(GeoObject geo)
         {
             var placeType = GetPlaceType(geo);
-            EntryType entryType;
 
-            switch (placeType)
+            var entryType = placeType switch
             {
-                case "city":
-                    entryType = EntryType.City;
-                    break;
-
-                case "hamlet":
-                    entryType = EntryType.Hamlet;
-                    break;
-
-                case "isolated_dwelling":
-                    entryType = EntryType.Dwelling;
-                    break;
-
-                case "town":
-                    entryType = EntryType.Town;
-                    break;
-
-                case "village":
-                    entryType = EntryType.Village;
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(placeType));
-            }
+                "city" => EntryType.City,
+                "hamlet" => EntryType.Hamlet,
+                "isolated_dwelling" => EntryType.Dwelling,
+                "town" => EntryType.Town,
+                "village" => EntryType.Village,
+                _ => throw new ArgumentOutOfRangeException(nameof(geo)),
+            };
 
             var geoType = geo.Type;
 
-            switch (geoType)
+            return geoType switch
             {
-                case OsmGeoType.Node:
-                    return EntryHelper.GetData(geo.TitleRu(), geo.TitleBe(), entryType, ((NodeObject)geo).Location);
-
-                case OsmGeoType.Way:
-                    return ((WayObject)geo).ToEntryDataAsPoint(entryType);
-
-                case OsmGeoType.Relation:
-                    return ((RelationObject)geo).ToEntryDataAsPoint(entryType);
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(geoType));
-            }
+                OsmGeoType.Node => EntryHelper.GetData(
+                    NotNull(geo.TitleRu()), geo.TitleBe(), entryType, ((NodeObject)geo).Location),
+                OsmGeoType.Way => ((WayObject)geo).ToEntryDataAsPoint(entryType),
+                OsmGeoType.Relation => ((RelationObject)geo).ToEntryDataAsPoint(entryType),
+                _ => throw new ArgumentOutOfRangeException(nameof(geo)),
+            };
         }
 
         private static string GetPlaceType(GeoObject geo)
         {
-            if (geo.Tags.TryGetValue("old_place", out var result) ||
-                geo.Tags.TryGetValue("abandoned:place", out result))
+            var geoTags = NotNull(geo.Tags);
+
+            if (geoTags.TryGetValue("old_place", out var result) ||
+                geoTags.TryGetValue("abandoned:place", out result))
                 return result;
 
-            return geo.Tags["place"];
+            return geoTags["place"];
         }
 
         private static void FixMinskCenter(List<EntryData> data)
@@ -247,8 +231,7 @@ namespace Toponym.Tools
             var minsk = data.Single(i => i.TitleRu == "Минск");
             var location = new Location(53.90234, 27.56188);
             var fakeEntry = EntryHelper.GetData(minsk.TitleRu, minsk.TitleBe, minsk.Type, location);
-            minsk.Location = fakeEntry.Location;
-            minsk.ScreenPoints = fakeEntry.ScreenPoints;
+            minsk.Relocate(location: fakeEntry.Location, screenPoints: fakeEntry.ScreenPoints);
         }
     }
 }

@@ -6,10 +6,10 @@ namespace Toponym.Web
     public class Entry
     {
         public string TitleRu { get; }
-        public string TitleBe { get; }
+        public string? TitleBe { get; }
         public string TitleEn { get; }
         public string TitleRuIndex { get; }
-        public string TitleBeIndex { get; }
+        public string? TitleBeIndex { get; }
         public EntryType Type { get; }
         public GeoPoint GeoPoint { get; }
         public IReadOnlyList<ScreenPoint> ScreenPoints { get; }

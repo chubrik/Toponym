@@ -6,14 +6,14 @@ namespace Toponym.Tools
 {
     public static class GeoService
     {
-        public static RelationObject LoadRelation(string cacheName, long relationId, string sourcePath = null)
+        public static RelationObject LoadRelation(string cacheName, long relationId, string? sourcePath = null)
         {
             var request = new GeoRequest { RelationIds = new[] { relationId } };
             var response = OsmService.LoadCompleteObjects(sourcePath ?? Constants.OsmNewSourcePath, cacheName, request);
             return response.RootRelations.Single();
         }
 
-        public static CompleteGeoObjects Load(string cacheName, Func<OsmGeo, bool> predicate, string sourcePath = null)
+        public static CompleteGeoObjects Load(string cacheName, Func<OsmGeo, bool> predicate, string? sourcePath = null)
         {
             var response = OsmService.LoadCompleteObjects(
                 sourcePath ?? Constants.OsmNewSourcePath, cacheName, predicate);
@@ -24,13 +24,17 @@ namespace Toponym.Tools
                 {
                     var titleRu = GeoHelper.TitleRu(geo);
                     var titleBe = GeoHelper.TitleBe(geo);
-                    geo.SetTitleRu(titleRu);
-                    geo.SetTitleBe(titleBe);
+
+                    if (titleRu != null)
+                        geo.SetTitleRu(titleRu);
+
+                    if (titleBe != null)
+                        geo.SetTitleBe(titleBe);
                 }
 
                 foreach (var relation in response.RootRelations.Where(i => i.TitleBe() == null))
                 {
-                    var label = relation.Members.FirstOrDefault(i => i.Role == "label");
+                    var label = NotNull(relation.Members).FirstOrDefault(i => i.Role == "label");
 
                     if (label != null)
                     {
@@ -43,7 +47,7 @@ namespace Toponym.Tools
 
                 GeoObject.StringFormatter = geo =>
                 {
-                    var titleRu = geo.TitleRu();
+                    var titleRu = geo.TitleRu() ?? "<null>";
                     var titleBe = geo.TitleBe();
                     return titleBe != null ? titleRu + " / " + titleBe : titleRu;
                 };

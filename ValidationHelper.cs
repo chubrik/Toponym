@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace Toponym.Web
+namespace Toponym
 {
     public static class ValidationHelper
     {

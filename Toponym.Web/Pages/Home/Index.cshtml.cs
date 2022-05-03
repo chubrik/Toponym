@@ -50,7 +50,7 @@ namespace Toponym.Web.Pages
 
             if (host == Constants.DefaultHost || host == "localhost")
             {
-                redirectUrl = null;
+                redirectUrl = string.Empty;
                 return true;
             }
 
