@@ -20,13 +20,16 @@ namespace Toponym.Tools
                 //         GeoHelper.TitleRu(i) != null);
 
                 var response = GeoService.Load(
-                    "rivers-old",
+                    "rivers",
                     i => i.Tags.Contains("waterway", "river") && GeoHelper.TitleRu(i) != null,
-                    Constants.OsmOldSourcePath);
+                    Constants.Osm2017SourcePath);
 
-                FixBrokenNeman(response);
+                var lostChernitsa = GeoService.LoadRelation(
+                    "rivers-2022-chernitsa", 9191750, Constants.Osm2022SourcePath);
 
-                var memberWays = response.RootRelations.SelectMany(
+                FixNeman(response);
+
+                var memberWays = response.RootRelations.Concat(new[] { lostChernitsa }).SelectMany(
                     relation =>
                     {
                         var members = NotNull(relation.Members).Where(i => i.Role == null || i.Role == "main_stream");
@@ -67,7 +70,7 @@ namespace Toponym.Tools
             });
         }
 
-        private static void FixBrokenNeman(CompleteGeoObjects response)
+        private static void FixNeman(CompleteGeoObjects response)
         {
             var neman = response.RootRelations.Single(i => i.TitleRu() == "Неман");
             var members = NotNull(neman.Members).ToList();
@@ -120,6 +123,9 @@ namespace Toponym.Tools
             if (titleRu == "Вилия (Нярис)")
                 titleRu = "Вилия";
 
+            if (titleRu == "Волма (сухое русло)")
+                titleRu = "Волма";
+
             if (titleRu == "Гвозна Хвозьна")
                 titleRu = "Гвозна";
 
@@ -156,6 +162,9 @@ namespace Toponym.Tools
             if (titleRu == "р. Хвощевка")
                 titleRu = "Хвощевка";
 
+            if (titleRu == "Сэрвач")
+                titleRu = "Сервеч";
+
             if (titleBe != null)
                 titleBe = Regex.Replace(titleBe, @"^р\. ", "");
 
@@ -164,6 +173,9 @@ namespace Toponym.Tools
 
             if (titleBe == "Тонкая Лучка (Турчанка)")
                 titleBe = "Тонкая Лучка";
+
+            if (geo.Id == 25064424) // Плиса
+                titleRu = "Плисса";
 
             geo.SetTitleRu(titleRu);
 
@@ -185,9 +197,10 @@ namespace Toponym.Tools
                 289495693,
                 216766439, // Ботча
                 25181970, // Зап. Буг
-                152994779, // Вилия
-                40220799,
-                25168235,
+                152994779, // Вилия (петля)
+                40220799, // Вилия (петля)
+                25168235, // Вилия (петля)
+                459024881, // Вилия (петля)
                 390572312,
                 230105489, // Вихра
                 409817674, // Волка
@@ -242,7 +255,7 @@ namespace Toponym.Tools
                 167046595,
                 25176483, // Сипа
                 292830365, // Скрипица
-                200855163, // Случь
+                200855163, // Случь (петля)
                 255791504, // Сож
                 258467157,
                 340857436, // Ствига
@@ -251,15 +264,23 @@ namespace Toponym.Tools
                 352282211, // Узлянка
                 184870148, // Улла
                 211918328, // Усса
-                184582375, // Уша
-                286938332,
+                184582375, // Уша (кусочек, удалено)
+                286938332, // Уша (петля)
                 89912954,
                 160034425, // Ушача
                 368451997, // Цна
                 407198034, // Щара
                 164074534,
                 259131488,
-                50281450 // Янка
+                50281450, // Янка
+                445863217, // Дисна (петля)
+                344073395, // Друть (кусочек, удалено)
+                25176894, // Зельвянка (кусочек, удалено)
+                25063100, // Маконь
+                156349247, // Оболь (мелкий приток)
+                437699714, // Овсянка (переделано в будущем)
+                435304253, // Полота (боковой отрезок)
+                119321368, // Случь (кусочек)
             };
 
         private static bool PostFilter(WayObject way)

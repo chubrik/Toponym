@@ -12,7 +12,7 @@ namespace Toponym.Tools
             return LogService.InfoSuccess("Build waters", () =>
             {
                 var response = GeoService.Load(
-                    "waters-old",
+                    "waters",
                     i => i.Tags.Contains("natural", "water") &&
                          !i.Tags.Contains("water", "lake") &&
                          !i.Tags.Contains("water", "pond") &&
@@ -22,7 +22,7 @@ namespace Toponym.Tools
                          !i.Tags.Contains("waterway", "riverbank") &&
                          !i.Tags.Contains("waterway", "stream") &&
                          GeoHelper.TitleRu(i) != null,
-                    Constants.OsmOldSourcePath);
+                    Constants.Osm2017SourcePath);
 
                 LogService.Info("Filter & fix");
 
@@ -94,7 +94,10 @@ namespace Toponym.Tools
             25198605, // Старик
             25194001, // Старое
             223413670, // Старое
-            108584578 // СтароеПМК
+            108584578, // СтароеПМК
+            37568335, // Пруд №7
+            287277439, // Байкал-2
+            272664592, // Спиртзаводское озеро
         };
 
         private static readonly long[] _rejectedRelationIds = new long[] {
@@ -119,23 +122,28 @@ namespace Toponym.Tools
                 normTitle.Contains("водоподвод") ||
                 normTitle.Contains("водохр.") || //todo
                 normTitle.Contains("водохранилищ") || //todo
+                normTitle == "гребной канал" ||
                 normTitle == "дамба" ||
                 normTitle.Contains("днепр") ||
                 normTitle.Contains("зап.двина") ||
+                normTitle == "затопление улицы" ||
                 normTitle == "канава" ||
                 normTitle == "канавы" ||
                 normTitle.Contains("карьер") ||
                 normTitle.Contains("колодец") ||
                 normTitle.Contains("кошанк") ||
+                normTitle == "мальчик на шаре" ||
                 normTitle.Contains("мелиора") || // мелиоративный
                 normTitle.Contains("набережн") ||
                 normTitle.Contains("неман") ||
+                normTitle == "нужно сьездить" ||
                 normTitle == "оборок" ||
                 normTitle == "овраг" ||
                 normTitle == "озеро" ||
                 normTitle.Contains("отст.") ||
                 normTitle.Contains("отстойник") ||
                 normTitle.Contains("пляж") ||
+                normTitle.StartsWith("пруд ") ||
                 normTitle.Contains("припять") ||
                 normTitle == "пруд" ||
                 normTitle == "птичь" ||
@@ -219,14 +227,17 @@ namespace Toponym.Tools
             if (titleRu == "Нов.Старик")
                 titleRu = "Новый Старик";
 
+            if (titleRu == "Святое. рыбалка с лодки или фидр")
+                titleRu = "Святое";
+
             if (titleRu == "Стар.Забок")
                 titleRu = "Старый Забок";
 
             if (titleRu == "ТОРФЯННИК")
                 titleRu = "Вышковка";
 
-            if (titleBe == "Убежа (Убежжа)")
-                titleBe = "Убежа";
+            if (titleBe == "аз. Малыя")
+                titleBe = "Малыя";
 
             if (titleBe == "Вільчынія")
                 titleBe = "Ільгінія";

@@ -6,31 +6,23 @@ namespace Toponym.Tools
 {
     public static class GeoService
     {
-        public static RelationObject LoadRelation(string cacheName, long relationId, string? sourcePath = null)
+        public static RelationObject LoadRelation(string cacheName, long relationId, string sourcePath)
         {
             var request = new GeoRequest { RelationIds = new[] { relationId } };
-            var response = OsmService.LoadCompleteObjects(sourcePath ?? Constants.OsmNewSourcePath, cacheName, request);
-            return response.RootRelations.Single();
+            var response = OsmService.LoadCompleteObjects(sourcePath, cacheName, request);
+            var relation = response.RootRelations.Single();
+            SetTitles(relation);
+            return relation;
         }
 
-        public static CompleteGeoObjects Load(string cacheName, Func<OsmGeo, bool> predicate, string? sourcePath = null)
+        public static CompleteGeoObjects Load(string cacheName, Func<OsmGeo, bool> predicate, string sourcePath)
         {
-            var response = OsmService.LoadCompleteObjects(
-                sourcePath ?? Constants.OsmNewSourcePath, cacheName, predicate);
+            var response = OsmService.LoadCompleteObjects(sourcePath, cacheName, predicate);
 
             return LogService.Log("Set titles", () =>
             {
                 foreach (var geo in response.AllObjects())
-                {
-                    var titleRu = GeoHelper.TitleRu(geo);
-                    var titleBe = GeoHelper.TitleBe(geo);
-
-                    if (titleRu != null)
-                        geo.SetTitleRu(titleRu);
-
-                    if (titleBe != null)
-                        geo.SetTitleBe(titleBe);
-                }
+                    SetTitles(geo);
 
                 foreach (var relation in response.RootRelations.Where(i => i.TitleBe() == null))
                 {
@@ -54,6 +46,18 @@ namespace Toponym.Tools
 
                 return response;
             });
+        }
+
+        private static void SetTitles(GeoObject geo)
+        {
+            var titleRu = GeoHelper.TitleRu(geo);
+            var titleBe = GeoHelper.TitleBe(geo);
+
+            if (titleRu != null)
+                geo.SetTitleRu(titleRu);
+
+            if (titleBe != null)
+                geo.SetTitleBe(titleBe);
         }
     }
 }

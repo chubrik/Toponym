@@ -5,8 +5,12 @@ namespace Toponym.Tools
     public static class Constants
     {
         private static readonly string _dataDir = PathHelper.Combine(Kit.Kit.BaseDirectory, "App_Data");
-        public static readonly string OsmOldSourcePath = PathHelper.Combine(_dataDir, "belarus-2016-06-11.osm.pbf");
-        public static readonly string OsmNewSourcePath = PathHelper.Combine(_dataDir, "belarus-2018-08-10.osm.pbf");
+
+        // Source - https://download.geofabrik.de/europe/belarus.html
+        public static readonly string Osm2022SourcePath = PathHelper.Combine(_dataDir, "belarus-220101.osm.pbf");
+        public static readonly string Osm2019SourcePath = PathHelper.Combine(_dataDir, "belarus-190101.osm.pbf");
+        public static readonly string Osm2017SourcePath = PathHelper.Combine(_dataDir, "belarus-170101.osm.pbf");
+
         public const string ProjectionDataPath = "projection.json";
         public const string BorderDataPath = "border.json";
         public const string BorderScreenDataPath = "border-screen.json";
@@ -14,7 +18,6 @@ namespace Toponym.Tools
         public const string PopulatedDataPath = "populated.json";
         public const string LocalitiesDataPath = "localities.json";
         public const string LakesDataPath = "lakes.json";
-        public const string PondsDataPath = "ponds.json";
         public const string WatersDataPath = "waters.json";
         public const string RiversDataPath = "rivers.json";
         public const string ResultDataPath = "data.json";

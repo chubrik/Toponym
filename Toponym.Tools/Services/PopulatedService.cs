@@ -17,7 +17,8 @@ namespace Toponym.Tools
                           i.Tags.ContainsKey("old_place") ||
                           i.Tags.ContainsKey("abandoned:place") ||
                           i.Tags.Contains("landuse", "residential")) &&
-                         GeoHelper.TitleRu(i) != null);
+                         GeoHelper.TitleRu(i) != null,
+                         Constants.Osm2019SourcePath);
 
                 LogService.Info("Filter & fix");
 
@@ -38,7 +39,7 @@ namespace Toponym.Tools
                         final.Add(node);
                 }
 
-                var data = final.Select(GetEntryData).ToList();
+                var data = final.Select(GetEntryData).ToSortedList();
                 FixMinskCenter(data);
                 FileClient.WriteObject(Constants.PopulatedDataPath, data);
                 return data;
@@ -70,6 +71,8 @@ namespace Toponym.Tools
                 titleRu.Contains("Военный") ||
                 titleRu.Contains("Годовщина") ||
                 titleRu.Contains("льнозавод") ||
+                titleRu.Contains("Поместье") ||
+                titleRu.Contains("Станция") ||
                 titleRu.Contains("Университетский") ||
                 titleRu.Contains("урочище") || //todo locality
                 titleRu == "163 км" ||
@@ -117,17 +120,11 @@ namespace Toponym.Tools
             if (titleRu == "Заборье (ферма)")
                 geo.SetTitleRu("Заборье");
 
+            if (titleRu == "Залесье (бывшее имение)")
+                geo.SetTitleRu("Залесье");
+
             if (titleRu == "Клины нежил.")
                 geo.SetTitleRu("Клины");
-
-            if (titleRu == "Шиловичи (спиртзавод)")
-            {
-                geo.SetTitleRu("Шиловичи");
-                geo.SetTitleBe("Шылавічы");
-            }
-
-            if (titleBe == "Аульс")
-                geo.SetTitleBe("Авульс");
 
             if (titleBe == "Бліунг")
                 geo.SetTitleBe("Бліўнг");
@@ -158,11 +155,6 @@ namespace Toponym.Tools
 
                 if (matchBe.Success)
                     geo.SetTitleBe(matchBe.Value);
-            }
-
-            if (!TextHelper.IsValidTitleRu(NotNull(geo.TitleRu())) ||
-                !TextHelper.IsValidTitleBe(geo.TitleBe()))
-            {
             }
 
             return geo;

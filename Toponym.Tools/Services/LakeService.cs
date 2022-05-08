@@ -11,9 +11,9 @@ namespace Toponym.Tools
             return LogService.InfoSuccess("Build lakes", () =>
             {
                 var response = GeoService.Load(
-                    "lakes-old",
+                    "lakes",
                     i => i.Tags.Contains("water", "lake") && GeoHelper.TitleRu(i) != null,
-                    Constants.OsmOldSourcePath);
+                    Constants.Osm2017SourcePath);
 
                 LogService.Info("Filter & fix");
 #if DEBUG
@@ -44,9 +44,11 @@ namespace Toponym.Tools
                 normTitle == "озеро на репина" ||
                 normTitle == "новоельнянское озеро" ||
                 normTitle.Contains("плянта-") ||
+                normTitle == "панский пруд" ||
                 normTitle == "погост" ||
                 normTitle == "старое возера" ||
-                normTitle == "судовицкая лужа")
+                normTitle == "судовицкая лужа" ||
+                normTitle == "частный водоем (платный отдых)")
                 return false;
 
             return true;
@@ -90,6 +92,18 @@ namespace Toponym.Tools
             if (titleRu == "Гаранскае возера")
                 titleRu = "Горанскае";
 
+            if (titleRu == "Красное очко")
+                titleRu = "Красное Очко";
+
+            if (titleRu == "Лесное озерцо")
+                titleRu = "Лесное";
+
+            if (titleRu == "Мышынае балота")
+            {
+                titleRu = "Мышиное Болото";
+                titleBe = "Мышынае Балота";
+            }
+
             if (titleRu == "Панское (Пробудилово)")
             {
                 titleRu = "Пробудилово";
@@ -107,6 +121,9 @@ namespace Toponym.Tools
 
             if (titleBe == "Сцернік (Бусоўня)")
                 titleBe = "Сцернік";
+
+            if (titleRu == "Черторы (Черторыго)")
+                titleRu = "Черторы";
 
             geo.SetTitleRu(titleRu);
 

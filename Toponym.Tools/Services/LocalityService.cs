@@ -14,12 +14,13 @@ namespace Toponym.Tools
                 var response = GeoService.Load(
                     "localities",
                     i => i.Tags.Contains("place", "locality") &&
-                    GeoHelper.TitleRu(i) != null);
+                    GeoHelper.TitleRu(i) != null,
+                    Constants.Osm2019SourcePath);
 
                 LogService.Info("Filter & fix");
 
                 var filtered = response.RootObjects().Where(Filter).Select(Fix).ToList();
-                var data = filtered.Select(GetEntryData).OrderBy(i => i.TitleRu).ToList();
+                var data = filtered.Select(GetEntryData).ToSortedList();
                 FileClient.WriteObject(Constants.LocalitiesDataPath, data);
                 return data;
             });
@@ -40,10 +41,11 @@ namespace Toponym.Tools
                 normRu.Contains("лесничество") ||
                 normRu.Contains("сооружения") ||
                 normRu.Contains("санаторий") ||
+                normRu.Contains("торф.") ||
+                normRu == "кирпичный завод" ||
                 normRu == "рыбалка" ||
                 normRu == "рэдки алёс" ||
                 normRu == "ст дорожник" ||
-                normRu.Contains("торф.") ||
                 normRu == "тросцянец" ||
                 normRu == "фелиццяново")
                 return false;
@@ -70,8 +72,8 @@ namespace Toponym.Tools
             if (titleRu == "Клины нежил.")
                 titleRu = "Клины";
 
-            if (titleRu == "Пухичин (нежил.)")
-                titleRu = "Пухичин";
+            if (titleRu == "Красная Горка (операция Багратион)")
+                titleRu = "Красная Горка";
 
             var match2 = Regex.Match(titleRu, @"^(\w+) ([а-яё])(\w+)$");
 
@@ -102,8 +104,17 @@ namespace Toponym.Tools
                 if (titleBe == "Бярэ́зіна")
                     titleBe = "Бярэзіна";
 
+                if (titleBe == "Высокая горка")
+                    titleBe = "Высокая Горка";
+
+                if (titleBe == "Высокі бераг")
+                    titleBe = "Высокі Бераг";
+
                 if (titleBe == "руч. Муравец")
                     titleBe = "Муравец";
+
+                if (titleBe == "Хваёвы сад")
+                    titleBe = "Хваёвы Сад";
 
                 geo.SetTitleBe(titleBe);
             }

@@ -64,11 +64,6 @@ namespace Toponym.Tools
                     RiverService.Build();
                     break;
 
-                case "ponds":
-                    ProjectionService.Build();
-                    PondService.Build();
-                    break;
-
                 default:
                     LogService.Error($"Unknown command \"{arg}\"");
                     break;

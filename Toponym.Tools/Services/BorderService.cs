@@ -44,7 +44,7 @@ namespace Toponym.Tools
 
         private static IEnumerable<NodeObject> LoadNodes()
         {
-            var relation = GeoService.LoadRelation("border", Constants.OsmBorderRelationId);
+            var relation = GeoService.LoadRelation("border", Constants.OsmBorderRelationId, Constants.Osm2022SourcePath);
             var ways = NotNull(relation.Members).Where(i => i.Geo.Type == OsmGeoType.Way && i.Role == "outer").Select(i => (WayObject)i.Geo);
 
             return LogService.Log("Sort nodes", () =>
