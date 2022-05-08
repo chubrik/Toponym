@@ -41,7 +41,7 @@ namespace Toponym.Tools
 
                 var data = final.Select(GetEntryData).ToSortedList();
                 FixMinskCenter(data);
-                FileClient.WriteObject(Constants.PopulatedDataPath, data);
+                FileHelper.WriteData(Constants.PopulatedDataPath, data);
                 return data;
             });
         }

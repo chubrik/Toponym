@@ -35,7 +35,7 @@ namespace Toponym.Tools
                 var wayData = filteredWays.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
                 var relData = filteredRelations.Select(i => i.ToEntryDataAsPoint(EntryType.Lake));
                 var data = wayData.Concat(relData).ToSortedList();
-                FileClient.WriteObject(Constants.WatersDataPath, data);
+                FileHelper.WriteData(Constants.WatersDataPath, data);
                 return data;
             });
         }

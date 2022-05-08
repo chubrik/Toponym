@@ -82,7 +82,7 @@ namespace Toponym.Tools
                 { "ј", "y" }, // cyrillic "j"
                 { "љ", "l" },
                 { "ћ", "h" },
-                { "џ", "ts"},
+                { "џ", "ts" },
                 { "ќ", "k" },
                 { "њ", "n" },
                 { "ђ", "h" },
@@ -93,7 +93,7 @@ namespace Toponym.Tools
             };
 
         private static readonly string _cyrillicToLatinPattern =
-            _translitMap.Keys.Select(i => i.ToUpper()).Concat(_translitMap.Keys).Join();
+            string.Join(string.Empty, _translitMap.Keys.Select(i => i.ToUpper()).Concat(_translitMap.Keys));
 
         #endregion
 
@@ -101,9 +101,9 @@ namespace Toponym.Tools
 
         public static string CyrillicToLatin(string text)
         {
-            Debug.Assert(!text.IsNullOrWhiteSpace());
+            Debug.Assert(!string.IsNullOrWhiteSpace(text));
 
-            if (text.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(text))
                 throw new ArgumentNullException(nameof(text));
 
             var sb = new StringBuilder(text);

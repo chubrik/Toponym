@@ -1,28 +1,27 @@
-﻿using Newtonsoft.Json;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace Toponym
 {
     [DebuggerDisplay("{" + nameof(TitleRu) + ",nq} / {" + nameof(TitleBe) + " ?? \"–\",nq}")]
-    [JsonObject]
     public class EntryData
     {
-        [JsonProperty("ru")]
+        [JsonPropertyName("ru")]
         public string TitleRu { get; }
 
-        [JsonProperty("be", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("be")]
         public string? TitleBe { get; }
 
-        [JsonProperty("en")]
+        [JsonPropertyName("en")]
         public string TitleEn { get; }
 
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public EntryType Type { get; }
 
-        [JsonProperty("geo")]
+        [JsonPropertyName("geo")]
         public float[] Location { get; private set; }
 
-        [JsonProperty("screen")]
+        [JsonPropertyName("screen")]
         public IReadOnlyList<float[]> ScreenPoints { get; private set; }
 
         public EntryData(

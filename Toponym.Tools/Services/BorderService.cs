@@ -13,9 +13,9 @@ namespace Toponym.Tools
             LogService.BeginInfo(logMessage);
             List<Location> locations;
 
-            if (FileClient.Exists(Constants.BorderDataPath))
+            if (File.Exists(Constants.BorderDataPath))
             {
-                var readData = FileClient.ReadObject<List<double[]>>(Constants.BorderDataPath);
+                var readData = FileHelper.ReadData<IReadOnlyList<double[]>>(Constants.BorderDataPath);
                 locations = readData.Select(i => new Location(i[0], i[1])).ToList();
                 LogService.EndInfo(logMessage);
                 return locations;
@@ -37,7 +37,7 @@ namespace Toponym.Tools
             }
 
             var saveData = locations.Select(i => new[] { i.Latitude, i.Longitude }).ToList();
-            FileClient.WriteObject(Constants.BorderDataPath, saveData);
+            FileHelper.WriteData(Constants.BorderDataPath, saveData);
             LogService.EndSuccess(logMessage);
             return locations;
         }
@@ -100,7 +100,7 @@ namespace Toponym.Tools
                 }
 
                 var data = screenPoints.Select(i => new[] { i.X, i.Y }).ToList();
-                FileClient.WriteObject(Constants.BorderScreenDataPath, data);
+                FileHelper.WriteData(Constants.BorderScreenDataPath, data);
 
                 const int width = 1000;
                 var height = Math.Round(width * ProjectionService.Data.Ratio);
@@ -108,9 +108,9 @@ namespace Toponym.Tools
                 html += $"<div style=\"width: {width}px; height: {height}px; overflow-y: hidden; margin: 0 auto; padding: 6px 10px 10px 224px\">\n";
                 html += $"    <svg width=\"{width}\" height=\"{width}\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"none\" style=\"overflow: visible\">\n";
                 html += "        <polygon stroke=\"black\" vector-effect=\"non-scaling-stroke\" stroke-width=\"0.35\" sstroke-linejoin=\"round\" fill=\"#fcfcfc\" points=\"";
-                html += screenPoints.Select(i => $"{i.X.ToString(CultureInfo.InvariantCulture)},{i.Y.ToString(CultureInfo.InvariantCulture)}").Join(" ");
+                html += string.Join(' ', screenPoints.Select(i => $"{i.X.ToString(CultureInfo.InvariantCulture)},{i.Y.ToString(CultureInfo.InvariantCulture)}"));
                 html += "\" />\n    </svg>\n</div>\n";
-                FileClient.WriteText(Constants.BorderScreenHtmlPath, html);
+                File.WriteAllText(Constants.BorderScreenHtmlPath, html);
             });
         }
     }

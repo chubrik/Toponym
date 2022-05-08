@@ -7,14 +7,14 @@ namespace Toponym.Tools
     {
         public static void Main(string[] args)
         {
-            OsmService.CacheDirectory = PathHelper.Combine(Kit.Kit.BaseDirectory, Kit.Kit.WorkingDirectory, "$osm-cache");
-            var arg = args.Length > 0 ? args[0] : "master";
+            OsmService.CacheDirectory = Constants.OsmCacheDir;
+            var arg = args.Length > 0 ? args[0] : "all";
 
             switch (arg)
             {
-                case "master":
+                case "all":
 
-                    LogService.InfoSuccess("Build master", () =>
+                    LogService.InfoSuccess("Build all", () =>
                     {
                         ProjectionService.Build();
                         var populated = PopulatedService.Build();
@@ -24,12 +24,12 @@ namespace Toponym.Tools
                         var rivers = RiverService.Build();
                         var data = populated.Concat(localities).Concat(lakes).Concat(waters).Concat(rivers).ToSortedList();
                         EntryHelper.Validate(data);
-                        FileClient.WriteObject(Constants.ResultDataPath, data);
+                        FileHelper.WriteData(Constants.ResultDataPath, data);
 
                         LogService.Info("Prettify data", () =>
                         {
-                            var wrappedJson = FileClient.ReadText(Constants.ResultDataPath).Replace("},{", "},\r\n{");
-                            FileClient.WriteText(Constants.ResultDataPath, wrappedJson);
+                            var wrappedJson = File.ReadAllText(Constants.ResultDataPath).Replace("},{", "},\r\n{");
+                            File.WriteAllText(Constants.ResultDataPath, wrappedJson);
                         });
                     });
 

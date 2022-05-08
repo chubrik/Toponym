@@ -21,7 +21,7 @@ namespace Toponym.Tools
 
                 var filtered = response.RootObjects().Where(Filter).Select(Fix).ToList();
                 var data = filtered.Select(GetEntryData).ToSortedList();
-                FileClient.WriteObject(Constants.LocalitiesDataPath, data);
+                FileHelper.WriteData(Constants.LocalitiesDataPath, data);
                 return data;
             });
         }

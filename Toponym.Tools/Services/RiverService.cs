@@ -65,7 +65,7 @@ namespace Toponym.Tools
                 var rivers = GetMergedWays(preFiltered);
                 var postFiltered = rivers.Where(PostFilter).Select(PostFix);
                 var data = postFiltered.Select(i => i.ToEntryData(EntryType.River)).ToSortedList();
-                FileClient.WriteObject(Constants.RiversDataPath, data);
+                FileHelper.WriteData(Constants.RiversDataPath, data);
                 return data;
             });
         }
