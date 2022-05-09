@@ -1,5 +1,5 @@
-﻿using Kit;
-using OsmDataKit;
+﻿using OsmDataKit;
+using OsmDataKit.Logging;
 using OsmSharp;
 using System.Text.RegularExpressions;
 
@@ -9,7 +9,7 @@ namespace Toponym.Tools
     {
         public static List<EntryData> Build()
         {
-            return LogService.InfoSuccess("Build populated", () =>
+            return Logger.Success("Build populated", () =>
             {
                 var response = GeoService.Load(
                     "populated",
@@ -20,7 +20,7 @@ namespace Toponym.Tools
                          GeoHelper.TitleRu(i) != null,
                          Constants.Osm2019SourcePath);
 
-                LogService.Info("Filter & fix");
+                Logger.Info("Filter & fix");
 
                 var filteredByType = response.RootObjects().Where(FilterByType).OrderBy(i => i.TitleRu()).ToList();
                 var badNames = filteredByType.Where(i => !FilterByName(i)).ToList();

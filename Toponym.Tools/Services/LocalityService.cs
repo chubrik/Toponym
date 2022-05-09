@@ -1,5 +1,5 @@
-﻿using Kit;
-using OsmDataKit;
+﻿using OsmDataKit;
+using OsmDataKit.Logging;
 using OsmSharp;
 using System.Text.RegularExpressions;
 
@@ -9,7 +9,7 @@ namespace Toponym.Tools
     {
         public static List<EntryData> Build()
         {
-            return LogService.InfoSuccess("Build localities", () =>
+            return Logger.Success("Build localities", () =>
             {
                 var response = GeoService.Load(
                     "localities",
@@ -17,7 +17,7 @@ namespace Toponym.Tools
                     GeoHelper.TitleRu(i) != null,
                     Constants.Osm2019SourcePath);
 
-                LogService.Info("Filter & fix");
+                Logger.Info("Filter & fix");
 
                 var filtered = response.RootObjects().Where(Filter).Select(Fix).ToList();
                 var data = filtered.Select(GetEntryData).ToSortedList();

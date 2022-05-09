@@ -1,5 +1,5 @@
-﻿using Kit;
-using OsmDataKit;
+﻿using OsmDataKit;
+using OsmDataKit.Logging;
 using System.Text.RegularExpressions;
 
 namespace Toponym.Tools
@@ -8,14 +8,14 @@ namespace Toponym.Tools
     {
         public static List<EntryData> Build()
         {
-            return LogService.InfoSuccess("Build lakes", () =>
+            return Logger.Success("Build lakes", () =>
             {
                 var response = GeoService.Load(
                     "lakes",
                     i => i.Tags.Contains("water", "lake") && GeoHelper.TitleRu(i) != null,
                     Constants.Osm2017SourcePath);
 
-                LogService.Info("Filter & fix");
+                Logger.Info("Filter & fix");
 #if DEBUG
                 var rejectedWays = response.RootWays.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
                 var rejectedRelations = response.RootRelations.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();

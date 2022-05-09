@@ -1,5 +1,5 @@
-﻿using Kit;
-using OsmDataKit;
+﻿using OsmDataKit;
+using OsmDataKit.Logging;
 using OsmSharp;
 using System.Text.RegularExpressions;
 
@@ -9,7 +9,7 @@ namespace Toponym.Tools
     {
         public static List<EntryData> Build()
         {
-            return LogService.InfoSuccess("Build waters", () =>
+            return Logger.Success("Build waters", () =>
             {
                 var response = GeoService.Load(
                     "waters",
@@ -24,7 +24,7 @@ namespace Toponym.Tools
                          GeoHelper.TitleRu(i) != null,
                     Constants.Osm2017SourcePath);
 
-                LogService.Info("Filter & fix");
+                Logger.Info("Filter & fix");
 
                 var rejectedWays = response.RootWays.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
                 var rejectedRelations = response.RootRelations.Where(i => !Filter(i)).OrderBy(i => i.TitleRu()).ToList();
@@ -267,7 +267,7 @@ namespace Toponym.Tools
                         $"www.openstreetmap.org/way/{ways[i].Id}\" " +
                         $"target=\"_blank\">{ways[i].TitleRu()}</a><br>\n";
 
-            FileClient.WriteText("waters-rejected-links.html", html);
+            File.WriteAllText(Constants.WatersRejectedHtmlPath, html);
         }
     }
 }

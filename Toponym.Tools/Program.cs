@@ -1,5 +1,5 @@
-using Kit;
 using OsmDataKit;
+using OsmDataKit.Logging;
 
 namespace Toponym.Tools
 {
@@ -14,7 +14,7 @@ namespace Toponym.Tools
             {
                 case "all":
 
-                    LogService.InfoSuccess("Build all", () =>
+                    Logger.Success("Build all", () =>
                     {
                         ProjectionService.Build();
                         var populated = PopulatedService.Build();
@@ -26,7 +26,7 @@ namespace Toponym.Tools
                         EntryHelper.Validate(data);
                         FileHelper.WriteData(Constants.ResultDataPath, data);
 
-                        LogService.Info("Prettify data", () =>
+                        Logger.Info("Prettify data", () =>
                         {
                             var wrappedJson = File.ReadAllText(Constants.ResultDataPath).Replace("},{", "},\r\n{");
                             File.WriteAllText(Constants.ResultDataPath, wrappedJson);
@@ -65,8 +65,7 @@ namespace Toponym.Tools
                     break;
 
                 default:
-                    LogService.Error($"Unknown command \"{arg}\"");
-                    break;
+                    throw new ArgumentOutOfRangeException(nameof(args));
             }
         }
     }

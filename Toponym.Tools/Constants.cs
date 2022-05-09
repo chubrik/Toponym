@@ -20,6 +20,7 @@
         public static readonly string LocalitiesDataPath = Path.Combine(_workDir, "localities.json");
         public static readonly string LakesDataPath = Path.Combine(_workDir, "lakes.json");
         public static readonly string WatersDataPath = Path.Combine(_workDir, "waters.json");
+        public static readonly string WatersRejectedHtmlPath = Path.Combine(_workDir, "waters-rejected.html");
         public static readonly string RiversDataPath = Path.Combine(_workDir, "rivers.json");
         public static readonly string ResultDataPath = Path.Combine(_workDir, "data.json");
 

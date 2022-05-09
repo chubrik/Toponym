@@ -1,5 +1,5 @@
-﻿using Kit;
-using OsmDataKit;
+﻿using OsmDataKit;
+using OsmDataKit.Logging;
 using OsmSharp;
 using System.Globalization;
 
@@ -9,37 +9,36 @@ namespace Toponym.Tools
     {
         public static IReadOnlyList<Location> Build()
         {
-            var logMessage = "Load border";
-            LogService.BeginInfo(logMessage);
-            List<Location> locations;
-
-            if (File.Exists(Constants.BorderDataPath))
+            return Logger.Success("Load border", () =>
             {
-                var readData = FileHelper.ReadData<IReadOnlyList<double[]>>(Constants.BorderDataPath);
-                locations = readData.Select(i => new Location(i[0], i[1])).ToList();
-                LogService.EndInfo(logMessage);
+                List<Location> locations;
+
+                if (File.Exists(Constants.BorderDataPath))
+                {
+                    var readData = FileHelper.ReadData<IReadOnlyList<double[]>>(Constants.BorderDataPath);
+                    locations = readData.Select(i => new Location(i[0], i[1])).ToList();
+                    return locations;
+                }
+
+                locations = new List<Location>();
+                var nodes = LoadNodes();
+                var prevLatitude = 0d;
+                var prevLongitude = 0d;
+
+                foreach (var node in nodes)
+                {
+                    if (node.Latitude.Equals(prevLatitude) && node.Longitude.Equals(prevLongitude))
+                        continue;
+
+                    locations.Add(node.Location);
+                    prevLatitude = node.Latitude;
+                    prevLongitude = node.Longitude;
+                }
+
+                var saveData = locations.Select(i => new[] { i.Latitude, i.Longitude }).ToList();
+                FileHelper.WriteData(Constants.BorderDataPath, saveData);
                 return locations;
-            }
-
-            locations = new List<Location>();
-            var nodes = LoadNodes();
-            var prevLatitude = 0d;
-            var prevLongitude = 0d;
-
-            foreach (var node in nodes)
-            {
-                if (node.Latitude.Equals(prevLatitude) && node.Longitude.Equals(prevLongitude))
-                    continue;
-
-                locations.Add(node.Location);
-                prevLatitude = node.Latitude;
-                prevLongitude = node.Longitude;
-            }
-
-            var saveData = locations.Select(i => new[] { i.Latitude, i.Longitude }).ToList();
-            FileHelper.WriteData(Constants.BorderDataPath, saveData);
-            LogService.EndSuccess(logMessage);
-            return locations;
+            });
         }
 
         private static IEnumerable<NodeObject> LoadNodes()
@@ -47,7 +46,7 @@ namespace Toponym.Tools
             var relation = GeoService.LoadRelation("border", Constants.OsmBorderRelationId, Constants.Osm2022SourcePath);
             var ways = NotNull(relation.Members).Where(i => i.Geo.Type == OsmGeoType.Way && i.Role == "outer").Select(i => (WayObject)i.Geo);
 
-            return LogService.Log("Sort nodes", () =>
+            return Logger.Info("Sort nodes", () =>
             {
                 var sortedNodes = new List<NodeObject>();
                 var waysLeft = ways.ToList();
@@ -81,7 +80,7 @@ namespace Toponym.Tools
 
         public static void BuildScreen(IEnumerable<Location> locations)
         {
-            LogService.InfoSuccess("Build border screen points", () =>
+            Logger.Success("Build border screen points", () =>
             {
                 var screenPoints = new List<ScreenPoint>();
                 var prevX = 0f;

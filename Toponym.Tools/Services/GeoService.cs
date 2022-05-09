@@ -1,5 +1,5 @@
-﻿using Kit;
-using OsmDataKit;
+﻿using OsmDataKit;
+using OsmDataKit.Logging;
 using OsmSharp;
 
 namespace Toponym.Tools
@@ -19,7 +19,7 @@ namespace Toponym.Tools
         {
             var response = OsmService.LoadCompleteObjects(sourcePath, cacheName, predicate);
 
-            return LogService.Log("Set titles", () =>
+            return Logger.Info("Set titles", () =>
             {
                 foreach (var geo in response.AllObjects())
                     SetTitles(geo);

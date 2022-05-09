@@ -1,4 +1,4 @@
-﻿using Kit;
+﻿using OsmDataKit.Logging;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -126,7 +126,7 @@ namespace Toponym.Tools
                 });
 
             if (!Regex.IsMatch(result.ToLower(), @"^[a-z ’-]+$"))
-                LogService.Warning($"Non-translited cyrillic title: {result}");
+                Logger.Warning($"Non-translited cyrillic title: {result}");
 
             return result;
         }
