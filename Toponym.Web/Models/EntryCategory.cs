@@ -1,10 +1,9 @@
-﻿namespace Toponym.Web
+﻿namespace Toponym.Web;
+
+public enum EntryCategory
 {
-    public enum EntryCategory
-    {
-        Unknown = 0,
-        Populated = 1,
-        Water = 2,
-        Locality = 4
-    }
+    Unknown = 0,
+    Populated = 1,
+    Water = 2,
+    Locality = 4
 }

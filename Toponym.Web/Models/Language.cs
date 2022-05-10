@@ -1,9 +1,8 @@
-﻿namespace Toponym.Web
+﻿namespace Toponym.Web;
+
+public enum Language
 {
-    public enum Language
-    {
-        Russian = 1,
-        Belarusian = 2,
-        English = 3
-    }
+    Russian = 1,
+    Belarusian = 2,
+    English = 3
 }

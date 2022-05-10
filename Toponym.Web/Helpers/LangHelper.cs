@@ -1,66 +1,65 @@
-﻿using System.Text.RegularExpressions;
+﻿namespace Toponym.Web;
 
-namespace Toponym.Web
+using System.Text.RegularExpressions;
+
+public static class LangHelper
 {
-    public static class LangHelper
+    public static Language GetByQueryParam(string queryParam)
     {
-        public static Language GetByQueryParam(string queryParam)
+        switch (queryParam)
         {
-            switch (queryParam)
-            {
-                case "ru":
-                    return Language.Russian;
+            case "ru":
+                return Language.Russian;
 
-                case "be":
-                    return Language.Belarusian;
+            case "be":
+                return Language.Belarusian;
 
-                case "en":
-                    return Language.English;
+            case "en":
+                return Language.English;
 
-                default:
-                    throw new InvalidOperationException();
-            }
+            default:
+                throw new InvalidOperationException();
         }
+    }
 
-        public static string Text(Language language, string russian, string belarusian, string english)
+    public static string Text(Language language, string russian, string belarusian, string english)
+    {
+        switch (language)
         {
-            switch (language)
-            {
-                case Language.Russian:
-                    return russian;
+            case Language.Russian:
+                return russian;
 
-                case Language.Belarusian:
-                    return belarusian;
+            case Language.Belarusian:
+                return belarusian;
 
-                case Language.English:
-                    return english;
+            case Language.English:
+                return english;
 
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(language));
-            }
+            default:
+                throw new ArgumentOutOfRangeException(nameof(language));
         }
+    }
 
-        public static string RusCase(int number, string[] cases, bool includeNumber = true)
-        {
-            if (cases == null)
-                throw new ArgumentNullException(nameof(cases));
+    public static string RusCase(int number, string[] cases, bool includeNumber = true)
+    {
+        if (cases == null)
+            throw new ArgumentNullException(nameof(cases));
 
-            if (cases.Length < 2 || cases.Length > 3 || cases.Any(string.IsNullOrWhiteSpace))
-                throw new ArgumentException(nameof(cases));
+        if (cases.Length < 2 || cases.Length > 3 || cases.Any(string.IsNullOrWhiteSpace))
+            throw new ArgumentException(nameof(cases));
 
-            var num = number.ToString();
-            var result = includeNumber ? num + " " : "";
+        var num = number.ToString();
+        var result = includeNumber ? num + " " : "";
 
-            if (num.Length > 1 && num[num.Length - 2] == '1')
-                return result + (cases[2] ?? cases[1]);
-
-            if (num[^1] == '1')
-                return result + cases[0];
-
-            if (Regex.IsMatch(num[^1].ToString(), "[234]"))
-                return result + cases[1];
-
+        if (num.Length > 1 && num[num.Length - 2] == '1')
             return result + (cases[2] ?? cases[1]);
-        }
+
+        if (num[^1] == '1')
+            return result + cases[0];
+
+        if (Regex.IsMatch(num[^1].ToString(), "[234]"))
+            return result + cases[1];
+
+        return result + (cases[2] ?? cases[1]);
     }
 }

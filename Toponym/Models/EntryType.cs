@@ -1,28 +1,27 @@
-﻿namespace Toponym
+﻿namespace Toponym;
+
+public enum EntryType
 {
-    public enum EntryType
-    {
-        Unknown = 0,
+    Unknown = 0,
 
-        // Populated
+    // Populated
 
-        Populated = 10,
-        City,
-        Dwelling,
-        Hamlet,
-        Town,
-        Village,
+    Populated = 10,
+    City,
+    Dwelling,
+    Hamlet,
+    Town,
+    Village,
 
-        // Water
+    // Water
 
-        Water = 20,
-        Lake,
-        Pond,
-        River,
-        Stream,
+    Water = 20,
+    Lake,
+    Pond,
+    River,
+    Stream,
 
-        // Locality
+    // Locality
 
-        Locality = 30
-    }
+    Locality = 30
 }

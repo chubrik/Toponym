@@ -1,17 +1,10 @@
-﻿namespace Toponym;
+﻿namespace Toponym.Web.Pages;
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-internal static class ValidationHelper
+public static class PagesValidationHelper
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Check(bool condition, string? message = null)
-    {
-        Debug.Assert(condition);
-        if (!condition) throw new InvalidOperationException(message);
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T NotNull<T>(T? value) where T : class
     {

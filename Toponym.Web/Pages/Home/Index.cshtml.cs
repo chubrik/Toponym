@@ -1,69 +1,68 @@
+namespace Toponym.Web.Pages;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Toponym.Web.Pages
+public sealed class IndexModel : PageModel
 {
-    public sealed class IndexModel : PageModel
+    private readonly DataService _dataService;
+
+    public IndexModel(DataService dataService)
     {
-        private readonly DataService _dataService;
+        _dataService = dataService;
+    }
 
-        public IndexModel(DataService dataService)
+    public string? FirstQuery { get; set; }
+    public EntryCategory? FirstCategory { get; set; }
+    public int? MatchCount { get; set; }
+    public Language? Language { get; set; }
+
+    public IActionResult OnGet([FromQuery] string q1, [FromQuery] EntryCategory? t1, string lang = "ru")
+    {
+        if (!CheckHost(Request, out var redirectUrl))
+            return RedirectPermanent(redirectUrl);
+
+        var firstCategory =
+            t1 > 0 && t1 <= Constants.AllEntryCategories
+                ? (EntryCategory)t1
+                : Constants.AllEntryCategories;
+
+        var language = LangHelper.GetByQueryParam(lang);
+        FirstQuery = q1;
+        FirstCategory = firstCategory;
+        MatchCount = 0;
+        Language = language;
+
+        if (!string.IsNullOrWhiteSpace(q1))
         {
-            _dataService = dataService;
+            var regex = RegexHelper.GetRegex(q1, language);
+
+            if (regex != null)
+                MatchCount = _dataService.GetEntries(regex, firstCategory, language).Count;
         }
 
-        public string? FirstQuery { get; set; }
-        public EntryCategory? FirstCategory { get; set; }
-        public int? MatchCount { get; set; }
-        public Language? Language { get; set; }
+        return Page();
+    }
 
-        public IActionResult OnGet([FromQuery] string q1, [FromQuery] EntryCategory? t1, string lang = "ru")
+    private static bool CheckHost(HttpRequest request, out string redirectUrl)
+    {
+        var host = request.Host.Host;
+
+        if (host == Constants.DefaultHost || host == "localhost")
         {
-            if (!CheckHost(Request, out var redirectUrl))
-                return RedirectPermanent(redirectUrl);
-
-            var firstCategory =
-                t1 > 0 && t1 <= Constants.AllEntryCategories
-                    ? (EntryCategory)t1
-                    : Constants.AllEntryCategories;
-
-            var language = LangHelper.GetByQueryParam(lang);
-            FirstQuery = q1;
-            FirstCategory = firstCategory;
-            MatchCount = 0;
-            Language = language;
-
-            if (!string.IsNullOrWhiteSpace(q1))
-            {
-                var regex = RegexHelper.GetRegex(q1, language);
-
-                if (regex != null)
-                    MatchCount = _dataService.GetEntries(regex, firstCategory, language).Count;
-            }
-
-            return Page();
+            redirectUrl = string.Empty;
+            return true;
         }
 
-        private static bool CheckHost(HttpRequest request, out string redirectUrl)
+        var builder = new UriBuilder
         {
-            var host = request.Host.Host;
+            Scheme = Uri.UriSchemeHttps,
+            Host = Constants.DefaultHost,
+            Path = request.Path,
+            Query = request.QueryString.Value
+        };
 
-            if (host == Constants.DefaultHost || host == "localhost")
-            {
-                redirectUrl = string.Empty;
-                return true;
-            }
-
-            var builder = new UriBuilder
-            {
-                Scheme = Uri.UriSchemeHttps,
-                Host = Constants.DefaultHost,
-                Path = request.Path,
-                Query = request.QueryString.Value
-            };
-
-            redirectUrl = builder.Uri.ToString();
-            return false;
-        }
+        redirectUrl = builder.Uri.ToString();
+        return false;
     }
 }

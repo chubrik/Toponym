@@ -1,9 +1,8 @@
-namespace Toponym.Web
+namespace Toponym.Web;
+
+public enum ResponseStatus
 {
-    public enum ResponseStatus
-    {
-        Success = 1,
-        SyntaxError = 2,
-        Failure = 3
-    }
+    Success = 1,
+    SyntaxError = 2,
+    Failure = 3
 }
