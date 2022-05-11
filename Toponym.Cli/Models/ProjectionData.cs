@@ -1,4 +1,4 @@
-﻿namespace Toponym.Tools;
+﻿namespace Toponym.Cli;
 
 public class ProjectionData
 {

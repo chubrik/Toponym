@@ -67,10 +67,10 @@ gulp.task('watch', gulp.parallel(
 ));
 
 gulp.task('clean', (done) => {
-    fs.removeSync(path.join(repoRoot, './Toponym.Core/bin'));
-    fs.removeSync(path.join(repoRoot, './Toponym.Core/obj'));
-    fs.removeSync(path.join(repoRoot, './Toponym.Tools/bin'));
-    fs.removeSync(path.join(repoRoot, './Toponym.Tools/obj'));
+    fs.removeSync(path.join(repoRoot, './Toponym/bin'));
+    fs.removeSync(path.join(repoRoot, './Toponym/obj'));
+    fs.removeSync(path.join(repoRoot, './Toponym.Cli/bin'));
+    fs.removeSync(path.join(repoRoot, './Toponym.Cli/obj'));
     fs.removeSync(path.join(webRoot, './bin'));
     fs.removeSync(path.join(webRoot, './obj'));
     fs.removeSync(path.join(webRoot, './$temp'));

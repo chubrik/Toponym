@@ -1,4 +1,4 @@
-﻿namespace Toponym.Tools;
+﻿namespace Toponym.Cli;
 
 using OsmDataKit;
 using OsmSharp;

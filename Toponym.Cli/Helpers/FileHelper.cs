@@ -1,4 +1,4 @@
-﻿namespace Toponym.Tools;
+﻿namespace Toponym.Cli;
 
 using System.Text.Encodings.Web;
 using System.Text.Json;

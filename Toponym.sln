@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Toponym", "Toponym\Toponym.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Toponym.Web", "Toponym.Web\Toponym.Web.csproj", "{B95C4545-AF4C-4CA1-B10B-BAD3059D9533}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Toponym.Tools", "Toponym.Tools\Toponym.Tools.csproj", "{A6C5712B-BC5C-4214-8076-ADB404E8D26D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Toponym.Cli", "Toponym.Cli\Toponym.Cli.csproj", "{A6C5712B-BC5C-4214-8076-ADB404E8D26D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{27CE87CB-87E5-418C-8112-748C3B08D8CA}"
 	ProjectSection(SolutionItems) = preProject

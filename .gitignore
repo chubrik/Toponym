@@ -7,4 +7,4 @@ $*/
 *.user
 node_modules/
 npm-debug.log
-Toponym.Tools/App_Data/
+Toponym.Cli/App_Data/

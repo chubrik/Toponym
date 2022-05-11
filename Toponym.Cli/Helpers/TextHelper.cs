@@ -1,4 +1,4 @@
-﻿namespace Toponym.Tools;
+﻿namespace Toponym.Cli;
 
 using OsmDataKit.Logging;
 using System.Diagnostics;
