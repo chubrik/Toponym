@@ -9,7 +9,8 @@
     var text = new Func<Language, string, string, string, string>(LangHelper.Text);
 
     var hostUpper = defaultHost[0].ToString().ToUpper() + defaultHost.Substring(1);
-    var canonicalUrl = "https://" + defaultHost + Context.Request.Path + Context.Request.QueryString;
+    var canonicalUrl = "https://" + defaultHost + "/";
+    var currentUrl = "https://" + defaultHost + Context.Request.Path + Context.Request.QueryString;
     var logoUrl = "https://" + defaultHost + Url.Content("~/assets/img/logo-big.png");
 
     var titleBase = text(lang, "Карта топонимов Беларуси", "Карта тапонімаў Беларусі", "Toponyms map of Belarus");
@@ -50,7 +51,7 @@
     <title>@htmlTitle</title>
     <meta name="description" content="@description">
     <link rel="canonical" href="@Html.Raw(canonicalUrl)">
-    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <base href="@text(lang, "/", "/be/", "/en/")">
     @*<meta name="viewport" content="width=device-width, initial-scale=1.0">*@
     @if (!Context.Request.IsTwitterBot()) {
@@ -58,7 +59,7 @@
         <meta property="og:title" content="@ogTitle">
         <meta property="og:description" content="@description">
         <meta property="og:image" content="@logoUrl">
-        <meta property="og:url" content="@Html.Raw(canonicalUrl)">
+        <meta property="og:url" content="@Html.Raw(currentUrl)">
         <meta property="og:locale" content="@text(lang, "ru_RU", "be_BY", "en_US")">
         <meta property="og:site_name" content="@hostUpper">
     }

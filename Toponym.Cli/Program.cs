@@ -1,71 +1,64 @@
-namespace Toponym.Cli;
-
 using OsmDataKit;
 using OsmDataKit.Logging;
+using Toponym.Cli;
 
-public static class Program
+OsmService.CacheDirectory = Constants.OsmCacheDir;
+var arg = args.Length > 0 ? args[0] : "all";
+
+switch (arg)
 {
-    public static void Main(string[] args)
-    {
-        OsmService.CacheDirectory = Constants.OsmCacheDir;
-        var arg = args.Length > 0 ? args[0] : "all";
+    case "all":
 
-        switch (arg)
+        Logger.Success("Build all", () =>
         {
-            case "all":
+            ProjectionService.Build();
+            var populated = PopulatedService.Build();
+            var localities = LocalityService.Build();
+            var lakes = LakeService.Build();
+            var waters = WaterService.Build();
+            var rivers = RiverService.Build();
+            var data = populated.Concat(localities).Concat(lakes).Concat(waters).Concat(rivers).ToSortedList();
+            EntryHelper.Validate(data);
+            FileHelper.WriteData(Constants.ResultDataPath, data);
 
-                Logger.Success("Build all", () =>
-                {
-                    ProjectionService.Build();
-                    var populated = PopulatedService.Build();
-                    var localities = LocalityService.Build();
-                    var lakes = LakeService.Build();
-                    var waters = WaterService.Build();
-                    var rivers = RiverService.Build();
-                    var data = populated.Concat(localities).Concat(lakes).Concat(waters).Concat(rivers).ToSortedList();
-                    EntryHelper.Validate(data);
-                    FileHelper.WriteData(Constants.ResultDataPath, data);
+            Logger.Info("Prettify data", () =>
+            {
+                var wrappedJson = File.ReadAllText(Constants.ResultDataPath).Replace("},{", "},\r\n{");
+                File.WriteAllText(Constants.ResultDataPath, wrappedJson);
+            });
+        });
 
-                    Logger.Info("Prettify data", () =>
-                    {
-                        var wrappedJson = File.ReadAllText(Constants.ResultDataPath).Replace("},{", "},\r\n{");
-                        File.WriteAllText(Constants.ResultDataPath, wrappedJson);
-                    });
-                });
+        break;
 
-                break;
+    case "projection":
+        ProjectionService.Build();
+        break;
 
-            case "projection":
-                ProjectionService.Build();
-                break;
+    case "populated":
+        ProjectionService.Build();
+        PopulatedService.Build();
+        break;
 
-            case "populated":
-                ProjectionService.Build();
-                PopulatedService.Build();
-                break;
+    case "localities":
+        ProjectionService.Build();
+        LocalityService.Build();
+        break;
 
-            case "localities":
-                ProjectionService.Build();
-                LocalityService.Build();
-                break;
+    case "lakes":
+        ProjectionService.Build();
+        LakeService.Build();
+        break;
 
-            case "lakes":
-                ProjectionService.Build();
-                LakeService.Build();
-                break;
+    case "waters":
+        ProjectionService.Build();
+        WaterService.Build();
+        break;
 
-            case "waters":
-                ProjectionService.Build();
-                WaterService.Build();
-                break;
+    case "rivers":
+        ProjectionService.Build();
+        RiverService.Build();
+        break;
 
-            case "rivers":
-                ProjectionService.Build();
-                RiverService.Build();
-                break;
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(args));
-        }
-    }
+    default:
+        throw new ArgumentOutOfRangeException(nameof(args));
 }
