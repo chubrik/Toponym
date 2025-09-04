@@ -239,7 +239,7 @@ export class MainController {
     }
 
     shareVkUrl(): string {
-        return 'https://vk.com/share.php?url=' + encodeURIComponent(this.canonicalUrl());
+        return 'https://vk.ru/share.php?url=' + encodeURIComponent(this.canonicalUrl());
     }
 
     shareTwUrl(): string {

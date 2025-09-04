@@ -66189,7 +66189,7 @@ var Toponym = (function (exports) {
                 '&href=' + encodeURIComponent(this.canonicalUrl());
         };
         MainController.prototype.shareVkUrl = function () {
-            return 'https://vk.com/share.php?url=' + encodeURIComponent(this.canonicalUrl());
+            return 'https://vk.ru/share.php?url=' + encodeURIComponent(this.canonicalUrl());
         };
         MainController.prototype.shareTwUrl = function () {
             var firstQuery = this.groups[0].value;

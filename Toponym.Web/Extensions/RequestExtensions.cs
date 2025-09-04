@@ -9,7 +9,7 @@ public static class RequestExtensions
         return userAgent.Contains("facebookexternalhit") || userAgent.Contains("Facebot");
     }
 
-    // https://vk.com/dev/video_emb
+    // https://vk.ru/dev/video_emb
     public static bool IsVkBot(this HttpRequest request)
     {
         var userAgent = request.Headers["User-Agent"].Single();
