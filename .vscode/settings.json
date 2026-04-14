@@ -6,10 +6,5 @@
   },
   "search.exclude": {
     "*/wwwroot": true
-  },
-  "tsimporter.filesToExclude": [
-    "*/$temp"
-  ],
-  "tslint.enable": true,
-  "typescript.tsdk": "./node_modules/typescript/lib"
+  }
 }

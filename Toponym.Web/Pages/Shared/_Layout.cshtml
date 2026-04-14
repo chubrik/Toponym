@@ -1,9 +1,9 @@
-﻿@model Toponym.Web.Pages.IndexModel
+@model Toponym.Web.Pages.IndexModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
     const string defaultHost = Constants.DefaultHost;
     const string fbAppId = "606010706223050";
     var firstQuery = Model.FirstQuery;
-    //var firstCategory = Model.FirstCategory;
     var matchCount = NotNull(Model.MatchCount);
     var lang = NotNull(Model.Language);
     var text = new Func<Language, string, string, string, string>(LangHelper.Text);
@@ -41,11 +41,17 @@
 
         description = fullTitleBase + ". " + descriptionBase;
     }
+
+    var afTokens = Antiforgery.GetAndStoreTokens(Context);
+    var initialState = System.Text.Json.JsonSerializer.Serialize(new {
+        language = (int)lang,
+        fbAppId,
+        defaultHost
+    });
 }
 <!doctype html>
-<html lang="@text(lang, "ru", "be", "en")" ng-app="toponym" ng-strict-di>
+<html lang="@text(lang, "ru", "be", "en")">
 <head prefix="og: http://ogp.me/ns#">
-    <link href="/assets/css/@(Constants.IsDebug ? "toponym.dev.css" : "toponym.min.css")?@DataService.CssBundleHash" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,500|Material+Icons&subset=latin,cyrillic" rel="stylesheet">
     <meta charset="utf-8">
     <title>@htmlTitle</title>
@@ -53,7 +59,8 @@
     <link rel="canonical" href="@Html.Raw(canonicalUrl)">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <base href="@text(lang, "/", "/be/", "/en/")">
-    @*<meta name="viewport" content="width=device-width, initial-scale=1.0">*@
+    <meta name="csrf-token" content="@afTokens.RequestToken">
+    <meta name="csrf-field" content="@afTokens.FormFieldName">
     @if (!Context.Request.IsTwitterBot()) {
         <meta property="og:type" content="website">
         <meta property="og:title" content="@ogTitle">
@@ -80,25 +87,40 @@
         <meta name="apple-mobile-web-app-title" content="@text(lang, "Топоним", "Тапонім", "Toponym")">
         <link rel="apple-touch-icon" href="@Url.Content("~/assets/img/logo-touch.png")">
     }
+@if (Constants.IsDebug) {
+    <style>body { visibility: hidden; }</style>
+    <script type="module">
+        import RefreshRuntime from 'http://localhost:5173/assets/bundle/@@react-refresh';
+        RefreshRuntime.injectIntoGlobalHook(window);
+        window.$RefreshReg$ = () => { };
+        window.$RefreshSig$ = () => (type) => type;
+        window.__vite_plugin_react_preamble_installed__ = true;
+    </script>
+    <script type="module" src="http://localhost:5173/assets/bundle/@@vite/client"></script>
+    <script type="module" src="http://localhost:5173/assets/bundle/src/main.tsx"></script>
+} else {
+    if (!string.IsNullOrEmpty(DataService.ViteMainCss)) {
+        <link rel="stylesheet" href="/assets/bundle/@DataService.ViteMainCss">
+    }
+}
 </head>
 <body class="@Context.Request.BrowserName()">
+    <script type="application/json" id="__toponym_state">@Html.Raw(initialState)</script>
+
     @(Constants.IsDebug
         ? Html.Raw("    <!-- Debug mode. Counters are hidden. -->\n\n")
         : Html.Partial("_Counters"))
 
-    <script id="main" type="text/ng-template">
+    <div class="container">
         <header>
             <h1>
-                <a href="" class="underline-area" ng-class="{disabled: ctrl.isReseted()}" ng-click="ctrl.onReset()" tabindex="-1">
+                <a href="@text(lang, "/", "/be/", "/en/")" class="underline-area" tabindex="-1">
                     <img src="@Url.Content("~/assets/img/logo-title.png")" alt="@hostUpper"> <span class="underline">@pageTitle</span>
                 </a>
             </h1>
         </header>
-        @RenderBody()
-    </script>
 
-    <div class="container">
-        <ui-view></ui-view>
+        <div id="app-root">@RenderBody()</div>
 
         @Html.Partial("_Languages")
 
@@ -112,16 +134,8 @@
         </footer>
     </div>
 
-    <script src="/assets/js/@(Constants.IsDebug ? "toponym.dev.js" : "toponym.min.js")?@DataService.JsBundleHash"></script>
-
-    <script>
-        Toponym.startup({
-            defaultHost: '@defaultHost',
-            language: @((int)lang),
-            fbAppId: '@fbAppId',
-            antiForgery: '@Html.AntiForgeryToken()'
-        });
-    </script>
-
+@if (!Constants.IsDebug && !string.IsNullOrEmpty(DataService.ViteMainJs)) {
+    <script type="module" src="/assets/bundle/@DataService.ViteMainJs"></script>
+}
 </body>
 </html>

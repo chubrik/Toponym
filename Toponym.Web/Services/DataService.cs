@@ -1,14 +1,13 @@
-﻿namespace Toponym.Web;
+namespace Toponym.Web;
 
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
 public class DataService
 {
     private readonly IReadOnlyList<Entry> _entries;
-    public static string? CssBundleHash { get; private set; }
-    public static string? JsBundleHash { get; private set; }
+    public static string? ViteMainJs { get; private set; }
+    public static string? ViteMainCss { get; private set; }
 
     public DataService(IWebHostEnvironment environment)
     {
@@ -17,8 +16,7 @@ public class DataService
         var data = NotNull(JsonSerializer.Deserialize<IReadOnlyList<EntryData>>(dataJson));
         _entries = data.Select(i => new Entry(i)).ToList();
 
-        CssBundleHash = GetFileHash(Path.Combine(environment.WebRootPath, @"assets\css\toponym.min.css"));
-        JsBundleHash = GetFileHash(Path.Combine(environment.WebRootPath, @"assets\js\toponym.min.js"));
+        LoadViteManifest(environment.WebRootPath);
     }
 
     public IReadOnlyList<Entry> GetEntries(Regex regex, EntryCategory category, Language language)
@@ -34,11 +32,21 @@ public class DataService
         };
     }
 
-    private static string GetFileHash(string path)
+    private static void LoadViteManifest(string webRootPath)
     {
-        using var md5 = MD5.Create();
-        using var stream = File.OpenRead(path);
-        var hash = BitConverter.ToString(md5.ComputeHash(stream));
-        return hash.Replace("-", string.Empty)[..16].ToLower();
+        var manifestPath = Path.Combine(webRootPath, "assets", "bundle", "manifest.json");
+        if (!File.Exists(manifestPath))
+            return;
+
+        using var stream = File.OpenRead(manifestPath);
+        using var doc = JsonDocument.Parse(stream);
+        if (!doc.RootElement.TryGetProperty("src/main.tsx", out var entry))
+            return;
+
+        if (entry.TryGetProperty("file", out var file))
+            ViteMainJs = file.GetString();
+
+        if (entry.TryGetProperty("css", out var css) && css.ValueKind == JsonValueKind.Array && css.GetArrayLength() > 0)
+            ViteMainCss = css[0].GetString();
     }
 }

@@ -1,0 +1,23 @@
+@use 'constants' as *;
+
+@mixin regular {
+  font-weight: 300;
+}
+
+@mixin bold {
+  font-weight: 500;
+}
+
+@mixin placeholder {
+  &::-webkit-input-placeholder { @content; }
+  &::-moz-placeholder { @content; }
+  &:-ms-input-placeholder { @content; }
+  &::placeholder { @content; }
+}
+
+@mixin tablet-screen {
+  @media screen and (max-width: ($layout-w + 45px)),
+         screen and (max-height: ($map-h + 30px)) {
+    @content;
+  }
+}

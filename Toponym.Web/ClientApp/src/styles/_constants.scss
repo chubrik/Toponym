@@ -1,0 +1,29 @@
+@use 'sass:color';
+
+$map-w: 1000px;
+$map-h: 845px;
+$header-h: 67px;
+$side-w: 220px;
+$mark-square-w: 8px;
+$mark-round-w: 10px;
+$layout-w: $map-w + $side-w;
+
+$tablet-coeff: 0.75;
+$map-w-tablet: $map-w * $tablet-coeff;
+$mark-square-w-tablet: 7px;
+$mark-round-w-tablet: 8px;
+$layout-w-tablet: 1000px;
+
+$silented-opacity: 0.35;
+
+$color1: #3f85f2;
+$color2: #db4437;
+$color3: #f4b400;
+$color4: #0f9d58;
+$color5: #7e3794;
+
+$text-color1: color.adjust($color1, $lightness: -25%);
+$text-color2: color.adjust($color2, $lightness: -20%);
+$text-color3: color.adjust($color3, $lightness: -20%);
+$text-color4: color.adjust($color4, $lightness: -15%);
+$text-color5: color.adjust($color5, $lightness: -5%);

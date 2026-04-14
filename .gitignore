@@ -8,3 +8,4 @@ $*/
 node_modules/
 npm-debug.log
 Toponym.Cli/App_Data/
+Toponym.Web/wwwroot/assets/bundle/

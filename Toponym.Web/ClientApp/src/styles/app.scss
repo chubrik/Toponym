@@ -1,0 +1,129 @@
+@use 'constants' as *;
+@use 'mixins' as *;
+
+@use 'icons';
+@use 'form';
+@use 'layout';
+@use 'map';
+@use 'side';
+@use 'socials';
+@use 'utils';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img {
+  vertical-align: middle;
+}
+
+p {
+  margin: 0 0 10px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  line-height: 1.1;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #eee;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-size: 14px;
+  @include regular;
+  line-height: 1.5;
+  cursor: default;
+  overflow-y: scroll;
+}
+
+body,
+input {
+  font-family: 'Roboto', sans-serif;
+}
+
+label {
+  @include regular;
+  cursor: pointer;
+}
+
+input[type='checkbox'] {
+  margin: 4px 1px 0 0;
+  position: relative;
+  top: 2px;
+  cursor: pointer;
+}
+
+body.safari input[type='checkbox'] {
+  margin-right: 2px;
+  top: -1px;
+}
+
+body.safari #form input::-webkit-input-placeholder {
+  top: 9px;
+
+  @include tablet-screen {
+    top: 3px;
+  }
+}
+
+.container {
+  position: relative;
+  width: $layout-w;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0;
+
+  @include tablet-screen {
+    width: $layout-w-tablet;
+  }
+}
+
+b {
+  @include bold;
+}
+
+#header {
+  position: fixed;
+  top: 0;
+}
+
+a {
+  color: #999;
+  text-decoration: none;
+
+  &:hover {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.color1,
+.color1:hover,
+.color1:focus { color: $color1; }
+.color2,
+.color2:hover,
+.color2:focus { color: $color2; }
+.color3,
+.color3:hover,
+.color3:focus { color: $color3; }
+.color4,
+.color4:hover,
+.color4:focus { color: $color4; }
+.color5,
+.color5:hover,
+.color5:focus { color: $color5; }

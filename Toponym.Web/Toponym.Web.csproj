@@ -6,12 +6,26 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)'=='Debug'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.4" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.6" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.2" />
+    <!--//todo Transitive dependency with bugfix, remove after updating CodeGeneration.Design -->
+    <PackageReference Include="NuGet.Protocol" Version="6.12.5" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Toponym\Toponym.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="ClientApp\**" />
+    <None Remove="ClientApp\**" />
+    <None Include="ClientApp\**" Exclude="ClientApp\node_modules\**;ClientApp\dist\**" />
+  </ItemGroup>
+
+  <Target Name="BuildClientApp" BeforeTargets="PrepareForPublish">
+    <Message Text="Building ClientApp (Vite)..." Importance="high" />
+    <Exec Command="npm install --prefer-offline --no-audit --no-fund" WorkingDirectory="ClientApp" />
+    <Exec Command="npm run build" WorkingDirectory="ClientApp" />
+  </Target>
 
 </Project>

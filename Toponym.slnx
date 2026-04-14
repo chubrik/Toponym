@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="Toponym/Toponym.csproj" />
+  <Project Path="Toponym.Web/Toponym.Web.csproj" />
+  <Project Path="Toponym.Cli/Toponym.Cli.csproj" />
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="ValidationHelper.cs" />
+  </Folder>
+</Solution>

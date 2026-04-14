@@ -1,0 +1,67 @@
+@use 'constants' as *;
+@use 'mixins' as *;
+
+$fb-c: #3b579d;
+$vk-c: #4d75a3;
+$tw-c: #55acee;
+
+#socials {
+  position: fixed;
+  top: 150px;
+  right: 50%;
+  margin-right: calc(-#{$layout-w} / 2);
+
+  @include tablet-screen {
+    top: 120px;
+    margin-right: calc(-#{$layout-w-tablet} / 2);
+  }
+
+  a {
+    display: block;
+    min-width: 95px;
+    margin-bottom: 8px;
+    border: 1px solid #bbb;
+    padding: 2px 5px;
+    border-radius: 3px;
+    opacity: 0.8;
+
+    img {
+      width: 16px;
+      margin-right: 3px;
+      filter: grayscale(100%);
+    }
+
+    &.fb img { opacity: 0.5; }
+    &.vk img { opacity: 0.6; }
+    &.tw img { opacity: 0.8; }
+
+    &:hover,
+    &:focus {
+      text-decoration: none;
+      opacity: 1;
+
+      &.fb {
+        color: $fb-c;
+        border-color: rgba($fb-c, 0.5);
+        background-color: rgba($fb-c, 0.05);
+      }
+
+      &.vk {
+        color: $vk-c;
+        border-color: rgba($vk-c, 0.5);
+        background-color: rgba($vk-c, 0.05);
+      }
+
+      &.tw {
+        color: $tw-c;
+        border-color: rgba($tw-c, 0.5);
+        background-color: rgba($tw-c, 0.05);
+      }
+
+      img {
+        filter: grayscale(0);
+        opacity: 1;
+      }
+    }
+  }
+}

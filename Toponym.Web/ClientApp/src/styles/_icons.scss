@@ -1,0 +1,39 @@
+// https://fonts.google.com/icons (classic Material Icons font)
+i.mi {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 18px;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga';
+  vertical-align: middle;
+  margin: -0.2em -0.05em -0.05em -0.05em;
+  overflow-wrap: normal;
+  word-break: normal;
+
+  &.mi-lg { font-size: 24px; }
+
+  &.mi-plus::after { content: 'add'; }
+  &.mi-x::after { content: 'close'; }
+  &.mi-process::after {
+    display: inline-block;
+    content: 'autorenew';
+    animation: spin 1.5s infinite linear;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(359deg); }
+}
