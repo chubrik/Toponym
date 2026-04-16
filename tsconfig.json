@@ -11,6 +11,8 @@
     "noUnusedLocals": true,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
+    "skipLibCheck": true,
+    "types": ["angular", "angular-ui-bootstrap", "angular-ui-router", "bootstrap", "jquery"],
     "baseUrl": ".",
     "rootDir": "./Toponym.Web/app/ts",
     "outDir": "./Toponym.Web/$temp/js"
