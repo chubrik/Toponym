@@ -29,9 +29,6 @@ export function linkYandex(entry: Entry): string {
   );
 }
 
-export function linkLoadmap(entry: Entry): string {
-  return (
-    `http://m.loadmap.net/${langText('ru', 'ru', 'en')}` +
-    `?qq=${entry.geo[0]}%20${entry.geo[1]}&z=13&s=100000&c=41&g=1`
-  );
+export function linkRetromap(entry: Entry): string {
+  return `https://retromap.ru/1519331_${entry.geo[0]},${entry.geo[1]}`;
 }

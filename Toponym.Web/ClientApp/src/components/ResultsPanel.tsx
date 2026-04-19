@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useStore } from '../state/store';
 import { langText, rusCase, getLanguage } from '../i18n/lang';
 import { entryTypeAbbr, entryTypeText } from '../i18n/entryText';
-import { linkOsm, linkGoogle, linkYandex, linkLoadmap } from '../utils/entryLinks';
+import { linkOsm, linkGoogle, linkYandex, linkRetromap } from '../utils/entryLinks';
 import { EntryCategory, Language, Status, allEntryCategories } from '../types';
 import type { Entry, Group } from '../types';
 import { Tutorial } from './Tutorial';
@@ -95,7 +95,7 @@ function EntryItem({ entry }: { entry: Entry }) {
         <a href={linkYandex(entry)} target="_blank" tabIndex={-1} rel="noreferrer">
           {langText('Я', 'Я', 'Y')}
         </a>,{' '}
-        <a href={linkLoadmap(entry)} target="_blank" tabIndex={-1} rel="noreferrer">L</a>
+        <a href={linkRetromap(entry)} target="_blank" tabIndex={-1} rel="noreferrer">R</a>
       </div>
     </div>
   );
