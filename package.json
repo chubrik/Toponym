@@ -13,18 +13,18 @@
   "dependencies": {
     "@floating-ui/react": "^0.27.19",
     "clsx": "^2.1.1",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
-    "zustand": "^5.0.12"
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
-    "@types/node": "^25.6.0",
-    "@types/react": "^19.2.14",
+    "@types/node": "^25.9.3",
+    "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
-    "sass": "^1.99.0",
+    "@vitejs/plugin-react": "^6.0.2",
+    "sass": "^1.101.0",
     "typescript": "^6.0.3",
-    "vite": "^8.0.8"
+    "vite": "^8.0.16"
   },
   "author": "Arkadi Chubrik <arkadi@chubrik.org> (https://www.chubrik.org/)",
   "license": "MIT",
