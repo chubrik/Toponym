@@ -4,6 +4,7 @@ obj/
 $*/
 *.Local.*
 *.pubxml
+*.tsbuildinfo
 *.user
 node_modules/
 npm-debug.log

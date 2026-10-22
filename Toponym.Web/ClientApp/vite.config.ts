@@ -6,18 +6,18 @@ export default defineConfig({
   plugins: [react()],
   base: '/assets/bundle/',
   build: {
-    outDir: resolve(__dirname, '../wwwroot/assets/bundle'),
+    outDir: resolve(import.meta.dirname, '../wwwroot/assets/bundle'),
     emptyOutDir: true,
     manifest: 'manifest.json',
     assetsDir: '',
     rollupOptions: {
-      input: resolve(__dirname, 'src/main.tsx'),
+      input: resolve(import.meta.dirname, 'src/main.tsx'),
     },
   },
   server: {
     port: 5173,
     strictPort: true,
     origin: 'http://localhost:5173',
-    cors: { origin: 'http://localhost:5000' },
+    cors: { origin: ['http://localhost:5000', 'https://localhost:5001'] },
   },
 });
